@@ -45,8 +45,8 @@ const allNews = [
   },
   {
     img: newsKpop, badge: "K-Pop", date: "10 ABR, 2024",
-    title: "Grupos de Cover Dance Lotam Praça da Saudade",
-    summary: "O encontro mensal de K-Pop em Manaus bateu recorde de público com apresentações de 12 grupos de cover dance. O evento também contou com feira de photocards e workshops de coreografia.",
+    title: "Grupos de Cover Dance Lotam Praça da República",
+    summary: "O encontro mensal de K-Pop em Belém bateu recorde de público com apresentações de 12 grupos de cover dance. O evento também contou com feira de photocards e workshops de coreografia.",
   },
   {
     img: newsManga, badge: "Quadrinhos", date: "8 ABR, 2024",
