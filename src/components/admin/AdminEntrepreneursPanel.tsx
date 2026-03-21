@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Plus, Trash2, Eye, EyeOff, X } from "lucide-react";
+import { Loader2, Plus, Trash2, Eye, EyeOff, X, Pencil } from "lucide-react";
 
 type Entrepreneur = {
   id: string;
@@ -25,6 +25,7 @@ const AdminEntrepreneursPanel = () => {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const fetchItems = async () => {
     const { data } = await supabase.from("entrepreneurs").select("*").order("created_at", { ascending: false });
@@ -41,28 +42,58 @@ const AdminEntrepreneursPanel = () => {
     setForm(f => ({ ...f, name, slug: generateSlug(name) }));
   };
 
+  const startEdit = (item: Entrepreneur) => {
+    setForm({
+      name: item.name,
+      slug: item.slug,
+      badge: item.badge,
+      description: item.description,
+      image_url: item.image_url || "",
+    });
+    setEditingId(item.id);
+    setShowForm(true);
+  };
+
+  const cancelForm = () => {
+    setForm(emptyForm);
+    setEditingId(null);
+    setShowForm(false);
+  };
+
   const handleSave = async () => {
     if (!form.name || !form.badge || !form.description) {
       toast({ title: "Preencha nome, categoria e descrição", variant: "destructive" });
       return;
     }
     setSaving(true);
-    const { error } = await supabase.from("entrepreneurs").insert({
+
+    const payload = {
       name: form.name,
       slug: form.slug,
       badge: form.badge,
       description: form.description,
       image_url: form.image_url || null,
-      published: true,
-    } as any);
-    setSaving(false);
-    if (error) {
-      toast({ title: "Erro ao salvar", description: error.message, variant: "destructive" });
-      return;
+    };
+
+    if (editingId) {
+      const { error } = await supabase.from("entrepreneurs").update(payload as any).eq("id", editingId);
+      setSaving(false);
+      if (error) {
+        toast({ title: "Erro ao atualizar", description: error.message, variant: "destructive" });
+        return;
+      }
+      toast({ title: "Empreendedor atualizado!" });
+    } else {
+      const { error } = await supabase.from("entrepreneurs").insert({ ...payload, published: true } as any);
+      setSaving(false);
+      if (error) {
+        toast({ title: "Erro ao salvar", description: error.message, variant: "destructive" });
+        return;
+      }
+      toast({ title: "Empreendedor cadastrado!" });
     }
-    toast({ title: "Empreendedor cadastrado!" });
-    setForm(emptyForm);
-    setShowForm(false);
+
+    cancelForm();
     fetchItems();
   };
 
@@ -86,13 +117,14 @@ const AdminEntrepreneursPanel = () => {
     <div>
       <div className="flex items-center justify-between mb-8">
         <h2 className="text-2xl font-bold">Empreendedores</h2>
-        <Button onClick={() => setShowForm(!showForm)} variant={showForm ? "secondary" : "default"}>
+        <Button onClick={() => showForm ? cancelForm() : setShowForm(true)} variant={showForm ? "secondary" : "default"}>
           {showForm ? <><X className="h-4 w-4 mr-2" />Cancelar</> : <><Plus className="h-4 w-4 mr-2" />Novo Empreendedor</>}
         </Button>
       </div>
 
       {showForm && (
         <div className="bg-card border border-border rounded-xl p-6 mb-8 space-y-4">
+          <h3 className="font-semibold text-lg">{editingId ? "Editar Empreendedor" : "Novo Empreendedor"}</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="text-sm font-medium mb-1 block">Nome</label>
@@ -117,7 +149,7 @@ const AdminEntrepreneursPanel = () => {
           </div>
           <Button onClick={handleSave} disabled={saving}>
             {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-            Cadastrar
+            {editingId ? "Salvar Alterações" : "Cadastrar"}
           </Button>
         </div>
       )}
@@ -135,6 +167,9 @@ const AdminEntrepreneursPanel = () => {
               <span className={`text-xs font-medium px-2 py-1 rounded-md ${item.published ? "bg-green-500/10 text-green-500" : "bg-yellow-500/10 text-yellow-500"}`}>
                 {item.published ? "Publicado" : "Rascunho"}
               </span>
+              <Button variant="ghost" size="icon" onClick={() => startEdit(item)} title="Editar">
+                <Pencil className="h-4 w-4" />
+              </Button>
               <Button variant="ghost" size="icon" onClick={() => togglePublished(item)} title={item.published ? "Despublicar" : "Publicar"}>
                 {item.published ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4 text-green-500" />}
               </Button>
