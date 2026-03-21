@@ -5,6 +5,10 @@ import Footer from "@/components/Footer";
 import { Loader2, Instagram } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
+import artistIlustrador from "@/assets/artist-ilustrador.jpg";
+import artistCosplayer from "@/assets/artist-cosplayer.jpg";
+import artistQuadrinista from "@/assets/artist-quadrinista.jpg";
+import artistDancarina from "@/assets/artist-dancarina.jpg";
 
 type Artist = Tables<"artists">;
 
@@ -23,6 +27,13 @@ const segmentBadgeColors: Record<string, string> = {
   ilustrador: "bg-[hsl(var(--badge-ilustrador))]",
   empreendedor: "bg-[hsl(var(--badge-eventos))]",
 };
+
+const fallbackArtists = [
+  { name: "Ikarow", role: "Ilustrador", badge: "ilustrador", img: artistIlustrador, slug: "ikarow", bio: "Ilustrador digital especializado em arte fantasia e cultura pop amazônica.", instagram: "@ikarow.art" },
+  { name: "Aurora Mitsukai", role: "Cosplayer", badge: "cosplayer", img: artistCosplayer, slug: "aurora-mitsukai", bio: "Cosplayer premiada com mais de 10 anos de experiência em competições nacionais.", instagram: "@aurora.mitsukai" },
+  { name: "Alexandre Nascimento", role: "Quadrinista", badge: "ilustrador", img: artistQuadrinista, slug: "alexandre-nascimento", bio: "Quadrinista e roteirista com obras publicadas sobre lendas amazônicas.", instagram: "@alex.nasc.hq" },
+  { name: "Hana Lee", role: "Dançarina Kpop", badge: "kpop", img: artistDancarina, slug: "hana-lee", bio: "Dançarina e coreógrafa de K-Pop, líder do grupo Hallyu Belém.", instagram: "@hana.kpop" },
+];
 
 const Artistas = () => {
   const [artists, setArtists] = useState<Artist[]>([]);
@@ -44,6 +55,9 @@ const Artistas = () => {
   const getSlug = (name: string) =>
     name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
+  const usedNames = new Set(artists.map(a => a.name.toLowerCase()));
+  const remainingFallbacks = fallbackArtists.filter(fb => !usedNames.has(fb.name.toLowerCase()));
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -57,7 +71,7 @@ const Artistas = () => {
           <div className="flex justify-center py-20">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
-        ) : artists.length === 0 ? (
+        ) : artists.length === 0 && remainingFallbacks.length === 0 ? (
           <p className="text-muted-foreground text-center py-20">Nenhum artista cadastrado ainda.</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -92,6 +106,31 @@ const Artistas = () => {
                       <Instagram className="h-3 w-3" /> {artist.instagram}
                     </p>
                   )}
+                </div>
+              </Link>
+            ))}
+
+            {remainingFallbacks.map((artist) => (
+              <Link
+                key={artist.slug}
+                to={`/artistas/${artist.slug}`}
+                className="bg-card rounded-xl overflow-hidden card-hover group animate-fade-up block"
+              >
+                <div className="relative aspect-square overflow-hidden">
+                  <img src={artist.img} alt={artist.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  <span className={`absolute bottom-3 left-3 ${segmentBadgeColors[artist.badge] || "bg-primary"} text-primary-foreground text-xs font-semibold px-3 py-1 rounded-md`}>
+                    {segmentLabels[artist.badge] || artist.role}
+                  </span>
+                </div>
+                <div className="p-5 space-y-3">
+                  <div>
+                    <h3 className="font-bold text-lg">{artist.name}</h3>
+                    <p className="text-primary text-sm font-medium">{artist.role}</p>
+                  </div>
+                  <p className="text-muted-foreground text-sm leading-relaxed line-clamp-3">{artist.bio}</p>
+                  <p className="text-xs text-muted-foreground flex items-center gap-1">
+                    <Instagram className="h-3 w-3" /> {artist.instagram}
+                  </p>
                 </div>
               </Link>
             ))}
