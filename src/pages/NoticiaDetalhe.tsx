@@ -111,8 +111,8 @@ const NoticiaDetalhe = () => {
     );
   }
 
-  // Fallback para notícias fictícias
-  if (!item && fallback) {
+  // Fallback para notícias fictícias (prioridade sobre DB quando há conteúdo rico)
+  if (fallback) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
