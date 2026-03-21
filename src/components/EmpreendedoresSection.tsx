@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Store } from "lucide-react";
+import { Store, Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import bizGeekstore from "@/assets/biz-geekstore.jpg";
 import bizTemakeria from "@/assets/biz-temakeria.jpg";
