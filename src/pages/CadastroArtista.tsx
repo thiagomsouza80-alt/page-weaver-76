@@ -18,7 +18,7 @@ const segments = [
   { value: "cosmaker", label: "Cosmaker" },
   { value: "kpop", label: "K-Pop" },
   { value: "ilustrador", label: "Ilustrador" },
-  { value: "empreendedor", label: "Empreendedor" },
+  { value: "quadrinista", label: "Quadrinista" },
 ] as const;
 
 const schema = z.object({
