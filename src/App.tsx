@@ -17,6 +17,7 @@ import AdminLogin from "./pages/AdminLogin.tsx";
 import AdminDashboard from "./pages/AdminDashboard.tsx";
 import NoticiaDetalhe from "./pages/NoticiaDetalhe.tsx";
 import EventoDetalhe from "./pages/EventoDetalhe.tsx";
+import ArtistaDetalhe from "./pages/ArtistaDetalhe.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
