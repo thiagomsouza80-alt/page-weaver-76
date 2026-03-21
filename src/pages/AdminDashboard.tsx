@@ -2,8 +2,8 @@ import { useState } from "react";
 import { useAdmin } from "@/hooks/useAdmin";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Loader2, Newspaper, CalendarDays, Users, LogOut } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Loader2, Newspaper, CalendarDays, Users, LogOut, ExternalLink } from "lucide-react";
+import { useNavigate, Link } from "react-router-dom";
 import AdminNewsPanel from "@/components/admin/AdminNewsPanel";
 import AdminEventsPanel from "@/components/admin/AdminEventsPanel";
 import AdminArtistsPanel from "@/components/admin/AdminArtistsPanel";
@@ -56,6 +56,12 @@ const AdminDashboard = () => {
             </button>
           ))}
         </nav>
+        <Link to="/">
+          <Button variant="ghost" className="justify-start gap-3 text-muted-foreground w-full">
+            <ExternalLink className="h-4 w-4" />
+            Ver Portal
+          </Button>
+        </Link>
         <Button variant="ghost" className="justify-start gap-3 text-muted-foreground" onClick={handleLogout}>
           <LogOut className="h-4 w-4" />
           Sair
