@@ -18,6 +18,7 @@ import AdminDashboard from "./pages/AdminDashboard.tsx";
 import NoticiaDetalhe from "./pages/NoticiaDetalhe.tsx";
 import EventoDetalhe from "./pages/EventoDetalhe.tsx";
 import ArtistaDetalhe from "./pages/ArtistaDetalhe.tsx";
+import EmpreendedorDetalhe from "./pages/EmpreendedorDetalhe.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
