@@ -36,7 +36,7 @@ const allArtists = [
   },
   {
     img: artistDancarina, name: "Hana Lee", role: "Dançarina K-Pop", badge: "Dançarina Kpop",
-    bio: "Líder do grupo de cover dance 'Sakura Dance Crew', Hana organiza encontros e apresentações de K-Pop em Manaus. O grupo já acumula mais de 500 mil visualizações em vídeos de cover dance.",
+    bio: "Líder do grupo de cover dance 'Sakura Dance Crew', Hana organiza encontros e apresentações de K-Pop em Belém. O grupo já acumula mais de 500 mil visualizações em vídeos de cover dance.",
     social: "@hana.lee.dance",
   },
   {
