@@ -5,6 +5,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import newsEvento from "@/assets/news-evento.jpg";
 import newsCosplay from "@/assets/news-cosplay.jpg";
 import newsQuadrinhos from "@/assets/news-quadrinhos.jpg";
+import newsAnimeFest from "@/assets/news-anime-fest.jpg";
 
 type News = Tables<"news">;
 
@@ -43,9 +44,7 @@ const NewsSection = () => {
                   {entry.data.image_url ? (
                     <img src={entry.data.image_url} alt={entry.data.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   ) : (
-                    <div className="w-full h-full bg-secondary flex items-center justify-center">
-                      <span className="text-muted-foreground text-sm">Sem imagem</span>
-                    </div>
+                    <img src={newsAnimeFest} alt={entry.data.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   )}
                   <span className="absolute bottom-3 left-3 bg-primary text-primary-foreground text-xs font-semibold px-3 py-1 rounded-md">
                     {entry.data.category}
