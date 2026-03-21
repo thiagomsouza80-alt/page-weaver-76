@@ -9,6 +9,9 @@ import Artistas from "./pages/Artistas.tsx";
 import Eventos from "./pages/Eventos.tsx";
 import Sobre from "./pages/Sobre.tsx";
 import Contato from "./pages/Contato.tsx";
+import Nivel99GeekStore from "./pages/Nivel99GeekStore.tsx";
+import NakamaTemakeria from "./pages/NakamaTemakeria.tsx";
+import AtelieCosmaker from "./pages/AtelieCosmaker.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -26,6 +29,9 @@ const App = () => (
           <Route path="/eventos" element={<Eventos />} />
           <Route path="/sobre" element={<Sobre />} />
           <Route path="/contato" element={<Contato />} />
+          <Route path="/empreendedores/nivel-99-geek-store" element={<Nivel99GeekStore />} />
+          <Route path="/empreendedores/nakama-temakeria" element={<NakamaTemakeria />} />
+          <Route path="/empreendedores/atelie-cosmaker" element={<AtelieCosmaker />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
