@@ -64,10 +64,16 @@ const Navbar = () => {
               {link.label}
             </Link>
           ))}
-          <Link to="/cadastro-artista">
+          <Link to="/cadastro-artista" onClick={() => setMobileOpen(false)}>
             <Button variant="nav" size="sm" className="gap-2 w-fit">
               <User className="h-4 w-4" />
               Cadastro de Artista
+            </Button>
+          </Link>
+          <Link to="/admin/login" onClick={() => setMobileOpen(false)}>
+            <Button variant="ghost" size="sm" className="gap-1.5 w-fit text-muted-foreground hover:text-primary">
+              <Shield className="h-4 w-4" />
+              Admin
             </Button>
           </Link>
         </div>
