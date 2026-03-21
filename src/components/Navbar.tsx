@@ -12,6 +12,10 @@ const navLinks = [
   { label: "Contato", to: "/contato" },
 ];
 
+const actionLinks = [
+  { label: "Cadastro de Artista", to: "/cadastro-artista" },
+];
+
 const Navbar = () => {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -31,10 +35,12 @@ const Navbar = () => {
         ))}
       </div>
       <div className="flex items-center gap-3">
-        <Button variant="nav" size="sm" className="gap-2 hidden md:inline-flex">
-          <User className="h-4 w-4" />
-          Entrar
-        </Button>
+        <Link to="/cadastro-artista">
+          <Button variant="nav" size="sm" className="gap-2 hidden md:inline-flex">
+            <User className="h-4 w-4" />
+            Cadastro de Artista
+          </Button>
+        </Link>
         <button className="md:hidden text-foreground" onClick={() => setMobileOpen(!mobileOpen)}>
           {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
@@ -52,10 +58,12 @@ const Navbar = () => {
               {link.label}
             </Link>
           ))}
-          <Button variant="nav" size="sm" className="gap-2 w-fit">
-            <User className="h-4 w-4" />
-            Entrar
-          </Button>
+          <Link to="/cadastro-artista">
+            <Button variant="nav" size="sm" className="gap-2 w-fit">
+              <User className="h-4 w-4" />
+              Cadastro de Artista
+            </Button>
+          </Link>
         </div>
       )}
     </nav>

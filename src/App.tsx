@@ -12,6 +12,11 @@ import Contato from "./pages/Contato.tsx";
 import Nivel99GeekStore from "./pages/Nivel99GeekStore.tsx";
 import NakamaTemakeria from "./pages/NakamaTemakeria.tsx";
 import AtelieCosmaker from "./pages/AtelieCosmaker.tsx";
+import CadastroArtista from "./pages/CadastroArtista.tsx";
+import AdminLogin from "./pages/AdminLogin.tsx";
+import AdminDashboard from "./pages/AdminDashboard.tsx";
+import NoticiaDetalhe from "./pages/NoticiaDetalhe.tsx";
+import EventoDetalhe from "./pages/EventoDetalhe.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -25,13 +30,18 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/noticias" element={<Noticias />} />
+          <Route path="/noticias/:slug" element={<NoticiaDetalhe />} />
           <Route path="/artistas" element={<Artistas />} />
+          <Route path="/cadastro-artista" element={<CadastroArtista />} />
           <Route path="/eventos" element={<Eventos />} />
+          <Route path="/eventos/:slug" element={<EventoDetalhe />} />
           <Route path="/sobre" element={<Sobre />} />
           <Route path="/contato" element={<Contato />} />
           <Route path="/empreendedores/nivel-99-geek-store" element={<Nivel99GeekStore />} />
           <Route path="/empreendedores/nakama-temakeria" element={<NakamaTemakeria />} />
           <Route path="/empreendedores/atelie-cosmaker" element={<AtelieCosmaker />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin" element={<AdminDashboard />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

@@ -1,0 +1,75 @@
+import { useState } from "react";
+import { useAdmin } from "@/hooks/useAdmin";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Loader2, Newspaper, CalendarDays, Users, LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import AdminNewsPanel from "@/components/admin/AdminNewsPanel";
+import AdminEventsPanel from "@/components/admin/AdminEventsPanel";
+import AdminArtistsPanel from "@/components/admin/AdminArtistsPanel";
+import logoOficial from "@/assets/logo-oficial.png";
+
+type Tab = "news" | "events" | "artists";
+
+const AdminDashboard = () => {
+  const { loading, isAdmin } = useAdmin();
+  const [tab, setTab] = useState<Tab>("news");
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/admin/login");
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!isAdmin) return null;
+
+  const tabs = [
+    { key: "news" as Tab, label: "Notícias", icon: Newspaper },
+    { key: "events" as Tab, label: "Eventos", icon: CalendarDays },
+    { key: "artists" as Tab, label: "Artistas", icon: Users },
+  ];
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Sidebar */}
+      <aside className="fixed left-0 top-0 bottom-0 w-64 bg-card border-r border-border p-6 flex flex-col">
+        <img src={logoOficial} alt="Amazônia Pop" className="w-32 mb-8" />
+        <nav className="flex-1 space-y-1">
+          {tabs.map(t => (
+            <button
+              key={t.key}
+              onClick={() => setTab(t.key)}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                tab === t.key ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+              }`}
+            >
+              <t.icon className="h-4 w-4" />
+              {t.label}
+            </button>
+          ))}
+        </nav>
+        <Button variant="ghost" className="justify-start gap-3 text-muted-foreground" onClick={handleLogout}>
+          <LogOut className="h-4 w-4" />
+          Sair
+        </Button>
+      </aside>
+
+      {/* Main content */}
+      <main className="ml-64 p-8">
+        {tab === "news" && <AdminNewsPanel />}
+        {tab === "events" && <AdminEventsPanel />}
+        {tab === "artists" && <AdminArtistsPanel />}
+      </main>
+    </div>
+  );
+};
+
+export default AdminDashboard;
