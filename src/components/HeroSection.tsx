@@ -1,9 +1,19 @@
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { Users } from "lucide-react";
 import heroBg from "@/assets/hero-bg.jpg";
 import logoOficial from "@/assets/logo-oficial.png";
 
 const HeroSection = () => {
+  const [memberCount, setMemberCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    supabase.from("artists").select("id", { count: "exact", head: true })
+      .then(({ count }) => { if (count !== null) setMemberCount(count); });
+  }, []);
+
   return (
     <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden">
       <img src={heroBg} alt="" className="absolute inset-0 w-full h-full object-cover" />
@@ -17,6 +27,12 @@ const HeroSection = () => {
           <Link to="/artistas"><Button variant="hero" size="lg">Explorar Artistas</Button></Link>
           <Link to="/eventos"><Button variant="heroOutline" size="lg">Ver Eventos</Button></Link>
         </div>
+        {memberCount !== null && (
+          <p className="mt-6 text-foreground/60 text-sm flex items-center justify-center gap-1.5 animate-fade-up-delay-2">
+            <Users className="h-4 w-4" />
+            Somos <span className="font-bold text-foreground">{memberCount}</span> membros nesse portal
+          </p>
+        )}
       </div>
     </section>
   );
