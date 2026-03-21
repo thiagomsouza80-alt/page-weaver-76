@@ -30,7 +30,7 @@ const allNews = [
   },
   {
     img: newsQuadrinhos, badge: "Quadrinhos", date: "18 ABR, 2024",
-    title: "Novas HQs da Marvel Chegam às Lojas",
+    title: "Novas HQs da Marvel Chegam às Lojas de Belém",
     summary: "As lojas especializadas de Manaus receberam os lançamentos mais aguardados da Marvel Comics. Destaque para a nova fase de X-Men e a saga Homem-Aranha 2099.",
   },
   {
