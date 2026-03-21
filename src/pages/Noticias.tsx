@@ -20,8 +20,8 @@ const badgeColors: Record<string, string> = {
 const allNews = [
   {
     img: newsEvento, badge: "Eventos", date: "22 ABR, 2024",
-    title: "Grande Convenção Geek Agita Manaus",
-    summary: "Milhares de fãs se reuniram no Centro de Convenções Vasco Vasques para o maior encontro de cultura pop da região Norte. O evento contou com painéis de dubladores, área de jogos retro e uma praça de alimentação temática.",
+    title: "Grande Convenção Geek Agita Belém",
+    summary: "Milhares de fãs se reuniram no Hangar Centro de Convenções para o maior encontro de cultura pop da região Norte. O evento contou com painéis de dubladores, área de jogos retro e uma praça de alimentação temática.",
   },
   {
     img: newsCosplay, badge: "Cosplay", date: "20 ABR, 2024",
@@ -30,8 +30,8 @@ const allNews = [
   },
   {
     img: newsQuadrinhos, badge: "Quadrinhos", date: "18 ABR, 2024",
-    title: "Novas HQs da Marvel Chegam às Lojas",
-    summary: "As lojas especializadas de Manaus receberam os lançamentos mais aguardados da Marvel Comics. Destaque para a nova fase de X-Men e a saga Homem-Aranha 2099.",
+    title: "Novas HQs da Marvel Chegam às Lojas de Belém",
+    summary: "As lojas especializadas de Belém receberam os lançamentos mais aguardados da Marvel Comics. Destaque para a nova fase de X-Men e a saga Homem-Aranha 2099.",
   },
   {
     img: newsConvention, badge: "Eventos", date: "15 ABR, 2024",
@@ -41,17 +41,17 @@ const allNews = [
   {
     img: newsEsports, badge: "E-sports", date: "12 ABR, 2024",
     title: "Torneio Regional de Valorant Define Campeão",
-    summary: "A equipe Jaguar Esports, formada inteiramente por jogadores do Amazonas, venceu o campeonato regional de Valorant e garantiu vaga no circuito nacional. A final foi transmitida ao vivo para mais de 15 mil espectadores.",
+    summary: "A equipe Jaguar Esports, formada inteiramente por jogadores do Pará, venceu o campeonato regional de Valorant e garantiu vaga no circuito nacional. A final foi transmitida ao vivo para mais de 15 mil espectadores.",
   },
   {
     img: newsKpop, badge: "K-Pop", date: "10 ABR, 2024",
-    title: "Grupos de Cover Dance Lotam Praça da Saudade",
-    summary: "O encontro mensal de K-Pop em Manaus bateu recorde de público com apresentações de 12 grupos de cover dance. O evento também contou com feira de photocards e workshops de coreografia.",
+    title: "Grupos de Cover Dance Lotam Praça da República",
+    summary: "O encontro mensal de K-Pop em Belém bateu recorde de público com apresentações de 12 grupos de cover dance. O evento também contou com feira de photocards e workshops de coreografia.",
   },
   {
     img: newsManga, badge: "Quadrinhos", date: "8 ABR, 2024",
-    title: "Artista Manauara Lança Mangá Autoral na CCXP",
-    summary: "O quadrinista Alexandre Nascimento, natural de Manaus, apresentou seu mangá 'Guardiões da Floresta' na CCXP. A obra mistura mitologia amazônica com elementos de mangá shonen e já tem editora confirmada.",
+    title: "Artista Paraense Lança Mangá Autoral na CCXP",
+    summary: "O quadrinista Alexandre Nascimento, natural de Belém, apresentou seu mangá 'Guardiões da Floresta' na CCXP. A obra mistura mitologia amazônica com elementos de mangá shonen e já tem editora confirmada.",
   },
 ];
 

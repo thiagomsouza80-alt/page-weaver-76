@@ -27,7 +27,7 @@ const Nivel99GeekStore = () => {
             <div className="animate-fade-up">
               <span className="bg-[hsl(var(--badge-quadrinhos))] text-primary-foreground text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-md">Loja Geek</span>
               <h1 className="text-3xl md:text-5xl font-bold mt-3 leading-tight" style={{ lineHeight: "1.1" }}>Nível 99 Geek Store</h1>
-              <p className="text-foreground/70 mt-2 max-w-lg">A maior loja de cultura pop, anime e games de Manaus</p>
+              <p className="text-foreground/70 mt-2 max-w-lg">A maior loja de cultura pop, anime e games de Belém</p>
             </div>
           </div>
         </div>
@@ -42,7 +42,7 @@ const Nivel99GeekStore = () => {
               <p className="text-muted-foreground leading-relaxed mb-4">
                 A <strong className="text-foreground">Nível 99 Geek Store</strong> é referência em cultura pop na região Norte do Brasil. 
                 Fundada em 2019 por dois amigos apaixonados por anime e games, a loja começou como um pequeno box em um shopping 
-                de Manaus e rapidamente se tornou o ponto de encontro da comunidade geek local.
+                de Belém e rapidamente se tornou o ponto de encontro da comunidade geek local.
               </p>
               <p className="text-muted-foreground leading-relaxed mb-4">
                 Com um acervo de mais de 5.000 produtos entre action figures, mangás, HQs, jogos, cards colecionáveis e acessórios, 
@@ -81,7 +81,7 @@ const Nivel99GeekStore = () => {
                 <div className="space-y-3">
                   <div className="flex items-start gap-2">
                     <MapPin className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                    <p className="text-sm text-muted-foreground">Manauara Shopping, Piso L2, Loja 247 — Adrianópolis, Manaus/AM</p>
+                    <p className="text-sm text-muted-foreground">Shopping Bosque Grão-Pará, Piso L2, Loja 247 — Marco, Belém/PA</p>
                   </div>
                   <div className="flex items-start gap-2">
                     <Clock className="h-4 w-4 text-primary mt-0.5 shrink-0" />
@@ -89,7 +89,7 @@ const Nivel99GeekStore = () => {
                   </div>
                   <div className="flex items-start gap-2">
                     <Phone className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                    <p className="text-sm text-muted-foreground">(92) 99234-5678</p>
+                    <p className="text-sm text-muted-foreground">(91) 99234-5678</p>
                   </div>
                   <div className="flex items-start gap-2">
                     <Instagram className="h-4 w-4 text-primary mt-0.5 shrink-0" />

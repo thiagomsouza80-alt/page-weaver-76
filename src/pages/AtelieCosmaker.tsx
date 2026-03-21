@@ -78,7 +78,7 @@ const AtelieCosmaker = () => {
                 <div className="space-y-3">
                   <div className="flex items-start gap-2">
                     <MapPin className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                    <p className="text-sm text-muted-foreground">Rua Belo Horizonte, 54 — Adrianópolis, Manaus/AM</p>
+                    <p className="text-sm text-muted-foreground">Rua da Marinha, 54 — Centro, Marituba/PA</p>
                   </div>
                   <div className="flex items-start gap-2">
                     <Clock className="h-4 w-4 text-primary mt-0.5 shrink-0" />
@@ -86,7 +86,7 @@ const AtelieCosmaker = () => {
                   </div>
                   <div className="flex items-start gap-2">
                     <Phone className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                    <p className="text-sm text-muted-foreground">(92) 99876-5432</p>
+                    <p className="text-sm text-muted-foreground">(91) 99876-5432</p>
                   </div>
                   <div className="flex items-start gap-2">
                     <Instagram className="h-4 w-4 text-primary mt-0.5 shrink-0" />

@@ -211,7 +211,7 @@ const CadastroArtista = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label htmlFor="city">Cidade</Label>
-              <Input id="city" placeholder="Ex: Manaus - AM" {...register("city")} />
+              <Input id="city" placeholder="Ex: Belém - PA" {...register("city")} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="instagram">Instagram</Label>

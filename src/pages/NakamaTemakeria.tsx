@@ -39,7 +39,7 @@ const NakamaTemakeria = () => {
               <h2 className="text-2xl font-bold mb-4">Sobre o Restaurante</h2>
               <p className="text-muted-foreground leading-relaxed mb-4">
                 O <strong className="text-foreground">Nakama Temakeria & Ramen</strong> nasceu da ideia de unir duas paixões: 
-                a gastronomia japonesa e a cultura otaku. Inaugurado em 2022 no coração de Manaus, o restaurante se tornou 
+                a gastronomia japonesa e a cultura otaku. Inaugurado em 2022 no coração de Ananindeua, o restaurante se tornou 
                 rapidamente o point da comunidade geek para quem busca uma experiência gastronômica diferenciada.
               </p>
               <p className="text-muted-foreground leading-relaxed mb-4">
@@ -78,7 +78,7 @@ const NakamaTemakeria = () => {
                 <div className="space-y-3">
                   <div className="flex items-start gap-2">
                     <MapPin className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                    <p className="text-sm text-muted-foreground">Rua Monsenhor Coutinho, 723 — Centro, Manaus/AM</p>
+                    <p className="text-sm text-muted-foreground">Av. Augusto Montenegro, 723 — Coqueiro, Ananindeua/PA</p>
                   </div>
                   <div className="flex items-start gap-2">
                     <Clock className="h-4 w-4 text-primary mt-0.5 shrink-0" />
@@ -86,7 +86,7 @@ const NakamaTemakeria = () => {
                   </div>
                   <div className="flex items-start gap-2">
                     <Phone className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                    <p className="text-sm text-muted-foreground">(92) 98765-4321</p>
+                    <p className="text-sm text-muted-foreground">(91) 98765-4321</p>
                   </div>
                   <div className="flex items-start gap-2">
                     <Instagram className="h-4 w-4 text-primary mt-0.5 shrink-0" />
