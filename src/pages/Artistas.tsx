@@ -69,7 +69,7 @@ const Artistas = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {allArtists.map((artist, i) => (
-            <div key={i} className="bg-card rounded-xl overflow-hidden card-hover group animate-fade-up">
+            <Link key={i} to={`/artistas/${artist.slug}`} className="bg-card rounded-xl overflow-hidden card-hover group animate-fade-up block">
               <div className="relative aspect-square overflow-hidden">
                 <img src={artist.img} alt={artist.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                 <span className={`absolute bottom-3 left-3 ${badgeColors[artist.badge]} text-primary-foreground text-xs font-semibold px-3 py-1 rounded-md`}>
@@ -84,7 +84,7 @@ const Artistas = () => {
                 <p className="text-muted-foreground text-sm leading-relaxed line-clamp-3">{artist.bio}</p>
                 <p className="text-xs text-muted-foreground">{artist.social}</p>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </section>
