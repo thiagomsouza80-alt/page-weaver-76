@@ -1,11 +1,16 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, CheckCircle, XCircle, Instagram, Eye, X } from "lucide-react";
+import { Loader2, CheckCircle, XCircle, Instagram, Eye, X, Pencil, Trash2 } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
+import type { Database } from "@/integrations/supabase/types";
 
 type Artist = Tables<"artists">;
+type ArtistSegment = Database["public"]["Enums"]["artist_segment"];
 
 const segmentLabels: Record<string, string> = {
   cosplayer: "Cosplayer",
@@ -73,11 +78,124 @@ const ArtistPreview = ({ artist, onClose }: { artist: Artist; onClose: () => voi
   );
 };
 
+interface EditFormData {
+  name: string;
+  email: string;
+  segment: ArtistSegment;
+  city: string;
+  instagram: string;
+  bio: string;
+  profile_image_url: string;
+}
+
+const ArtistEditModal = ({ artist, onClose, onSave }: { artist: Artist; onClose: () => void; onSave: () => void }) => {
+  const { toast } = useToast();
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState<EditFormData>({
+    name: artist.name,
+    email: artist.email,
+    segment: artist.segment,
+    city: artist.city || "",
+    instagram: artist.instagram || "",
+    bio: artist.bio || "",
+    profile_image_url: artist.profile_image_url || "",
+  });
+
+  const handleSave = async () => {
+    if (!form.name.trim() || !form.email.trim()) {
+      toast({ title: "Nome e email são obrigatórios", variant: "destructive" });
+      return;
+    }
+    setSaving(true);
+    const { error } = await supabase.from("artists").update({
+      name: form.name.trim(),
+      email: form.email.trim(),
+      segment: form.segment,
+      city: form.city.trim() || null,
+      instagram: form.instagram.trim() || null,
+      bio: form.bio.trim() || null,
+      profile_image_url: form.profile_image_url.trim() || null,
+    }).eq("id", artist.id);
+    setSaving(false);
+
+    if (error) {
+      toast({ title: "Erro ao salvar", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Artista atualizado!" });
+      onSave();
+      onClose();
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={onClose}>
+      <div
+        className="bg-card border border-border rounded-2xl max-w-lg w-full max-h-[85vh] overflow-y-auto p-6 relative animate-fade-up"
+        onClick={e => e.stopPropagation()}
+      >
+        <Button variant="ghost" size="icon" className="absolute top-3 right-3" onClick={onClose}>
+          <X className="h-4 w-4" />
+        </Button>
+
+        <h2 className="text-xl font-bold mb-6">Editar Artista</h2>
+
+        <div className="space-y-4">
+          <div>
+            <label className="text-sm font-medium mb-1 block">Nome *</label>
+            <Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
+          </div>
+          <div>
+            <label className="text-sm font-medium mb-1 block">Email *</label>
+            <Input type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
+          </div>
+          <div>
+            <label className="text-sm font-medium mb-1 block">Segmento</label>
+            <Select value={form.segment} onValueChange={(v) => setForm(f => ({ ...f, segment: v as ArtistSegment }))}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {Object.entries(segmentLabels).map(([k, v]) => (
+                  <SelectItem key={k} value={k}>{v}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <label className="text-sm font-medium mb-1 block">Cidade</label>
+            <Input value={form.city} onChange={e => setForm(f => ({ ...f, city: e.target.value }))} />
+          </div>
+          <div>
+            <label className="text-sm font-medium mb-1 block">Instagram</label>
+            <Input value={form.instagram} onChange={e => setForm(f => ({ ...f, instagram: e.target.value }))} placeholder="@usuario" />
+          </div>
+          <div>
+            <label className="text-sm font-medium mb-1 block">URL da foto de perfil</label>
+            <Input value={form.profile_image_url} onChange={e => setForm(f => ({ ...f, profile_image_url: e.target.value }))} />
+          </div>
+          <div>
+            <label className="text-sm font-medium mb-1 block">Bio</label>
+            <Textarea value={form.bio} onChange={e => setForm(f => ({ ...f, bio: e.target.value }))} rows={4} />
+          </div>
+        </div>
+
+        <div className="flex gap-3 mt-6">
+          <Button variant="outline" className="flex-1" onClick={onClose}>Cancelar</Button>
+          <Button className="flex-1" onClick={handleSave} disabled={saving}>
+            {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+            Salvar
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const AdminArtistsPanel = () => {
   const { toast } = useToast();
   const [items, setItems] = useState<Artist[]>([]);
   const [loading, setLoading] = useState(true);
   const [previewArtist, setPreviewArtist] = useState<Artist | null>(null);
+  const [editArtist, setEditArtist] = useState<Artist | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
   const fetchItems = async () => {
     const { data } = await supabase.from("artists").select("*").order("created_at", { ascending: false });
@@ -91,6 +209,17 @@ const AdminArtistsPanel = () => {
     await supabase.from("artists").update({ approved: !item.approved }).eq("id", item.id);
     fetchItems();
     toast({ title: item.approved ? "Artista desaprovado" : "Artista aprovado!" });
+  };
+
+  const handleDelete = async (id: string) => {
+    const { error } = await supabase.from("artists").delete().eq("id", id);
+    if (error) {
+      toast({ title: "Erro ao excluir", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Artista excluído!" });
+      fetchItems();
+    }
+    setDeleteConfirm(null);
   };
 
   if (loading) {
@@ -124,16 +253,29 @@ const AdminArtistsPanel = () => {
                   </span>
                 )}
               </div>
-              <div className="flex items-center gap-2 shrink-0">
-                <span className={`text-xs font-medium px-2 py-1 rounded-md ${item.approved ? "bg-green-500/10 text-green-500" : "bg-yellow-500/10 text-yellow-500"}`}>
+              <div className="flex items-center gap-1 shrink-0">
+                <span className={`text-xs font-medium px-2 py-1 rounded-md mr-1 ${item.approved ? "bg-green-500/10 text-green-500" : "bg-yellow-500/10 text-yellow-500"}`}>
                   {item.approved ? "Aprovado" : "Pendente"}
                 </span>
-                <Button variant="ghost" size="icon" onClick={() => setPreviewArtist(item)} title="Visualizar perfil">
+                <Button variant="ghost" size="icon" onClick={() => setPreviewArtist(item)} title="Visualizar">
                   <Eye className="h-4 w-4 text-primary" />
+                </Button>
+                <Button variant="ghost" size="icon" onClick={() => setEditArtist(item)} title="Editar">
+                  <Pencil className="h-4 w-4 text-muted-foreground" />
                 </Button>
                 <Button variant="ghost" size="icon" onClick={() => toggleApproval(item)} title={item.approved ? "Desaprovar" : "Aprovar"}>
                   {item.approved ? <XCircle className="h-4 w-4 text-destructive" /> : <CheckCircle className="h-4 w-4 text-green-500" />}
                 </Button>
+                {deleteConfirm === item.id ? (
+                  <div className="flex items-center gap-1 ml-1">
+                    <Button size="sm" variant="destructive" className="h-7 text-xs" onClick={() => handleDelete(item.id)}>Confirmar</Button>
+                    <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => setDeleteConfirm(null)}>Não</Button>
+                  </div>
+                ) : (
+                  <Button variant="ghost" size="icon" onClick={() => setDeleteConfirm(item.id)} title="Excluir">
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                )}
               </div>
             </div>
           ))}
@@ -142,6 +284,10 @@ const AdminArtistsPanel = () => {
 
       {previewArtist && (
         <ArtistPreview artist={previewArtist} onClose={() => setPreviewArtist(null)} />
+      )}
+
+      {editArtist && (
+        <ArtistEditModal artist={editArtist} onClose={() => setEditArtist(null)} onSave={fetchItems} />
       )}
     </div>
   );
