@@ -1,0 +1,181 @@
+import { useParams, Link } from "react-router-dom";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import { ArrowLeft, Instagram } from "lucide-react";
+
+import artistIlustrador from "@/assets/artist-ilustrador.jpg";
+import artistCosplayer from "@/assets/artist-cosplayer.jpg";
+import artistQuadrinista from "@/assets/artist-quadrinista.jpg";
+import artistDancarina from "@/assets/artist-dancarina.jpg";
+import artistDigital from "@/assets/artist-digital.jpg";
+import artistCollector from "@/assets/artist-collector.jpg";
+import artistStreamer from "@/assets/artist-streamer.jpg";
+import ikarowPortfolio1 from "@/assets/ikarow-portfolio-1.jpg";
+import ikarowPortfolio2 from "@/assets/ikarow-portfolio-2.jpg";
+import ikarowPortfolio3 from "@/assets/ikarow-portfolio-3.jpg";
+
+const artistsData: Record<string, {
+  img: string;
+  name: string;
+  role: string;
+  badge: string;
+  bio: string;
+  social: string;
+  fullBio: string;
+  portfolio: string[];
+}> = {
+  ikarow: {
+    img: artistIlustrador,
+    name: "Ikarow",
+    role: "Ilustrador",
+    badge: "Ilustrador",
+    social: "@ikarow.art",
+    bio: "Artista visual especializado em ilustrações digitais com temática amazônica e fantasia.",
+    fullBio: `Ikarow é um dos principais ilustradores digitais da cena criativa do Norte do Brasil. Natural de Belém, começou a desenhar aos 12 anos inspirado por mangás e pela rica biodiversidade da Amazônia.
+
+Seu estilo único combina a estética anime com elementos da fauna, flora e mitologia amazônica, criando um universo visual que já conquistou seguidores em todo o Brasil e no exterior.
+
+Seus trabalhos já foram destaque no Artist Alley da CCXP, na Anime Friends e em diversas convenções regionais. Em 2024, foi convidado para criar a arte oficial do festival Amazônia Pop, consolidando sua posição como referência na arte digital paraense.
+
+Além de ilustrador, Ikarow ministra workshops de arte digital e compartilha tutoriais em suas redes sociais, ajudando a inspirar uma nova geração de artistas na região Norte.
+
+Suas principais influências incluem Hayao Miyazaki, Akira Toriyama e a própria paisagem amazônica que o cerca. "A floresta é meu maior ateliê", costuma dizer.`,
+    portfolio: [ikarowPortfolio1, ikarowPortfolio2, ikarowPortfolio3],
+  },
+  "aurora-mitsukai": {
+    img: artistCosplayer,
+    name: "Aurora Mitsukai",
+    role: "Cosplayer Profissional",
+    badge: "Cosplayer",
+    social: "@aurora.mitsukai",
+    bio: "Uma das cosplayers mais reconhecidas da região Norte.",
+    fullBio: "Aurora Mitsukai é especialista em armaduras de EVA e próteses artísticas. Já representou o Pará em competições nacionais de cosplay e ministra workshops de confecção. Sua dedicação aos detalhes e à fidelidade dos personagens a tornou referência na comunidade cosplay da Amazônia.",
+    portfolio: [],
+  },
+  "alexandre-nascimento": {
+    img: artistQuadrinista,
+    name: "Alexandre Nascimento",
+    role: "Quadrinista",
+    badge: "Quadrinista",
+    social: "@alexnascimento.hq",
+    bio: "Criador do mangá autoral 'Guardiões da Floresta'.",
+    fullBio: "Alexandre é um dos principais nomes dos quadrinhos independentes do Norte. Sua obra mistura mitologia amazônica com narrativas de mangá shonen, conquistando leitores em todo o Brasil.",
+    portfolio: [],
+  },
+  "hana-lee": {
+    img: artistDancarina,
+    name: "Hana Lee",
+    role: "Dançarina K-Pop",
+    badge: "Dançarina Kpop",
+    social: "@hana.lee.dance",
+    bio: "Líder do grupo de cover dance 'Sakura Dance Crew'.",
+    fullBio: "Hana organiza encontros e apresentações de K-Pop em Belém. O grupo já acumula mais de 500 mil visualizações em vídeos de cover dance nas redes sociais.",
+    portfolio: [],
+  },
+  "rafael-tupa": {
+    img: artistDigital,
+    name: "Rafael Tupã",
+    role: "Artista Digital",
+    badge: "Arte Digital",
+    social: "@rafatupa.art",
+    bio: "Especialista em arte digital e concept art para jogos independentes.",
+    fullBio: "Rafael trabalha com estúdios de games do Brasil e do exterior, criando personagens e cenários inspirados na Amazônia. Sua arte já foi utilizada em diversos jogos indie premiados.",
+    portfolio: [],
+  },
+  "pedro-otaku": {
+    img: artistCollector,
+    name: "Pedro Otaku",
+    role: "Colecionador & Reviewer",
+    badge: "Colecionador",
+    social: "@pedro.otaku",
+    bio: "Maior colecionador de figures e mangás do Pará.",
+    fullBio: "Pedro mantém um canal no YouTube onde faz reviews de action figures, unboxings e visitas a lojas geek de todo o Brasil. Sua coleção conta com mais de 2.000 itens.",
+    portfolio: [],
+  },
+  "gabi-neon": {
+    img: artistStreamer,
+    name: "Gabi Neon",
+    role: "Streamer & Gamer",
+    badge: "Streamer",
+    social: "@gabineon.live",
+    bio: "Streamer de Ananindeua com comunidade crescente na Twitch.",
+    fullBio: "Especializada em jogos de RPG e FPS, Gabi também organiza campeonatos online para a comunidade gamer da região Norte. Seu canal já ultrapassa 80 mil seguidores.",
+    portfolio: [],
+  },
+};
+
+const ArtistaDetalhe = () => {
+  const { slug } = useParams();
+  const artist = slug ? artistsData[slug] : undefined;
+
+  if (!artist) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="pt-24 pb-16 px-6 max-w-3xl mx-auto text-center">
+          <h1 className="text-2xl font-bold mb-4">Artista não encontrado</h1>
+          <Link to="/artistas" className="text-primary hover:underline">← Voltar aos artistas</Link>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      <div className="pt-24 pb-16 px-6 max-w-5xl mx-auto">
+        <Link to="/artistas" className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline mb-8">
+          <ArrowLeft className="h-4 w-4" /> Voltar aos artistas
+        </Link>
+
+        {/* Hero */}
+        <div className="flex flex-col md:flex-row gap-8 mb-12 animate-fade-up">
+          <div className="w-48 h-48 md:w-56 md:h-56 rounded-2xl overflow-hidden shrink-0">
+            <img src={artist.img} alt={artist.name} className="w-full h-full object-cover" />
+          </div>
+          <div className="flex-1">
+            <span className="text-xs font-semibold px-3 py-1 rounded-md bg-primary/10 text-primary mb-3 inline-block">
+              {artist.badge}
+            </span>
+            <h1 className="text-3xl md:text-4xl font-bold mb-1">{artist.name}</h1>
+            <p className="text-primary font-medium mb-3">{artist.role}</p>
+            <p className="flex items-center gap-1.5 text-sm text-muted-foreground mb-4">
+              <Instagram className="h-4 w-4" /> {artist.social}
+            </p>
+            <p className="text-muted-foreground leading-relaxed">{artist.bio}</p>
+          </div>
+        </div>
+
+        {/* Full bio */}
+        <section className="mb-12 animate-fade-up">
+          <h2 className="text-xl font-bold mb-4">Sobre</h2>
+          <div className="prose prose-invert max-w-none text-foreground/85 leading-relaxed whitespace-pre-wrap">
+            {artist.fullBio}
+          </div>
+        </section>
+
+        {/* Portfolio */}
+        {artist.portfolio.length > 0 && (
+          <section className="animate-fade-up">
+            <h2 className="text-xl font-bold mb-6">Portfolio</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {artist.portfolio.map((img, i) => (
+                <div key={i} className="aspect-square rounded-xl overflow-hidden group">
+                  <img
+                    src={img}
+                    alt={`${artist.name} portfolio ${i + 1}`}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+      </div>
+      <Footer />
+    </div>
+  );
+};
+
+export default ArtistaDetalhe;
