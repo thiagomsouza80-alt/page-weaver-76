@@ -5,6 +5,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import newsEvento from "@/assets/news-evento.jpg";
 import newsCosplay from "@/assets/news-cosplay.jpg";
 import newsQuadrinhos from "@/assets/news-quadrinhos.jpg";
+import newsAnimeFest from "@/assets/news-anime-fest.jpg";
 
 type News = Tables<"news">;
 
