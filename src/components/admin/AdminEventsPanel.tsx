@@ -121,7 +121,7 @@ const AdminEventsPanel = () => {
           </div>
           <div className="space-y-2">
             <Label>Local *</Label>
-            <Input value={location} onChange={e => setLocation(e.target.value)} required placeholder="Ex: Centro de Convenções, Manaus" />
+            <Input value={location} onChange={e => setLocation(e.target.value)} required placeholder="Ex: Hangar Centro de Convenções, Belém" />
           </div>
           <div className="space-y-2">
             <Label>Descrição Curta *</Label>
