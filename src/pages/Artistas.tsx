@@ -21,37 +21,37 @@ const badgeColors: Record<string, string> = {
 
 const allArtists = [
   {
-    img: artistIlustrador, name: "Ikarow", role: "Ilustrador", badge: "Ilustrador",
+    img: artistIlustrador, name: "Ikarow", role: "Ilustrador", badge: "Ilustrador", slug: "ikarow",
     bio: "Artista visual especializado em ilustrações digitais com temática amazônica e fantasia. Seus trabalhos já foram destaque em convenções nacionais e internacionais. Conhecido por misturar elementos da fauna e flora amazônica com estética anime.",
     social: "@ikarow.art",
   },
   {
-    img: artistCosplayer, name: "Aurora Mitsukai", role: "Cosplayer Profissional", badge: "Cosplayer",
+    img: artistCosplayer, name: "Aurora Mitsukai", role: "Cosplayer Profissional", badge: "Cosplayer", slug: "aurora-mitsukai",
     bio: "Uma das cosplayers mais reconhecidas da região Norte, Aurora é especialista em armaduras de EVA e próteses artísticas. Já representou o Amazonas em competições nacionais de cosplay e ministra workshops de confecção.",
     social: "@aurora.mitsukai",
   },
   {
-    img: artistQuadrinista, name: "Alexandre Nascimento", role: "Quadrinista", badge: "Quadrinista",
+    img: artistQuadrinista, name: "Alexandre Nascimento", role: "Quadrinista", badge: "Quadrinista", slug: "alexandre-nascimento",
     bio: "Criador do mangá autoral 'Guardiões da Floresta', Alexandre é um dos principais nomes dos quadrinhos independentes do Norte. Sua obra mistura mitologia amazônica com narrativas de mangá shonen.",
     social: "@alexnascimento.hq",
   },
   {
-    img: artistDancarina, name: "Hana Lee", role: "Dançarina K-Pop", badge: "Dançarina Kpop",
+    img: artistDancarina, name: "Hana Lee", role: "Dançarina K-Pop", badge: "Dançarina Kpop", slug: "hana-lee",
     bio: "Líder do grupo de cover dance 'Sakura Dance Crew', Hana organiza encontros e apresentações de K-Pop em Belém. O grupo já acumula mais de 500 mil visualizações em vídeos de cover dance.",
     social: "@hana.lee.dance",
   },
   {
-    img: artistDigital, name: "Rafael Tupã", role: "Artista Digital", badge: "Arte Digital",
+    img: artistDigital, name: "Rafael Tupã", role: "Artista Digital", badge: "Arte Digital", slug: "rafael-tupa",
     bio: "Especialista em arte digital e concept art para jogos independentes. Rafael trabalha com estúdios de games do Brasil e do exterior, criando personagens e cenários inspirados na Amazônia.",
     social: "@rafatupa.art",
   },
   {
-    img: artistCollector, name: "Pedro Otaku", role: "Colecionador & Reviewer", badge: "Colecionador",
+    img: artistCollector, name: "Pedro Otaku", role: "Colecionador & Reviewer", badge: "Colecionador", slug: "pedro-otaku",
     bio: "Maior colecionador de figures e mangás do Amazonas, Pedro mantém um canal no YouTube onde faz reviews de action figures, unboxings e visitas a lojas geek de todo o Brasil.",
     social: "@pedro.otaku",
   },
   {
-    img: artistStreamer, name: "Gabi Neon", role: "Streamer & Gamer", badge: "Streamer",
+    img: artistStreamer, name: "Gabi Neon", role: "Streamer & Gamer", badge: "Streamer", slug: "gabi-neon",
     bio: "Streamer de Ananindeua com comunidade crescente na Twitch. Especializada em jogos de RPG e FPS, Gabi também organiza campeonatos online para a comunidade gamer da região Norte.",
     social: "@gabineon.live",
   },
