@@ -117,6 +117,7 @@ const ArtistEditModal = ({ artist, onClose, onSave }: { artist: Artist; onClose:
       instagram: form.instagram.trim() || null,
       bio: form.bio.trim() || null,
       profile_image_url: form.profile_image_url.trim() || null,
+      portfolio_images: form.portfolio_images.length > 0 ? form.portfolio_images : null,
     }).eq("id", artist.id);
     setSaving(false);
 
