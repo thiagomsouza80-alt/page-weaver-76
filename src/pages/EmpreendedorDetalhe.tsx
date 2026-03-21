@@ -175,9 +175,6 @@ const EmpreendedorDetalhe = () => {
                 </div>
               </div>
 
-              <Link to="/contato">
-                <Button variant="hero" size="lg" className="w-full">Entrar em Contato</Button>
-              </Link>
             </div>
           )}
         </div>
