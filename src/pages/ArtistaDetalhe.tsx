@@ -1,7 +1,10 @@
 import { useParams, Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { ArrowLeft, Instagram } from "lucide-react";
+import { ArrowLeft, Instagram, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
 
 import artistIlustrador from "@/assets/artist-ilustrador.jpg";
 import artistCosplayer from "@/assets/artist-cosplayer.jpg";
@@ -13,6 +16,14 @@ import artistStreamer from "@/assets/artist-streamer.jpg";
 import ikarowPortfolio1 from "@/assets/ikarow-portfolio-1.jpg";
 import ikarowPortfolio2 from "@/assets/ikarow-portfolio-2.jpg";
 import ikarowPortfolio3 from "@/assets/ikarow-portfolio-3.jpg";
+
+const segmentLabels: Record<string, string> = {
+  cosplayer: "Cosplayer",
+  cosmaker: "Cosmaker",
+  kpop: "K-Pop",
+  ilustrador: "Ilustrador",
+  empreendedor: "Empreendedor",
+};
 
 const artistsData: Record<string, {
   img: string;
@@ -104,11 +115,90 @@ Suas principais influências incluem Hayao Miyazaki, Akira Toriyama e a própria
   },
 };
 
+const getSlug = (name: string) =>
+  name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+
 const ArtistaDetalhe = () => {
   const { slug } = useParams();
-  const artist = slug ? artistsData[slug] : undefined;
+  const staticArtist = slug ? artistsData[slug] : undefined;
 
-  if (!artist) {
+  const [dbArtist, setDbArtist] = useState<Tables<"artists"> | null>(null);
+  const [loading, setLoading] = useState(!staticArtist);
+  const [lightboxImg, setLightboxImg] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (staticArtist || !slug) return;
+    // Try to find by slug generated from name
+    supabase
+      .from("artists")
+      .select("*")
+      .eq("approved", true)
+      .then(({ data }) => {
+        const match = data?.find(a => getSlug(a.name) === slug);
+        setDbArtist(match || null);
+        setLoading(false);
+      });
+  }, [slug, staticArtist]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="flex justify-center items-center py-40">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Render static artist
+  if (staticArtist) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="pt-24 pb-16 px-6 max-w-5xl mx-auto">
+          <Link to="/artistas" className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline mb-8">
+            <ArrowLeft className="h-4 w-4" /> Voltar aos artistas
+          </Link>
+          <div className="flex flex-col md:flex-row gap-8 mb-12 animate-fade-up">
+            <div className="w-48 h-48 md:w-56 md:h-56 rounded-2xl overflow-hidden shrink-0">
+              <img src={staticArtist.img} alt={staticArtist.name} className="w-full h-full object-cover" />
+            </div>
+            <div className="flex-1">
+              <span className="text-xs font-semibold px-3 py-1 rounded-md bg-primary/10 text-primary mb-3 inline-block">{staticArtist.badge}</span>
+              <h1 className="text-3xl md:text-4xl font-bold mb-1">{staticArtist.name}</h1>
+              <p className="text-primary font-medium mb-3">{staticArtist.role}</p>
+              <p className="flex items-center gap-1.5 text-sm text-muted-foreground mb-4">
+                <Instagram className="h-4 w-4" /> {staticArtist.social}
+              </p>
+              <p className="text-muted-foreground leading-relaxed">{staticArtist.bio}</p>
+            </div>
+          </div>
+          <section className="mb-12 animate-fade-up">
+            <h2 className="text-xl font-bold mb-4">Sobre</h2>
+            <div className="prose prose-invert max-w-none text-foreground/85 leading-relaxed whitespace-pre-wrap">{staticArtist.fullBio}</div>
+          </section>
+          {staticArtist.portfolio.length > 0 && (
+            <section className="animate-fade-up">
+              <h2 className="text-xl font-bold mb-6">Portfolio</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {staticArtist.portfolio.map((img, i) => (
+                  <div key={i} className="aspect-square rounded-xl overflow-hidden group">
+                    <img src={img} alt={`${staticArtist.name} portfolio ${i + 1}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Render DB artist
+  if (!dbArtist) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
@@ -121,6 +211,8 @@ const ArtistaDetalhe = () => {
     );
   }
 
+  const portfolio = dbArtist.portfolio_images?.filter(Boolean) || [];
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -129,50 +221,65 @@ const ArtistaDetalhe = () => {
           <ArrowLeft className="h-4 w-4" /> Voltar aos artistas
         </Link>
 
-        {/* Hero */}
         <div className="flex flex-col md:flex-row gap-8 mb-12 animate-fade-up">
           <div className="w-48 h-48 md:w-56 md:h-56 rounded-2xl overflow-hidden shrink-0">
-            <img src={artist.img} alt={artist.name} className="w-full h-full object-cover" />
+            {dbArtist.profile_image_url ? (
+              <img src={dbArtist.profile_image_url} alt={dbArtist.name} className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full bg-secondary flex items-center justify-center">
+                <span className="text-5xl font-bold text-muted-foreground/40">{dbArtist.name[0]}</span>
+              </div>
+            )}
           </div>
           <div className="flex-1">
             <span className="text-xs font-semibold px-3 py-1 rounded-md bg-primary/10 text-primary mb-3 inline-block">
-              {artist.badge}
+              {segmentLabels[dbArtist.segment] || dbArtist.segment}
             </span>
-            <h1 className="text-3xl md:text-4xl font-bold mb-1">{artist.name}</h1>
-            <p className="text-primary font-medium mb-3">{artist.role}</p>
-            <p className="flex items-center gap-1.5 text-sm text-muted-foreground mb-4">
-              <Instagram className="h-4 w-4" /> {artist.social}
-            </p>
-            <p className="text-muted-foreground leading-relaxed">{artist.bio}</p>
+            <h1 className="text-3xl md:text-4xl font-bold mb-1">{dbArtist.name}</h1>
+            <p className="text-primary font-medium mb-3">{segmentLabels[dbArtist.segment] || dbArtist.segment}</p>
+            {dbArtist.instagram && (
+              <p className="flex items-center gap-1.5 text-sm text-muted-foreground mb-4">
+                <Instagram className="h-4 w-4" /> {dbArtist.instagram}
+              </p>
+            )}
+            {dbArtist.city && (
+              <p className="text-sm text-muted-foreground mb-4">📍 {dbArtist.city}</p>
+            )}
           </div>
         </div>
 
-        {/* Full bio */}
-        <section className="mb-12 animate-fade-up">
-          <h2 className="text-xl font-bold mb-4">Sobre</h2>
-          <div className="prose prose-invert max-w-none text-foreground/85 leading-relaxed whitespace-pre-wrap">
-            {artist.fullBio}
-          </div>
-        </section>
+        {dbArtist.bio && (
+          <section className="mb-12 animate-fade-up">
+            <h2 className="text-xl font-bold mb-4">Sobre</h2>
+            <div className="prose prose-invert max-w-none text-foreground/85 leading-relaxed whitespace-pre-wrap">{dbArtist.bio}</div>
+          </section>
+        )}
 
-        {/* Portfolio */}
-        {artist.portfolio.length > 0 && (
+        {portfolio.length > 0 && (
           <section className="animate-fade-up">
             <h2 className="text-xl font-bold mb-6">Portfolio</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {artist.portfolio.map((img, i) => (
-                <div key={i} className="aspect-square rounded-xl overflow-hidden group">
-                  <img
-                    src={img}
-                    alt={`${artist.name} portfolio ${i + 1}`}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                </div>
+              {portfolio.map((img, i) => (
+                <button
+                  key={i}
+                  onClick={() => setLightboxImg(img)}
+                  className="aspect-square rounded-xl overflow-hidden group"
+                >
+                  <img src={img} alt={`${dbArtist.name} portfolio ${i + 1}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                </button>
               ))}
             </div>
           </section>
         )}
       </div>
+
+      {/* Lightbox */}
+      {lightboxImg && (
+        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 cursor-pointer" onClick={() => setLightboxImg(null)}>
+          <img src={lightboxImg} alt="Visualização" className="max-w-full max-h-[90vh] object-contain rounded-lg" onClick={e => e.stopPropagation()} />
+        </div>
+      )}
+
       <Footer />
     </div>
   );
