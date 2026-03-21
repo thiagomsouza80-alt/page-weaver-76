@@ -58,10 +58,12 @@ const Navbar = () => {
               {link.label}
             </Link>
           ))}
-          <Button variant="nav" size="sm" className="gap-2 w-fit">
-            <User className="h-4 w-4" />
-            Entrar
-          </Button>
+          <Link to="/cadastro-artista">
+            <Button variant="nav" size="sm" className="gap-2 w-fit">
+              <User className="h-4 w-4" />
+              Cadastro de Artista
+            </Button>
+          </Link>
         </div>
       )}
     </nav>
