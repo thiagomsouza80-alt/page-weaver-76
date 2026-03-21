@@ -56,6 +56,12 @@ const AdminDashboard = () => {
             </button>
           ))}
         </nav>
+        <Link to="/">
+          <Button variant="ghost" className="justify-start gap-3 text-muted-foreground w-full">
+            <ExternalLink className="h-4 w-4" />
+            Ver Portal
+          </Button>
+        </Link>
         <Button variant="ghost" className="justify-start gap-3 text-muted-foreground" onClick={handleLogout}>
           <LogOut className="h-4 w-4" />
           Sair
