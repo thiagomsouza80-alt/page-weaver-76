@@ -45,6 +45,7 @@ const App = () => (
           <Route path="/empreendedores/nakama-temakeria" element={<NakamaTemakeria />} />
           <Route path="/empreendedores/atelie-cosmaker" element={<AtelieCosmaker />} />
           <Route path="/empreendedores/:slug" element={<EmpreendedorDetalhe />} />
+          <Route path="/cadastro-empreendedor" element={<CadastroEmpreendedor />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="*" element={<NotFound />} />

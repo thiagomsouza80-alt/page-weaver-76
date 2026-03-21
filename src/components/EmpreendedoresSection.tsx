@@ -38,11 +38,17 @@ const EmpreendedoresSection = () => {
 
   return (
     <section className="px-6 md:px-12 py-16 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
         <div className="flex items-center gap-3">
           <Store className="h-6 w-6 text-primary" />
           <h2 className="text-2xl md:text-3xl font-bold">Empreendedores da Cultura Pop</h2>
         </div>
+        <Link to="/cadastro-empreendedor">
+          <button className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-6 py-2.5 text-sm font-semibold shadow-lg shadow-primary/25 hover:bg-primary/80 active:scale-[0.97] transition-all">
+            <Plus className="h-4 w-4" />
+            Cadastro de empreendedor
+          </button>
+        </Link>
       </div>
       <p className="text-muted-foreground mb-8 max-w-2xl">
         Conheça os negócios que movimentam a cena geek e pop da Amazônia.
