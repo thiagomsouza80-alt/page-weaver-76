@@ -83,49 +83,52 @@ const ArtistsSection = () => {
         <div className="flex justify-center py-12">
           <Loader2 className="h-6 w-6 animate-spin text-primary" />
         </div>
-      ) : useFallback ? (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {fallbackArtists.map((artist, i) => (
-            <Link
-              key={artist.slug}
-              to={`/artistas/${artist.slug}`}
-              className={`card-hover group animate-fade-up-delay-${Math.min(i + 1, 3)} block`}
-            >
-              <div className="relative aspect-square rounded-xl overflow-hidden mb-3">
-                <img src={artist.img} alt={artist.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                <span className={`absolute bottom-3 left-3 ${segmentBadgeColors[artist.badge] || "bg-primary"} text-primary-foreground text-xs font-semibold px-3 py-1 rounded-md`}>
-                  {segmentLabels[artist.badge] || artist.role}
-                </span>
-              </div>
-              <h3 className="font-bold text-sm md:text-base">{artist.name}</h3>
-              <p className="text-muted-foreground text-xs">{artist.role}</p>
-            </Link>
-          ))}
-        </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {artists.map((artist, i) => (
-            <Link
-              key={artist.id}
-              to={`/artistas/${getSlug(artist.name)}`}
-              className={`card-hover group animate-fade-up-delay-${Math.min(i + 1, 3)} block`}
-            >
-              <div className="relative aspect-square rounded-xl overflow-hidden mb-3">
-                {artist.profile_image_url ? (
-                  <img src={artist.profile_image_url} alt={artist.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                ) : (
-                  <div className="w-full h-full bg-secondary flex items-center justify-center">
-                    <span className="text-3xl font-bold text-muted-foreground/40">{artist.name[0]}</span>
+          {displayArtists.map((item, i) => {
+            if (item.type === "fallback") {
+              const artist = item.data;
+              return (
+                <Link
+                  key={artist.slug}
+                  to={`/artistas/${artist.slug}`}
+                  className={`card-hover group animate-fade-up-delay-${Math.min(i + 1, 3)} block`}
+                >
+                  <div className="relative aspect-square rounded-xl overflow-hidden mb-3">
+                    <img src={artist.img} alt={artist.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                    <span className={`absolute bottom-3 left-3 ${segmentBadgeColors[artist.badge] || "bg-primary"} text-primary-foreground text-xs font-semibold px-3 py-1 rounded-md`}>
+                      {segmentLabels[artist.badge] || artist.role}
+                    </span>
                   </div>
-                )}
-                <span className={`absolute bottom-3 left-3 ${segmentBadgeColors[artist.segment] || "bg-primary"} text-primary-foreground text-xs font-semibold px-3 py-1 rounded-md`}>
-                  {segmentLabels[artist.segment] || artist.segment}
-                </span>
-              </div>
-              <h3 className="font-bold text-sm md:text-base">{artist.name}</h3>
-              <p className="text-muted-foreground text-xs">{segmentLabels[artist.segment]}</p>
-            </Link>
-          ))}
+                  <h3 className="font-bold text-sm md:text-base">{artist.name}</h3>
+                  <p className="text-muted-foreground text-xs">{artist.role}</p>
+                </Link>
+              );
+            }
+            const artist = item.data;
+            return (
+              <Link
+                key={artist.id}
+                to={`/artistas/${getSlug(artist.name)}`}
+                className={`card-hover group animate-fade-up-delay-${Math.min(i + 1, 3)} block`}
+              >
+                <div className="relative aspect-square rounded-xl overflow-hidden mb-3">
+                  {artist.profile_image_url ? (
+                    <img src={artist.profile_image_url} alt={artist.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  ) : (
+                    <div className="w-full h-full bg-secondary flex items-center justify-center">
+                      <span className="text-3xl font-bold text-muted-foreground/40">{artist.name[0]}</span>
+                    </div>
+                  )}
+                  <span className={`absolute bottom-3 left-3 ${segmentBadgeColors[artist.segment] || "bg-primary"} text-primary-foreground text-xs font-semibold px-3 py-1 rounded-md`}>
+                    {segmentLabels[artist.segment] || artist.segment}
+                  </span>
+                </div>
+                <h3 className="font-bold text-sm md:text-base">{artist.name}</h3>
+                <p className="text-muted-foreground text-xs">{segmentLabels[artist.segment]}</p>
+              </Link>
+            );
+          })}
         </div>
       )}
     </section>
