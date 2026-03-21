@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Plus, Trash2, Eye, EyeOff, X, Pencil } from "lucide-react";
 
@@ -12,11 +13,19 @@ type Entrepreneur = {
   badge: string;
   description: string;
   image_url: string | null;
+  hero_image_url: string | null;
+  full_description: string | null;
+  address: string | null;
+  phone: string | null;
+  instagram: string | null;
   published: boolean;
   created_at: string;
 };
 
-const emptyForm = { name: "", slug: "", badge: "", description: "", image_url: "" };
+const emptyForm = {
+  name: "", slug: "", badge: "", description: "", image_url: "",
+  hero_image_url: "", full_description: "", address: "", phone: "", instagram: "",
+};
 
 const AdminEntrepreneursPanel = () => {
   const { toast } = useToast();
@@ -49,6 +58,11 @@ const AdminEntrepreneursPanel = () => {
       badge: item.badge,
       description: item.description,
       image_url: item.image_url || "",
+      hero_image_url: item.hero_image_url || "",
+      full_description: item.full_description || "",
+      address: item.address || "",
+      phone: item.phone || "",
+      instagram: item.instagram || "",
     });
     setEditingId(item.id);
     setShowForm(true);
@@ -73,6 +87,11 @@ const AdminEntrepreneursPanel = () => {
       badge: form.badge,
       description: form.description,
       image_url: form.image_url || null,
+      hero_image_url: form.hero_image_url || null,
+      full_description: form.full_description || null,
+      address: form.address || null,
+      phone: form.phone || null,
+      instagram: form.instagram || null,
     };
 
     if (editingId) {
@@ -125,6 +144,7 @@ const AdminEntrepreneursPanel = () => {
       {showForm && (
         <div className="bg-card border border-border rounded-xl p-6 mb-8 space-y-4">
           <h3 className="font-semibold text-lg">{editingId ? "Editar Empreendedor" : "Novo Empreendedor"}</h3>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="text-sm font-medium mb-1 block">Nome</label>
@@ -135,18 +155,71 @@ const AdminEntrepreneursPanel = () => {
               <Input value={form.badge} onChange={e => setForm(f => ({ ...f, badge: e.target.value }))} placeholder="Ex: Loja Geek, Gastronomia, Ateliê" />
             </div>
           </div>
+
           <div>
             <label className="text-sm font-medium mb-1 block">Slug</label>
             <Input value={form.slug} onChange={e => setForm(f => ({ ...f, slug: e.target.value }))} placeholder="slug-do-negocio" />
           </div>
+
           <div>
-            <label className="text-sm font-medium mb-1 block">Descrição</label>
-            <Input value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Breve descrição" />
+            <label className="text-sm font-medium mb-1 block">Descrição curta (card)</label>
+            <Input value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Breve descrição para o card" />
           </div>
+
           <div>
-            <label className="text-sm font-medium mb-1 block">URL da Imagem (opcional)</label>
-            <Input value={form.image_url} onChange={e => setForm(f => ({ ...f, image_url: e.target.value }))} placeholder="https://..." />
+            <label className="text-sm font-medium mb-1 block">Descrição completa (página do perfil)</label>
+            <Textarea
+              value={form.full_description}
+              onChange={e => setForm(f => ({ ...f, full_description: e.target.value }))}
+              placeholder="Texto detalhado sobre o negócio, história, diferenciais..."
+              rows={5}
+            />
           </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium mb-1 block">Imagem do card (URL)</label>
+              <Input value={form.image_url} onChange={e => setForm(f => ({ ...f, image_url: e.target.value }))} placeholder="https://..." />
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1 block">Imagem hero/topo (URL)</label>
+              <Input value={form.hero_image_url} onChange={e => setForm(f => ({ ...f, hero_image_url: e.target.value }))} placeholder="https://..." />
+            </div>
+          </div>
+
+          <h4 className="font-semibold text-sm pt-2 border-t border-border">Informações de contato</h4>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label className="text-sm font-medium mb-1 block">Endereço</label>
+              <Input value={form.address} onChange={e => setForm(f => ({ ...f, address: e.target.value }))} placeholder="Rua, número, bairro..." />
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1 block">Telefone</label>
+              <Input value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="(91) 99999-9999" />
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1 block">Instagram</label>
+              <Input value={form.instagram} onChange={e => setForm(f => ({ ...f, instagram: e.target.value }))} placeholder="@usuario" />
+            </div>
+          </div>
+
+          {/* Previews */}
+          <div className="flex gap-4 flex-wrap">
+            {form.image_url && (
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">Card</p>
+                <img src={form.image_url} alt="Card preview" className="w-24 h-16 object-cover rounded-md border border-border" />
+              </div>
+            )}
+            {form.hero_image_url && (
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">Hero</p>
+                <img src={form.hero_image_url} alt="Hero preview" className="w-32 h-16 object-cover rounded-md border border-border" />
+              </div>
+            )}
+          </div>
+
           <Button onClick={handleSave} disabled={saving}>
             {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
             {editingId ? "Salvar Alterações" : "Cadastrar"}
