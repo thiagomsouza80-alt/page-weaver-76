@@ -12,6 +12,10 @@ const navLinks = [
   { label: "Contato", to: "/contato" },
 ];
 
+const actionLinks = [
+  { label: "Cadastro de Artista", to: "/cadastro-artista" },
+];
+
 const Navbar = () => {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
