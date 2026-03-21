@@ -41,6 +41,12 @@ const Navbar = () => {
             Cadastro de Artista
           </Button>
         </Link>
+        <Link to="/admin/login">
+          <Button variant="ghost" size="sm" className="gap-1.5 hidden md:inline-flex text-muted-foreground hover:text-primary">
+            <Shield className="h-4 w-4" />
+            Admin
+          </Button>
+        </Link>
         <button className="md:hidden text-foreground" onClick={() => setMobileOpen(!mobileOpen)}>
           {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
