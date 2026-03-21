@@ -28,7 +28,10 @@ const Contato = () => {
     try {
       const res = await fetch("https://formspree.io/f/mpqyejab", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
         body: JSON.stringify({
           nome: trimmed.nome,
           email: trimmed.contato,
@@ -36,11 +39,14 @@ const Contato = () => {
           message: trimmed.texto,
         }),
       });
+      const data = await res.json().catch(() => null);
+      console.log("Formspree response:", res.status, data);
       if (res.ok) {
         setForm({ nome: "", contato: "", assunto: "", texto: "" });
         toast({ title: "Mensagem enviada!", description: "Entraremos em contato em breve." });
       } else {
-        toast({ title: "Erro ao enviar", description: "Tente novamente mais tarde.", variant: "destructive" });
+        const errorMsg = data?.errors?.[0]?.message || "Tente novamente mais tarde.";
+        toast({ title: "Erro ao enviar", description: errorMsg, variant: "destructive" });
       }
     } catch {
       toast({ title: "Erro ao enviar", description: "Verifique sua conexão.", variant: "destructive" });
