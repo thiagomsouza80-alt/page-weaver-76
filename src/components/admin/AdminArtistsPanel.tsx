@@ -86,6 +86,7 @@ interface EditFormData {
   instagram: string;
   bio: string;
   profile_image_url: string;
+  portfolio_images: string[];
 }
 
 const ArtistEditModal = ({ artist, onClose, onSave }: { artist: Artist; onClose: () => void; onSave: () => void }) => {
