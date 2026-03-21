@@ -72,6 +72,7 @@ export type Database = {
           instagram: string | null
           name: string
           phone: string | null
+          portfolio_images: string[] | null
           published: boolean
           slug: string
           updated_at: string
@@ -88,6 +89,7 @@ export type Database = {
           instagram?: string | null
           name: string
           phone?: string | null
+          portfolio_images?: string[] | null
           published?: boolean
           slug: string
           updated_at?: string
@@ -104,6 +106,7 @@ export type Database = {
           instagram?: string | null
           name?: string
           phone?: string | null
+          portfolio_images?: string[] | null
           published?: boolean
           slug?: string
           updated_at?: string
