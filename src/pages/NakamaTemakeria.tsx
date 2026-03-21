@@ -78,7 +78,7 @@ const NakamaTemakeria = () => {
                 <div className="space-y-3">
                   <div className="flex items-start gap-2">
                     <MapPin className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                    <p className="text-sm text-muted-foreground">Rua Monsenhor Coutinho, 723 — Centro, Manaus/AM</p>
+                    <p className="text-sm text-muted-foreground">Av. Augusto Montenegro, 723 — Coqueiro, Ananindeua/PA</p>
                   </div>
                   <div className="flex items-start gap-2">
                     <Clock className="h-4 w-4 text-primary mt-0.5 shrink-0" />
