@@ -18,6 +18,7 @@ import AdminDashboard from "./pages/AdminDashboard.tsx";
 import NoticiaDetalhe from "./pages/NoticiaDetalhe.tsx";
 import EventoDetalhe from "./pages/EventoDetalhe.tsx";
 import ArtistaDetalhe from "./pages/ArtistaDetalhe.tsx";
+import EmpreendedorDetalhe from "./pages/EmpreendedorDetalhe.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -42,6 +43,7 @@ const App = () => (
           <Route path="/empreendedores/nivel-99-geek-store" element={<Nivel99GeekStore />} />
           <Route path="/empreendedores/nakama-temakeria" element={<NakamaTemakeria />} />
           <Route path="/empreendedores/atelie-cosmaker" element={<AtelieCosmaker />} />
+          <Route path="/empreendedores/:slug" element={<EmpreendedorDetalhe />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="*" element={<NotFound />} />

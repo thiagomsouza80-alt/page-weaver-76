@@ -61,34 +61,49 @@ export type Database = {
       }
       entrepreneurs: {
         Row: {
+          address: string | null
           badge: string
           created_at: string
           description: string
+          full_description: string | null
+          hero_image_url: string | null
           id: string
           image_url: string | null
+          instagram: string | null
           name: string
+          phone: string | null
           published: boolean
           slug: string
           updated_at: string
         }
         Insert: {
+          address?: string | null
           badge: string
           created_at?: string
           description: string
+          full_description?: string | null
+          hero_image_url?: string | null
           id?: string
           image_url?: string | null
+          instagram?: string | null
           name: string
+          phone?: string | null
           published?: boolean
           slug: string
           updated_at?: string
         }
         Update: {
+          address?: string | null
           badge?: string
           created_at?: string
           description?: string
+          full_description?: string | null
+          hero_image_url?: string | null
           id?: string
           image_url?: string | null
+          instagram?: string | null
           name?: string
+          phone?: string | null
           published?: boolean
           slug?: string
           updated_at?: string
