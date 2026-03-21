@@ -39,7 +39,7 @@ const NakamaTemakeria = () => {
               <h2 className="text-2xl font-bold mb-4">Sobre o Restaurante</h2>
               <p className="text-muted-foreground leading-relaxed mb-4">
                 O <strong className="text-foreground">Nakama Temakeria & Ramen</strong> nasceu da ideia de unir duas paixões: 
-                a gastronomia japonesa e a cultura otaku. Inaugurado em 2022 no coração de Manaus, o restaurante se tornou 
+                a gastronomia japonesa e a cultura otaku. Inaugurado em 2022 no coração de Ananindeua, o restaurante se tornou 
                 rapidamente o point da comunidade geek para quem busca uma experiência gastronômica diferenciada.
               </p>
               <p className="text-muted-foreground leading-relaxed mb-4">
