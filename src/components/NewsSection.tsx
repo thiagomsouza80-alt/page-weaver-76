@@ -44,8 +44,7 @@ const NewsSection = () => {
                   {entry.data.image_url ? (
                     <img src={entry.data.image_url} alt={entry.data.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   ) : (
-                    <div className="w-full h-full bg-secondary flex items-center justify-center">
-                      <span className="text-muted-foreground text-sm">Sem imagem</span>
+                    <img src={newsAnimeFest} alt={entry.data.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                     </div>
                   )}
                   <span className="absolute bottom-3 left-3 bg-primary text-primary-foreground text-xs font-semibold px-3 py-1 rounded-md">
