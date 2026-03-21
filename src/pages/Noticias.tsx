@@ -41,7 +41,7 @@ const allNews = [
   {
     img: newsEsports, badge: "E-sports", date: "12 ABR, 2024",
     title: "Torneio Regional de Valorant Define Campeão",
-    summary: "A equipe Jaguar Esports, formada inteiramente por jogadores do Amazonas, venceu o campeonato regional de Valorant e garantiu vaga no circuito nacional. A final foi transmitida ao vivo para mais de 15 mil espectadores.",
+    summary: "A equipe Jaguar Esports, formada inteiramente por jogadores do Pará, venceu o campeonato regional de Valorant e garantiu vaga no circuito nacional. A final foi transmitida ao vivo para mais de 15 mil espectadores.",
   },
   {
     img: newsKpop, badge: "K-Pop", date: "10 ABR, 2024",
