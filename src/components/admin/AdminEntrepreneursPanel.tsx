@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Plus, Trash2, Eye, EyeOff, X, Pencil } from "lucide-react";
+import { Loader2, Plus, Trash2, Eye, EyeOff, X, Pencil, Upload, Image } from "lucide-react";
 
 type Entrepreneur = {
   id: string;
@@ -18,6 +18,7 @@ type Entrepreneur = {
   address: string | null;
   phone: string | null;
   instagram: string | null;
+  portfolio_images: string[] | null;
   published: boolean;
   created_at: string;
 };
@@ -25,6 +26,7 @@ type Entrepreneur = {
 const emptyForm = {
   name: "", slug: "", badge: "", description: "", image_url: "",
   hero_image_url: "", full_description: "", address: "", phone: "", instagram: "",
+  portfolio_images: [] as string[],
 };
 
 const AdminEntrepreneursPanel = () => {
@@ -35,6 +37,10 @@ const AdminEntrepreneursPanel = () => {
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [uploadingHero, setUploadingHero] = useState(false);
+  const [uploadingPortfolio, setUploadingPortfolio] = useState(false);
+  const heroInputRef = useRef<HTMLInputElement>(null);
+  const portfolioInputRef = useRef<HTMLInputElement>(null);
 
   const fetchItems = async () => {
     const { data } = await supabase.from("entrepreneurs").select("*").order("created_at", { ascending: false });
@@ -51,6 +57,48 @@ const AdminEntrepreneursPanel = () => {
     setForm(f => ({ ...f, name, slug: generateSlug(name) }));
   };
 
+  const uploadFile = async (file: File, folder: string): Promise<string | null> => {
+    const ext = file.name.split(".").pop();
+    const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const { error } = await supabase.storage.from("entrepreneurs").upload(fileName, file);
+    if (error) {
+      toast({ title: "Erro no upload", description: error.message, variant: "destructive" });
+      return null;
+    }
+    const { data: urlData } = supabase.storage.from("entrepreneurs").getPublicUrl(fileName);
+    return urlData.publicUrl;
+  };
+
+  const handleHeroUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingHero(true);
+    const url = await uploadFile(file, "hero");
+    if (url) {
+      setForm(f => ({ ...f, hero_image_url: url, image_url: f.image_url || url }));
+    }
+    setUploadingHero(false);
+    if (heroInputRef.current) heroInputRef.current.value = "";
+  };
+
+  const handlePortfolioUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    setUploadingPortfolio(true);
+    const newUrls: string[] = [];
+    for (const file of Array.from(files)) {
+      const url = await uploadFile(file, "portfolio");
+      if (url) newUrls.push(url);
+    }
+    setForm(f => ({ ...f, portfolio_images: [...f.portfolio_images, ...newUrls] }));
+    setUploadingPortfolio(false);
+    if (portfolioInputRef.current) portfolioInputRef.current.value = "";
+  };
+
+  const removePortfolioImage = (index: number) => {
+    setForm(f => ({ ...f, portfolio_images: f.portfolio_images.filter((_, i) => i !== index) }));
+  };
+
   const startEdit = (item: Entrepreneur) => {
     setForm({
       name: item.name,
@@ -63,6 +111,7 @@ const AdminEntrepreneursPanel = () => {
       address: item.address || "",
       phone: item.phone || "",
       instagram: item.instagram || "",
+      portfolio_images: item.portfolio_images || [],
     });
     setEditingId(item.id);
     setShowForm(true);
@@ -92,6 +141,7 @@ const AdminEntrepreneursPanel = () => {
       address: form.address || null,
       phone: form.phone || null,
       instagram: form.instagram || null,
+      portfolio_images: form.portfolio_images.length > 0 ? form.portfolio_images : null,
     };
 
     if (editingId) {
@@ -145,6 +195,46 @@ const AdminEntrepreneursPanel = () => {
         <div className="bg-card border border-border rounded-xl p-6 mb-8 space-y-4">
           <h3 className="font-semibold text-lg">{editingId ? "Editar Empreendedor" : "Novo Empreendedor"}</h3>
 
+          {/* Hero Image Upload */}
+          <div>
+            <label className="text-sm font-medium mb-2 block">Imagem principal (topo do perfil)</label>
+            {form.hero_image_url ? (
+              <div className="relative group w-full max-w-md">
+                <img src={form.hero_image_url} alt="Hero" className="w-full h-40 object-cover rounded-lg border border-border" />
+                <button
+                  type="button"
+                  onClick={() => setForm(f => ({ ...f, hero_image_url: "" }))}
+                  className="absolute top-2 right-2 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            ) : (
+              <div
+                onClick={() => heroInputRef.current?.click()}
+                className="w-full max-w-md h-40 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-primary/50 transition-colors"
+              >
+                {uploadingHero ? (
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                ) : (
+                  <>
+                    <Upload className="h-8 w-8 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">Clique para enviar a imagem principal</span>
+                  </>
+                )}
+              </div>
+            )}
+            <input ref={heroInputRef} type="file" accept="image/*" className="hidden" onChange={handleHeroUpload} />
+            <div className="mt-2">
+              <Input
+                value={form.hero_image_url}
+                onChange={e => setForm(f => ({ ...f, hero_image_url: e.target.value }))}
+                placeholder="Ou cole uma URL de imagem..."
+                className="text-xs"
+              />
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="text-sm font-medium mb-1 block">Nome</label>
@@ -176,15 +266,12 @@ const AdminEntrepreneursPanel = () => {
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm font-medium mb-1 block">Imagem do card (URL)</label>
-              <Input value={form.image_url} onChange={e => setForm(f => ({ ...f, image_url: e.target.value }))} placeholder="https://..." />
-            </div>
-            <div>
-              <label className="text-sm font-medium mb-1 block">Imagem hero/topo (URL)</label>
-              <Input value={form.hero_image_url} onChange={e => setForm(f => ({ ...f, hero_image_url: e.target.value }))} placeholder="https://..." />
-            </div>
+          <div>
+            <label className="text-sm font-medium mb-1 block">Imagem do card (URL)</label>
+            <Input value={form.image_url} onChange={e => setForm(f => ({ ...f, image_url: e.target.value }))} placeholder="https://... (se vazio, usa a imagem principal)" />
+            {form.image_url && (
+              <img src={form.image_url} alt="Card preview" className="w-24 h-16 object-cover rounded-md border border-border mt-2" />
+            )}
           </div>
 
           <h4 className="font-semibold text-sm pt-2 border-t border-border">Informações de contato</h4>
@@ -204,19 +291,40 @@ const AdminEntrepreneursPanel = () => {
             </div>
           </div>
 
-          {/* Previews */}
-          <div className="flex gap-4 flex-wrap">
-            {form.image_url && (
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">Card</p>
-                <img src={form.image_url} alt="Card preview" className="w-24 h-16 object-cover rounded-md border border-border" />
+          {/* Portfolio Images */}
+          <div className="pt-2 border-t border-border">
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-sm font-medium">Portfólio / Galeria de imagens</label>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => portfolioInputRef.current?.click()}
+                disabled={uploadingPortfolio}
+              >
+                {uploadingPortfolio ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Image className="h-4 w-4 mr-1" />}
+                Adicionar fotos
+              </Button>
+              <input ref={portfolioInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handlePortfolioUpload} />
+            </div>
+
+            {form.portfolio_images.length > 0 ? (
+              <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                {form.portfolio_images.map((url, i) => (
+                  <div key={i} className="relative group aspect-square">
+                    <img src={url} alt={`Portfolio ${i + 1}`} className="w-full h-full object-cover rounded-lg border border-border" />
+                    <button
+                      type="button"
+                      onClick={() => removePortfolioImage(i)}
+                      className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
               </div>
-            )}
-            {form.hero_image_url && (
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">Hero</p>
-                <img src={form.hero_image_url} alt="Hero preview" className="w-32 h-16 object-cover rounded-md border border-border" />
-              </div>
+            ) : (
+              <p className="text-xs text-muted-foreground">Nenhuma imagem no portfólio. Adicione fotos que aparecerão na página do empreendedor.</p>
             )}
           </div>
 
