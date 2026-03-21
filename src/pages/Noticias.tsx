@@ -20,7 +20,7 @@ const badgeColors: Record<string, string> = {
 const allNews = [
   {
     img: newsEvento, badge: "Eventos", date: "22 ABR, 2024",
-    title: "Grande Convenção Geek Agita Manaus",
+    title: "Grande Convenção Geek Agita Belém",
     summary: "Milhares de fãs se reuniram no Centro de Convenções Vasco Vasques para o maior encontro de cultura pop da região Norte. O evento contou com painéis de dubladores, área de jogos retro e uma praça de alimentação temática.",
   },
   {
