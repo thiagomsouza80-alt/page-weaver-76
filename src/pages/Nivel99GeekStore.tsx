@@ -42,7 +42,7 @@ const Nivel99GeekStore = () => {
               <p className="text-muted-foreground leading-relaxed mb-4">
                 A <strong className="text-foreground">Nível 99 Geek Store</strong> é referência em cultura pop na região Norte do Brasil. 
                 Fundada em 2019 por dois amigos apaixonados por anime e games, a loja começou como um pequeno box em um shopping 
-                de Manaus e rapidamente se tornou o ponto de encontro da comunidade geek local.
+                de Belém e rapidamente se tornou o ponto de encontro da comunidade geek local.
               </p>
               <p className="text-muted-foreground leading-relaxed mb-4">
                 Com um acervo de mais de 5.000 produtos entre action figures, mangás, HQs, jogos, cards colecionáveis e acessórios, 
