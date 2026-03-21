@@ -54,7 +54,23 @@ const ArtistsSection = () => {
   const getSlug = (name: string) =>
     name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
-  const useFallback = !loading && artists.length === 0;
+  // Completar com fictícios se menos de 4 reais
+  const displayArtists: Array<{ type: "real"; data: Artist } | { type: "fallback"; data: typeof fallbackArtists[number] }> = [];
+
+  if (!loading) {
+    for (const a of artists.slice(0, 4)) {
+      displayArtists.push({ type: "real", data: a });
+    }
+    if (displayArtists.length < 4) {
+      const usedNames = new Set(artists.map(a => a.name.toLowerCase()));
+      for (const fb of fallbackArtists) {
+        if (displayArtists.length >= 4) break;
+        if (!usedNames.has(fb.name.toLowerCase())) {
+          displayArtists.push({ type: "fallback", data: fb });
+        }
+      }
+    }
+  }
 
   return (
     <section className="px-6 md:px-12 py-16 max-w-7xl mx-auto">
