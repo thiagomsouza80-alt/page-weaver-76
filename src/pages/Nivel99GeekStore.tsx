@@ -27,7 +27,7 @@ const Nivel99GeekStore = () => {
             <div className="animate-fade-up">
               <span className="bg-[hsl(var(--badge-quadrinhos))] text-primary-foreground text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-md">Loja Geek</span>
               <h1 className="text-3xl md:text-5xl font-bold mt-3 leading-tight" style={{ lineHeight: "1.1" }}>Nível 99 Geek Store</h1>
-              <p className="text-foreground/70 mt-2 max-w-lg">A maior loja de cultura pop, anime e games de Manaus</p>
+              <p className="text-foreground/70 mt-2 max-w-lg">A maior loja de cultura pop, anime e games de Belém</p>
             </div>
           </div>
         </div>
