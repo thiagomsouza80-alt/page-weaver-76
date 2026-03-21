@@ -10,9 +10,9 @@ import newsAnimeFest from "@/assets/news-anime-fest.jpg";
 type News = Tables<"news">;
 
 const fallbackNews = [
-  { img: newsEvento, badge: "Eventos", date: "22 ABR, 2024", title: "Grande Convenção Geek Agita Belém", slug: "" },
-  { img: newsCosplay, badge: "Cosplay", date: "22 ABR, 2024", title: "Cosplay de Luxo em Destaque na Amazônia", slug: "" },
-  { img: newsQuadrinhos, badge: "Quadrinhos", date: "22 ABR, 2024", title: "Novas HQs da Marvel Chegam às Lojas", slug: "" },
+  { img: newsEvento, badge: "Eventos", date: "22 ABR, 2024", title: "Grande Convenção Geek Agita Belém", slug: "grande-convencao-geek-agita-belem" },
+  { img: newsCosplay, badge: "Cosplay", date: "22 ABR, 2024", title: "Cosplay de Luxo em Destaque na Amazônia", slug: "cosplay-de-luxo-em-destaque-na-amazonia" },
+  { img: newsQuadrinhos, badge: "Quadrinhos", date: "22 ABR, 2024", title: "Novas HQs da Marvel Chegam às Lojas", slug: "novas-hqs-da-marvel-chegam-as-lojas" },
 ];
 
 const NewsSection = () => {
