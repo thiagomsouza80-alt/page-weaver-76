@@ -59,18 +59,20 @@ const NewsSection = () => {
               </article>
             </Link>
           ) : (
-            <article key={i} className={`bg-card rounded-xl overflow-hidden card-hover cursor-pointer group animate-fade-up-delay-${i + 1}`}>
-              <div className="relative aspect-[4/3] overflow-hidden">
-                <img src={(entry.data as any).img} alt={(entry.data as any).title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                <span className="absolute bottom-3 left-3 bg-primary text-primary-foreground text-xs font-semibold px-3 py-1 rounded-md">
-                  {(entry.data as any).badge}
-                </span>
-              </div>
-              <div className="p-4">
-                <p className="text-muted-foreground text-xs uppercase tracking-wider mb-1">{(entry.data as any).date}</p>
-                <h3 className="font-bold text-base leading-snug">{(entry.data as any).title}</h3>
-              </div>
-            </article>
+            <Link to={`/noticias/${(entry.data as any).slug}`} key={i}>
+              <article className={`bg-card rounded-xl overflow-hidden card-hover cursor-pointer group animate-fade-up-delay-${i + 1}`}>
+                <div className="relative aspect-[4/3] overflow-hidden">
+                  <img src={(entry.data as any).img} alt={(entry.data as any).title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  <span className="absolute bottom-3 left-3 bg-primary text-primary-foreground text-xs font-semibold px-3 py-1 rounded-md">
+                    {(entry.data as any).badge}
+                  </span>
+                </div>
+                <div className="p-4">
+                  <p className="text-muted-foreground text-xs uppercase tracking-wider mb-1">{(entry.data as any).date}</p>
+                  <h3 className="font-bold text-base leading-snug">{(entry.data as any).title}</h3>
+                </div>
+              </article>
+            </Link>
           )
         )}
       </div>
