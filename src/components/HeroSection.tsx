@@ -10,8 +10,13 @@ const HeroSection = () => {
   const [memberCount, setMemberCount] = useState<number | null>(null);
 
   useEffect(() => {
-    supabase.from("artists").select("id", { count: "exact", head: true })
-      .then(({ count }) => { if (count !== null) setMemberCount(count); });
+    Promise.all([
+      supabase.from("artists").select("id", { count: "exact", head: true }),
+      supabase.from("entrepreneurs").select("id", { count: "exact", head: true }),
+    ]).then(([artists, entrepreneurs]) => {
+      const total = (artists.count || 0) + (entrepreneurs.count || 0);
+      if (total > 0) setMemberCount(total);
+    });
   }, []);
 
   return (
