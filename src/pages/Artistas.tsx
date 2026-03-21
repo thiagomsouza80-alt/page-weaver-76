@@ -51,7 +51,7 @@ const allArtists = [
   },
   {
     img: artistStreamer, name: "Gabi Neon", role: "Streamer & Gamer", badge: "Streamer",
-    bio: "Streamer de Manaus com comunidade crescente na Twitch. Especializada em jogos de RPG e FPS, Gabi também organiza campeonatos online para a comunidade gamer da região Norte.",
+    bio: "Streamer de Ananindeua com comunidade crescente na Twitch. Especializada em jogos de RPG e FPS, Gabi também organiza campeonatos online para a comunidade gamer da região Norte.",
     social: "@gabineon.live",
   },
 ];

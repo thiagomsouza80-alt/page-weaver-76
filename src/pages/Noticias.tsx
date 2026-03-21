@@ -50,8 +50,8 @@ const allNews = [
   },
   {
     img: newsManga, badge: "Quadrinhos", date: "8 ABR, 2024",
-    title: "Artista Manauara Lança Mangá Autoral na CCXP",
-    summary: "O quadrinista Alexandre Nascimento, natural de Manaus, apresentou seu mangá 'Guardiões da Floresta' na CCXP. A obra mistura mitologia amazônica com elementos de mangá shonen e já tem editora confirmada.",
+    title: "Artista Paraense Lança Mangá Autoral na CCXP",
+    summary: "O quadrinista Alexandre Nascimento, natural de Belém, apresentou seu mangá 'Guardiões da Floresta' na CCXP. A obra mistura mitologia amazônica com elementos de mangá shonen e já tem editora confirmada.",
   },
 ];
 

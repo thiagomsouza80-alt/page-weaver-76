@@ -12,10 +12,10 @@ import event4 from "@/assets/event-4.jpg";
 type Event = Tables<"events">;
 
 const fallbackEvents = [
-  { img: event1, title: "Amazônia Anime Fest 2024", date: "15 JUN, 2024", location: "Centro de Convenções Vasco Vasques, Manaus", description: "O maior evento de anime e cosplay do Norte do Brasil.", slug: "" },
-  { img: event2, title: "Game Arena Manaus", date: "28 JUN, 2024", location: "Arena Poliesportiva, Manaus", description: "Torneio regional de esports.", slug: "" },
-  { img: event3, title: "K-Pop Dance Festival", date: "13 JUL, 2024", location: "Praça da Saudade, Manaus", description: "Festival de cover dance com grupos.", slug: "" },
-  { img: event4, title: "Workshop de Mangá e HQ", date: "20 JUL, 2024", location: "Biblioteca Pública do Amazonas", description: "Aulas práticas de desenho mangá.", slug: "" },
+  { img: event1, title: "Amazônia Anime Fest 2024", date: "15 JUN, 2024", location: "Hangar Centro de Convenções, Belém", description: "O maior evento de anime e cosplay do Norte do Brasil.", slug: "" },
+  { img: event2, title: "Game Arena Belém", date: "28 JUN, 2024", location: "Arena Guilherme Paraense, Belém", description: "Torneio regional de esports.", slug: "" },
+  { img: event3, title: "K-Pop Dance Festival", date: "13 JUL, 2024", location: "Praça da República, Belém", description: "Festival de cover dance com grupos.", slug: "" },
+  { img: event4, title: "Workshop de Mangá e HQ", date: "20 JUL, 2024", location: "Biblioteca Pública Arthur Vianna, Belém", description: "Aulas práticas de desenho mangá.", slug: "" },
 ];
 
 const EventsSection = () => {

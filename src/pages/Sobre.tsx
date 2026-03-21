@@ -7,7 +7,7 @@ import { Gamepad2, Palette, Music, BookOpen, Users, Star } from "lucide-react";
 const pillars = [
   { icon: Gamepad2, title: "Games & E-sports", desc: "Cobertura de torneios, reviews e a cena competitiva da região Norte." },
   { icon: Palette, title: "Arte & Cosplay", desc: "Destaque para artistas visuais, cosplayers e criadores de conteúdo da Amazônia." },
-  { icon: Music, title: "K-Pop & Dança", desc: "A vibrante comunidade de K-Pop e cover dance de Manaus e região." },
+  { icon: Music, title: "K-Pop & Dança", desc: "A vibrante comunidade de K-Pop e cover dance de Belém, Ananindeua e Marituba." },
   { icon: BookOpen, title: "Quadrinhos & Mangá", desc: "HQs nacionais, mangás autorais e a cena independente amazônica." },
   { icon: Users, title: "Comunidade", desc: "Conectando fãs, artistas e organizadores de eventos de toda a região." },
   { icon: Star, title: "Eventos", desc: "Agenda completa de convenções, workshops e encontros geek da Amazônia." },

@@ -15,7 +15,7 @@ const businesses = [
     img: bizGeekstore,
     badge: "Loja Geek",
     name: "Nível 99 Geek Store",
-    desc: "A maior loja de cultura pop de Manaus com figures, mangás, cards e colecionáveis.",
+    desc: "A maior loja de cultura pop de Belém com figures, mangás, cards e colecionáveis.",
     slug: "nivel-99-geek-store",
   },
   {
