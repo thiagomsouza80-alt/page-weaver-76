@@ -86,6 +86,7 @@ interface EditFormData {
   instagram: string;
   bio: string;
   profile_image_url: string;
+  portfolio_images: string[];
 }
 
 const ArtistEditModal = ({ artist, onClose, onSave }: { artist: Artist; onClose: () => void; onSave: () => void }) => {
@@ -99,6 +100,7 @@ const ArtistEditModal = ({ artist, onClose, onSave }: { artist: Artist; onClose:
     instagram: artist.instagram || "",
     bio: artist.bio || "",
     profile_image_url: artist.profile_image_url || "",
+    portfolio_images: artist.portfolio_images || [],
   });
 
   const handleSave = async () => {
@@ -115,6 +117,7 @@ const ArtistEditModal = ({ artist, onClose, onSave }: { artist: Artist; onClose:
       instagram: form.instagram.trim() || null,
       bio: form.bio.trim() || null,
       profile_image_url: form.profile_image_url.trim() || null,
+      portfolio_images: form.portfolio_images.length > 0 ? form.portfolio_images : null,
     }).eq("id", artist.id);
     setSaving(false);
 
@@ -175,6 +178,47 @@ const ArtistEditModal = ({ artist, onClose, onSave }: { artist: Artist; onClose:
             <label className="text-sm font-medium mb-1 block">Bio</label>
             <Textarea value={form.bio} onChange={e => setForm(f => ({ ...f, bio: e.target.value }))} rows={4} />
           </div>
+
+          {/* Foto de perfil miniatura */}
+          {form.profile_image_url && (
+            <div>
+              <label className="text-sm font-medium mb-2 block">Prévia da foto de perfil</label>
+              <div className="relative inline-block">
+                <img src={form.profile_image_url} alt="Perfil" className="w-20 h-20 rounded-lg object-cover border border-border" />
+                <button
+                  type="button"
+                  onClick={() => setForm(f => ({ ...f, profile_image_url: "" }))}
+                  className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs hover:scale-110 transition-transform"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Portfólio miniaturas */}
+          {form.portfolio_images.length > 0 && (
+            <div>
+              <label className="text-sm font-medium mb-2 block">Portfólio ({form.portfolio_images.length} fotos)</label>
+              <div className="grid grid-cols-4 gap-2">
+                {form.portfolio_images.map((img, i) => (
+                  <div key={i} className="relative group">
+                    <img src={img} alt={`Portfólio ${i + 1}`} className="w-full aspect-square rounded-lg object-cover border border-border" />
+                    <button
+                      type="button"
+                      onClick={() => setForm(f => ({
+                        ...f,
+                        portfolio_images: f.portfolio_images.filter((_, idx) => idx !== i),
+                      }))}
+                      className="absolute -top-1.5 -right-1.5 bg-destructive text-destructive-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="flex gap-3 mt-6">
