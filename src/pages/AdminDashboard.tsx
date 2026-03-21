@@ -2,14 +2,15 @@ import { useState } from "react";
 import { useAdmin } from "@/hooks/useAdmin";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Loader2, Newspaper, CalendarDays, Users, LogOut, ExternalLink } from "lucide-react";
+import { Loader2, Newspaper, CalendarDays, Users, LogOut, ExternalLink, Store } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import AdminNewsPanel from "@/components/admin/AdminNewsPanel";
 import AdminEventsPanel from "@/components/admin/AdminEventsPanel";
 import AdminArtistsPanel from "@/components/admin/AdminArtistsPanel";
+import AdminEntrepreneursPanel from "@/components/admin/AdminEntrepreneursPanel";
 import logoOficial from "@/assets/logo-oficial.png";
 
-type Tab = "news" | "events" | "artists";
+type Tab = "news" | "events" | "artists" | "entrepreneurs";
 
 const AdminDashboard = () => {
   const { loading, isAdmin } = useAdmin();
@@ -35,6 +36,7 @@ const AdminDashboard = () => {
     { key: "news" as Tab, label: "Notícias", icon: Newspaper },
     { key: "events" as Tab, label: "Eventos", icon: CalendarDays },
     { key: "artists" as Tab, label: "Artistas", icon: Users },
+    { key: "entrepreneurs" as Tab, label: "Empreendedores", icon: Store },
   ];
 
   return (
@@ -73,6 +75,7 @@ const AdminDashboard = () => {
         {tab === "news" && <AdminNewsPanel />}
         {tab === "events" && <AdminEventsPanel />}
         {tab === "artists" && <AdminArtistsPanel />}
+        {tab === "entrepreneurs" && <AdminEntrepreneursPanel />}
       </main>
     </div>
   );

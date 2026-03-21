@@ -59,6 +59,42 @@ export type Database = {
         }
         Relationships: []
       }
+      entrepreneurs: {
+        Row: {
+          badge: string
+          created_at: string
+          description: string
+          id: string
+          image_url: string | null
+          name: string
+          published: boolean
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          badge: string
+          created_at?: string
+          description: string
+          id?: string
+          image_url?: string | null
+          name: string
+          published?: boolean
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          badge?: string
+          created_at?: string
+          description?: string
+          id?: string
+          image_url?: string | null
+          name?: string
+          published?: boolean
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       events: {
         Row: {
           author_id: string | null
