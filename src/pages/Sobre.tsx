@@ -1,8 +1,10 @@
+import { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import aboutHero from "@/assets/about-hero.jpg";
 import logoOficial from "@/assets/logo-oficial.png";
 import { Gamepad2, Palette, Music, BookOpen, Users, Star } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const pillars = [
   { icon: Gamepad2, title: "Games & E-sports", desc: "Cobertura de torneios, reviews e a cena competitiva da região Norte." },
@@ -13,14 +15,30 @@ const pillars = [
   { icon: Star, title: "Eventos", desc: "Agenda completa de convenções, workshops e encontros geek da Amazônia." },
 ];
 
-const stats = [
-  { value: "15k+", label: "Seguidores nas redes" },
-  { value: "47", label: "Artistas cadastrados" },
-  { value: "120+", label: "Eventos cobertos" },
-  { value: "8", label: "Cidades alcançadas" },
-];
-
 const Sobre = () => {
+  const [stats, setStats] = useState([
+    { value: "—", label: "Artistas cadastrados" },
+    { value: "—", label: "Empreendedores" },
+    { value: "—", label: "Eventos publicados" },
+    { value: "—", label: "Notícias publicadas" },
+  ]);
+
+  useEffect(() => {
+    Promise.all([
+      supabase.from("artists").select("id", { count: "exact", head: true }),
+      supabase.from("entrepreneurs").select("id", { count: "exact", head: true }),
+      supabase.from("events").select("id", { count: "exact", head: true }),
+      supabase.from("news").select("id", { count: "exact", head: true }),
+    ]).then(([artists, entrepreneurs, events, news]) => {
+      setStats([
+        { value: String(artists.count || 0), label: "Artistas cadastrados" },
+        { value: String(entrepreneurs.count || 0), label: "Empreendedores" },
+        { value: String(events.count || 0), label: "Eventos publicados" },
+        { value: String(news.count || 0), label: "Notícias publicadas" },
+      ]);
+    });
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -86,11 +104,8 @@ const Sobre = () => {
             Siga nossas redes sociais e fique por dentro de tudo!
           </p>
           <div className="flex gap-4 justify-center flex-wrap">
-            <a href="#" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-2.5 rounded-full font-semibold text-sm hover:bg-primary/80 transition-all active:scale-[0.97]">
+            <a href="https://www.instagram.com/amazoniapop" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-2.5 rounded-full font-semibold text-sm hover:bg-primary/80 transition-all active:scale-[0.97]">
               Instagram
-            </a>
-            <a href="#" className="inline-flex items-center gap-2 border-2 border-foreground/30 text-foreground px-6 py-2.5 rounded-full font-semibold text-sm hover:border-foreground/60 transition-all active:scale-[0.97]">
-              YouTube
             </a>
           </div>
         </div>
