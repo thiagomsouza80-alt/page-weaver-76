@@ -100,6 +100,7 @@ const ArtistEditModal = ({ artist, onClose, onSave }: { artist: Artist; onClose:
     instagram: artist.instagram || "",
     bio: artist.bio || "",
     profile_image_url: artist.profile_image_url || "",
+    portfolio_images: artist.portfolio_images || [],
   });
 
   const handleSave = async () => {
