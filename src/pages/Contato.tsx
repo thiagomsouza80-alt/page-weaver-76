@@ -17,7 +17,7 @@ const Contato = () => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = { nome: form.nome.trim(), contato: form.contato.trim(), assunto: form.assunto.trim(), texto: form.texto.trim() };
     if (!trimmed.nome || !trimmed.contato || !trimmed.assunto || !trimmed.texto) {
@@ -25,11 +25,28 @@ const Contato = () => {
       return;
     }
     setLoading(true);
-    setTimeout(() => {
+    try {
+      const res = await fetch("https://formspree.io/f/mpqyejab", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nome: trimmed.nome,
+          email: trimmed.contato,
+          assunto: trimmed.assunto,
+          message: trimmed.texto,
+        }),
+      });
+      if (res.ok) {
+        setForm({ nome: "", contato: "", assunto: "", texto: "" });
+        toast({ title: "Mensagem enviada!", description: "Entraremos em contato em breve." });
+      } else {
+        toast({ title: "Erro ao enviar", description: "Tente novamente mais tarde.", variant: "destructive" });
+      }
+    } catch {
+      toast({ title: "Erro ao enviar", description: "Verifique sua conexão.", variant: "destructive" });
+    } finally {
       setLoading(false);
-      setForm({ nome: "", contato: "", assunto: "", texto: "" });
-      toast({ title: "Mensagem enviada!", description: "Entraremos em contato em breve." });
-    }, 1200);
+    }
   };
 
   return (
