@@ -246,6 +246,7 @@ const ArtistaDetalhe = () => {
             {dbArtist.city && (
               <p className="text-sm text-muted-foreground mb-4">📍 {dbArtist.city}</p>
             )}
+            <FanButton artistId={dbArtist.id} initialCount={(dbArtist as any).fan_count || 0} />
           </div>
         </div>
 
