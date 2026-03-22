@@ -114,6 +114,7 @@ const CadastroArtista = () => {
         bio: data.bio || null,
         city: data.city || null,
         instagram: data.instagram || null,
+        youtube_url: data.youtube_url || null,
         profile_image_url: profileUrl,
         portfolio_images: portfolioUrls,
       });
