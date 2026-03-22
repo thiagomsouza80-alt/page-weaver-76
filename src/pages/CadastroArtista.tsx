@@ -22,6 +22,8 @@ const segments = [
   { value: "colecionador", label: "Colecionador" },
   { value: "desenvolvedor_jogos", label: "Desenvolvedor de Jogos" },
   { value: "fan_cultura_pop", label: "Fã de Cultura Pop" },
+  { value: "youtuber", label: "YouTuber" },
+  { value: "influenciador_digital", label: "Influenciador Digital" },
 ] as const;
 
 const schema = z.object({
