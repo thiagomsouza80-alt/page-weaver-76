@@ -226,7 +226,7 @@ const CadastroArtista = () => {
             </div>
           </div>
 
-          {(segmentValue === "cosplayer" || segmentValue === "kpop") && (
+          {(segmentValue === "cosplayer" || segmentValue === "kpop" || segmentValue === "youtuber" || segmentValue === "influenciador_digital") && (
             <div className="space-y-2 sm:col-span-2">
               <Label htmlFor="youtube_url">Vídeo de Apresentação (YouTube)</Label>
               <Input id="youtube_url" placeholder="https://www.youtube.com/watch?v=..." {...register("youtube_url")} />
