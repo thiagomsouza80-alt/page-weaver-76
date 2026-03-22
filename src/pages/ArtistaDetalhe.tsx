@@ -27,6 +27,8 @@ const segmentLabels: Record<string, string> = {
   colecionador: "Colecionador",
   desenvolvedor_jogos: "Desenvolvedor de Jogos",
   fan_cultura_pop: "Fã de Cultura Pop",
+  youtuber: "YouTuber",
+  influenciador_digital: "Influenciador Digital",
 };
 
 const getYouTubeEmbedUrl = (url: string): string | null => {

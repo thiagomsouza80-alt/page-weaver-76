@@ -22,12 +22,14 @@ const segments = [
   { value: "colecionador", label: "Colecionador" },
   { value: "desenvolvedor_jogos", label: "Desenvolvedor de Jogos" },
   { value: "fan_cultura_pop", label: "Fã de Cultura Pop" },
+  { value: "youtuber", label: "YouTuber" },
+  { value: "influenciador_digital", label: "Influenciador Digital" },
 ] as const;
 
 const schema = z.object({
   name: z.string().trim().min(2, "Nome deve ter pelo menos 2 caracteres").max(100),
   email: z.string().trim().email("Email inválido").max(255),
-  segment: z.enum(["cosplayer", "cosmaker", "kpop", "ilustrador", "quadrinista", "colecionador", "desenvolvedor_jogos", "fan_cultura_pop"], { required_error: "Selecione um segmento" }),
+  segment: z.enum(["cosplayer", "cosmaker", "kpop", "ilustrador", "quadrinista", "colecionador", "desenvolvedor_jogos", "fan_cultura_pop", "youtuber", "influenciador_digital"], { required_error: "Selecione um segmento" }),
   bio: z.string().trim().max(1000, "Máximo 1000 caracteres").optional(),
   city: z.string().trim().max(100).optional(),
   instagram: z.string().trim().max(100).optional(),
@@ -224,7 +226,7 @@ const CadastroArtista = () => {
             </div>
           </div>
 
-          {(segmentValue === "cosplayer" || segmentValue === "kpop") && (
+          {(segmentValue === "cosplayer" || segmentValue === "kpop" || segmentValue === "youtuber" || segmentValue === "influenciador_digital") && (
             <div className="space-y-2 sm:col-span-2">
               <Label htmlFor="youtube_url">Vídeo de Apresentação (YouTube)</Label>
               <Input id="youtube_url" placeholder="https://www.youtube.com/watch?v=..." {...register("youtube_url")} />
