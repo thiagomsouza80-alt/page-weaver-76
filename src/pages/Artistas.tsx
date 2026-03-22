@@ -97,13 +97,13 @@ const Artistas = () => {
                   <div>
                     <div className="flex items-center gap-2">
                       <h3 className="font-bold text-lg">{artist.name}</h3>
-                      {artist.fan_count > 0 && (
-                        <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-                          <Heart className="h-3 w-3 fill-primary text-primary" /> {artist.fan_count}
-                        </span>
-                      )}
                     </div>
                     <p className="text-primary text-sm font-medium">{segmentLabels[artist.segment]}</p>
+                    {artist.fan_count > 0 && (
+                      <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                        <Heart className="h-3 w-3 fill-primary text-primary" /> possui {artist.fan_count} {artist.fan_count === 1 ? "fan" : "fans"}
+                      </p>
+                    )}
                   </div>
                   {artist.bio && (
                     <p className="text-muted-foreground text-sm leading-relaxed line-clamp-3">{artist.bio}</p>
