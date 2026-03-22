@@ -223,6 +223,15 @@ const CadastroArtista = () => {
             </div>
           </div>
 
+          {(segmentValue === "cosplayer" || segmentValue === "kpop") && (
+            <div className="space-y-2 sm:col-span-2">
+              <Label htmlFor="youtube_url">Vídeo de Apresentação (YouTube)</Label>
+              <Input id="youtube_url" placeholder="https://www.youtube.com/watch?v=..." {...register("youtube_url")} />
+              {errors.youtube_url && <p className="text-sm text-destructive">{errors.youtube_url.message}</p>}
+              <p className="text-xs text-muted-foreground">Cole o link do seu vídeo de apresentação no YouTube</p>
+            </div>
+          )}
+
           <div className="space-y-2">
             <Label htmlFor="bio">Bio / Sobre você</Label>
             <Textarea id="bio" placeholder="Conte um pouco sobre você e seu trabalho..." rows={4} {...register("bio")} />
