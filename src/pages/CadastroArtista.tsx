@@ -19,6 +19,9 @@ const segments = [
   { value: "kpop", label: "K-Pop" },
   { value: "ilustrador", label: "Ilustrador" },
   { value: "quadrinista", label: "Quadrinista" },
+  { value: "colecionador", label: "Colecionador" },
+  { value: "desenvolvedor_jogos", label: "Desenvolvedor de Jogos" },
+  { value: "fan_cultura_pop", label: "Fã de Cultura Pop" },
 ] as const;
 
 const schema = z.object({
