@@ -31,6 +31,7 @@ const schema = z.object({
   bio: z.string().trim().max(1000, "Máximo 1000 caracteres").optional(),
   city: z.string().trim().max(100).optional(),
   instagram: z.string().trim().max(100).optional(),
+  youtube_url: z.string().trim().url("URL inválida").max(500).optional().or(z.literal("")),
 });
 
 type FormData = z.infer<typeof schema>;
