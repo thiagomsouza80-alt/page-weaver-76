@@ -95,7 +95,14 @@ const Artistas = () => {
                 </div>
                 <div className="p-5 space-y-3">
                   <div>
-                    <h3 className="font-bold text-lg">{artist.name}</h3>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-bold text-lg">{artist.name}</h3>
+                      {artist.fan_count > 0 && (
+                        <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                          <Heart className="h-3 w-3 fill-primary text-primary" /> {artist.fan_count}
+                        </span>
+                      )}
+                    </div>
                     <p className="text-primary text-sm font-medium">{segmentLabels[artist.segment]}</p>
                   </div>
                   {artist.bio && (
