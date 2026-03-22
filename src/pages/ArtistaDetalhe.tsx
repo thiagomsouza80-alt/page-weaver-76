@@ -2,7 +2,8 @@ import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { ArrowLeft, Instagram, Loader2 } from "lucide-react";
+import { ArrowLeft, Instagram, Loader2, Share2 } from "lucide-react";
+import { toast } from "sonner";
 import FanButton from "@/components/FanButton";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
@@ -194,6 +195,18 @@ const ArtistaDetalhe = () => {
                 <Instagram className="h-4 w-4" /> {staticArtist.social}
               </p>
               <p className="text-muted-foreground leading-relaxed">{staticArtist.bio}</p>
+              <div className="mt-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(window.location.href);
+                    toast.success("Link copiado!");
+                  }}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-secondary hover:bg-secondary/80 text-foreground transition-all active:scale-[0.97]"
+                >
+                  <Share2 className="h-4 w-4" /> Compartilhar perfil
+                </button>
+                <span className="text-xs text-muted-foreground">Compartilhe seu perfil e ganhe mais fans!</span>
+              </div>
             </div>
           </div>
           <section className="mb-12 animate-fade-up">
@@ -267,6 +280,18 @@ const ArtistaDetalhe = () => {
               <p className="text-sm text-muted-foreground mb-4">📍 {dbArtist.city}</p>
             )}
             <FanButton artistId={dbArtist.id} initialCount={(dbArtist as any).fan_count || 0} />
+            <div className="mt-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(window.location.href);
+                  toast.success("Link copiado!");
+                }}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-secondary hover:bg-secondary/80 text-foreground transition-all active:scale-[0.97]"
+              >
+                <Share2 className="h-4 w-4" /> Compartilhar perfil
+              </button>
+              <span className="text-xs text-muted-foreground">Compartilhe seu perfil e ganhe mais fans!</span>
+            </div>
           </div>
         </div>
 
