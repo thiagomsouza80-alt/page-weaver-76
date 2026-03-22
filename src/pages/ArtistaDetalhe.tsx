@@ -195,18 +195,7 @@ const ArtistaDetalhe = () => {
                 <Instagram className="h-4 w-4" /> {staticArtist.social}
               </p>
               <p className="text-muted-foreground leading-relaxed">{staticArtist.bio}</p>
-              <div className="mt-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(window.location.href);
-                    toast.success("Link copiado!");
-                  }}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-secondary hover:bg-secondary/80 text-foreground transition-all active:scale-[0.97]"
-                >
-                  <Share2 className="h-4 w-4" /> Compartilhar perfil
-                </button>
-                <span className="text-xs text-muted-foreground">Compartilhe seu perfil e ganhe mais fans!</span>
-              </div>
+              <ShareButtons artistName={staticArtist.name} />
             </div>
           </div>
           <section className="mb-12 animate-fade-up">
