@@ -17,7 +17,12 @@ const segmentLabels: Record<string, string> = {
   cosmaker: "Cosmaker",
   kpop: "K-Pop",
   ilustrador: "Ilustrador",
-  empreendedor: "Empreendedor",
+  quadrinista: "Quadrinista",
+  colecionador: "Colecionador",
+  desenvolvedor_jogos: "Desenvolvedor de Jogos",
+  fan_cultura_pop: "Fã de Cultura Pop",
+  youtuber: "YouTuber",
+  influenciador_digital: "Influenciador Digital",
 };
 
 const ArtistPreview = ({ artist, onClose }: { artist: Artist; onClose: () => void }) => {
