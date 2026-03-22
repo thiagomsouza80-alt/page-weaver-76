@@ -275,6 +275,24 @@ const ArtistaDetalhe = () => {
           </section>
         )}
 
+        {(dbArtist as any).youtube_url && (() => {
+          const embedUrl = getYouTubeEmbedUrl((dbArtist as any).youtube_url);
+          return embedUrl ? (
+            <section className="mb-12 animate-fade-up">
+              <h2 className="text-xl font-bold mb-6">Vídeo de Apresentação</h2>
+              <div className="aspect-video rounded-xl overflow-hidden bg-secondary">
+                <iframe
+                  src={embedUrl}
+                  title={`Vídeo de ${dbArtist.name}`}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="w-full h-full"
+                />
+              </div>
+            </section>
+          ) : null;
+        })()}
+
         {portfolio.length > 0 && (
           <section className="animate-fade-up">
             <h2 className="text-xl font-bold mb-6">Portfolio</h2>
