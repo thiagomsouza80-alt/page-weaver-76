@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ArrowLeft, Instagram, Loader2 } from "lucide-react";
+import FanButton from "@/components/FanButton";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -245,6 +246,7 @@ const ArtistaDetalhe = () => {
             {dbArtist.city && (
               <p className="text-sm text-muted-foreground mb-4">📍 {dbArtist.city}</p>
             )}
+            <FanButton artistId={dbArtist.id} initialCount={(dbArtist as any).fan_count || 0} />
           </div>
         </div>
 
