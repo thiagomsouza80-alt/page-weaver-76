@@ -239,6 +239,9 @@ export type Database = {
         | "kpop"
         | "ilustrador"
         | "quadrinista"
+        | "colecionador"
+        | "desenvolvedor_jogos"
+        | "fan_cultura_pop"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -373,6 +376,9 @@ export const Constants = {
         "kpop",
         "ilustrador",
         "quadrinista",
+        "colecionador",
+        "desenvolvedor_jogos",
+        "fan_cultura_pop",
       ],
     },
   },
