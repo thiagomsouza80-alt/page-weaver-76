@@ -38,7 +38,7 @@ const Navbar = () => {
         <Link to="/cadastro-artista">
           <Button variant="nav" size="sm" className="gap-2 hidden md:inline-flex">
             <User className="h-4 w-4" />
-            Cadastro de Artista
+            Fazer Cadastro
           </Button>
         </Link>
         <Link to="/admin/login">
@@ -67,7 +67,7 @@ const Navbar = () => {
           <Link to="/cadastro-artista" onClick={() => setMobileOpen(false)}>
             <Button variant="nav" size="sm" className="gap-2 w-fit">
               <User className="h-4 w-4" />
-              Cadastro de Artista
+              Fazer Cadastro
             </Button>
           </Link>
           <Link to="/admin/login" onClick={() => setMobileOpen(false)}>
