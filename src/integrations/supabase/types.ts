@@ -21,6 +21,7 @@ export type Database = {
           city: string | null
           created_at: string
           email: string
+          fan_count: number
           id: string
           instagram: string | null
           name: string
@@ -35,6 +36,7 @@ export type Database = {
           city?: string | null
           created_at?: string
           email: string
+          fan_count?: number
           id?: string
           instagram?: string | null
           name: string
@@ -49,6 +51,7 @@ export type Database = {
           city?: string | null
           created_at?: string
           email?: string
+          fan_count?: number
           id?: string
           instagram?: string | null
           name?: string
@@ -230,6 +233,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_fan_count: { Args: { _artist_id: string }; Returns: number }
     }
     Enums: {
       app_role: "admin" | "user"
