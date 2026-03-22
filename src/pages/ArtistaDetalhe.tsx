@@ -23,7 +23,25 @@ const segmentLabels: Record<string, string> = {
   cosmaker: "Cosmaker",
   kpop: "K-Pop",
   ilustrador: "Ilustrador",
-  empreendedor: "Empreendedor",
+  quadrinista: "Quadrinista",
+  colecionador: "Colecionador",
+  desenvolvedor_jogos: "Desenvolvedor de Jogos",
+  fan_cultura_pop: "Fã de Cultura Pop",
+};
+
+const getYouTubeEmbedUrl = (url: string): string | null => {
+  try {
+    const parsed = new URL(url);
+    let videoId: string | null = null;
+    if (parsed.hostname.includes("youtube.com")) {
+      videoId = parsed.searchParams.get("v");
+    } else if (parsed.hostname.includes("youtu.be")) {
+      videoId = parsed.pathname.slice(1);
+    }
+    return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
+  } catch {
+    return null;
+  }
 };
 
 const artistsData: Record<string, {
@@ -256,6 +274,24 @@ const ArtistaDetalhe = () => {
             <div className="prose prose-invert max-w-none text-foreground/85 leading-relaxed whitespace-pre-wrap">{dbArtist.bio}</div>
           </section>
         )}
+
+        {(dbArtist as any).youtube_url && (() => {
+          const embedUrl = getYouTubeEmbedUrl((dbArtist as any).youtube_url);
+          return embedUrl ? (
+            <section className="mb-12 animate-fade-up">
+              <h2 className="text-xl font-bold mb-6">Vídeo de Apresentação</h2>
+              <div className="aspect-video rounded-xl overflow-hidden bg-secondary">
+                <iframe
+                  src={embedUrl}
+                  title={`Vídeo de ${dbArtist.name}`}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="w-full h-full"
+                />
+              </div>
+            </section>
+          ) : null;
+        })()}
 
         {portfolio.length > 0 && (
           <section className="animate-fade-up">
