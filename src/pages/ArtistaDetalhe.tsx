@@ -7,6 +7,7 @@ import FanButton from "@/components/FanButton";
 import ShareButtons from "@/components/ShareButtons";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
+import { getMembershipBadge } from "@/lib/membership";
 
 import artistIlustrador from "@/assets/artist-ilustrador.jpg";
 import artistCosplayer from "@/assets/artist-cosplayer.jpg";
@@ -259,6 +260,9 @@ const ArtistaDetalhe = () => {
               {segmentLabels[dbArtist.segment] || dbArtist.segment}
             </span>
             <h1 className="text-3xl md:text-4xl font-bold mb-1">{dbArtist.name}</h1>
+            {getMembershipBadge((dbArtist as any).membership_type) && (
+              <p className="text-base font-semibold mb-1">{getMembershipBadge((dbArtist as any).membership_type)}</p>
+            )}
             <p className="text-primary font-medium mb-3">{segmentLabels[dbArtist.segment] || dbArtist.segment}</p>
             {dbArtist.instagram && (
               <p className="flex items-center gap-1.5 text-sm text-muted-foreground mb-4">

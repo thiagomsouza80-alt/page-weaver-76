@@ -1,0 +1,1 @@
+ALTER TABLE public.artists ADD COLUMN membership_type text NOT NULL DEFAULT 'free';

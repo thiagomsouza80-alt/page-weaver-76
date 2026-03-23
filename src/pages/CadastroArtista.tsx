@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Upload, X, Camera, CheckCircle, Loader2 } from "lucide-react";
+import { membershipTypes, membershipDescriptions } from "@/lib/membership";
 
 const segments = [
   { value: "cosplayer", label: "Cosplayer" },
@@ -34,6 +35,7 @@ const schema = z.object({
   city: z.string().trim().max(100).optional(),
   instagram: z.string().trim().max(100).optional(),
   phone: z.string().trim().max(20, "Máximo 20 caracteres").optional(),
+  membership_type: z.enum(["free", "star", "pro", "hero"]).default("free"),
   youtube_url: z.string().trim().url("URL inválida").max(500).optional().or(z.literal("")),
 });
 
@@ -53,6 +55,7 @@ const CadastroArtista = () => {
   });
 
   const segmentValue = watch("segment");
+  const membershipValue = watch("membership_type") || "free";
 
   const handleProfileImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -118,6 +121,7 @@ const CadastroArtista = () => {
         city: data.city || null,
         instagram: data.instagram || null,
         phone: data.phone || null,
+        membership_type: data.membership_type || "free",
         youtube_url: data.youtube_url || null,
         profile_image_url: profileUrl,
         portfolio_images: portfolioUrls,
@@ -234,6 +238,26 @@ const CadastroArtista = () => {
             <Label htmlFor="phone">Telefone / WhatsApp</Label>
             <Input id="phone" placeholder="(91) 99999-9999" {...register("phone")} />
             <p className="text-xs text-muted-foreground">Visível apenas para a administração do portal</p>
+          </div>
+
+          {/* Membership Type */}
+          <div className="space-y-2">
+            <Label>Tipo de Membro *</Label>
+            <Select value={membershipValue} onValueChange={(val) => setValue("membership_type", val as "free" | "star" | "pro" | "hero")}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione o tipo de membro" />
+              </SelectTrigger>
+              <SelectContent>
+                {membershipTypes.map(m => (
+                  <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {membershipValue && membershipDescriptions[membershipValue] && (
+              <p className="text-sm text-primary font-medium mt-2 p-3 rounded-lg bg-primary/10">
+                {membershipDescriptions[membershipValue]}
+              </p>
+            )}
           </div>
 
           {(segmentValue === "cosplayer" || segmentValue === "kpop" || segmentValue === "youtuber" || segmentValue === "influenciador_digital") && (
