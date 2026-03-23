@@ -66,6 +66,7 @@ export type Database = {
           id: string
           instagram: string | null
           name: string
+          phone: string | null
           portfolio_images: string[] | null
           profile_image_url: string | null
           segment: Database["public"]["Enums"]["artist_segment"]
@@ -83,6 +84,7 @@ export type Database = {
           id?: string
           instagram?: string | null
           name: string
+          phone?: string | null
           portfolio_images?: string[] | null
           profile_image_url?: string | null
           segment: Database["public"]["Enums"]["artist_segment"]
@@ -100,6 +102,7 @@ export type Database = {
           id?: string
           instagram?: string | null
           name?: string
+          phone?: string | null
           portfolio_images?: string[] | null
           profile_image_url?: string | null
           segment?: Database["public"]["Enums"]["artist_segment"]
