@@ -14,6 +14,8 @@ import NakamaTemakeria from "./pages/NakamaTemakeria.tsx";
 import AtelieCosmaker from "./pages/AtelieCosmaker.tsx";
 import CadastroEmpreendedor from "./pages/CadastroEmpreendedor.tsx";
 import CadastroArtista from "./pages/CadastroArtista.tsx";
+import ArtistaLogin from "./pages/ArtistaLogin.tsx";
+import ArtistaDashboard from "./pages/ArtistaDashboard.tsx";
 import AdminLogin from "./pages/AdminLogin.tsx";
 import AdminDashboard from "./pages/AdminDashboard.tsx";
 import NoticiaDetalhe from "./pages/NoticiaDetalhe.tsx";
@@ -37,6 +39,8 @@ const App = () => (
           <Route path="/artistas" element={<Artistas />} />
           <Route path="/artistas/:slug" element={<ArtistaDetalhe />} />
           <Route path="/cadastro-artista" element={<CadastroArtista />} />
+          <Route path="/artista/login" element={<ArtistaLogin />} />
+          <Route path="/meu-perfil" element={<ArtistaDashboard />} />
           <Route path="/eventos" element={<Eventos />} />
           <Route path="/eventos/:slug" element={<EventoDetalhe />} />
           <Route path="/sobre" element={<Sobre />} />

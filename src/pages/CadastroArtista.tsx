@@ -29,6 +29,7 @@ const segments = [
 const schema = z.object({
   name: z.string().trim().min(2, "Nome deve ter pelo menos 2 caracteres").max(100),
   email: z.string().trim().email("Email inválido").max(255),
+  password: z.string().min(6, "Senha deve ter pelo menos 6 caracteres").max(100),
   segment: z.enum(["cosplayer", "cosmaker", "kpop", "ilustrador", "quadrinista", "colecionador", "desenvolvedor_jogos", "fan_cultura_pop", "youtuber", "influenciador_digital"], { required_error: "Selecione um segmento" }),
   bio: z.string().trim().max(1000, "Máximo 1000 caracteres").optional(),
   city: z.string().trim().max(100).optional(),
@@ -98,6 +99,14 @@ const CadastroArtista = () => {
   const onSubmit = async (data: FormData) => {
     setSubmitting(true);
     try {
+      // 1. Create auth account
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+      });
+      if (authError) throw authError;
+      if (!authData.user) throw new Error("Erro ao criar conta");
+
       let profileUrl: string | null = null;
       if (profileImage) {
         profileUrl = await uploadFile(profileImage, "profiles");
@@ -109,6 +118,7 @@ const CadastroArtista = () => {
         portfolioUrls.push(url);
       }
 
+      // 2. Create artist profile linked to auth user
       const { error } = await supabase.from("artists").insert({
         name: data.name,
         email: data.email,
@@ -119,9 +129,13 @@ const CadastroArtista = () => {
         youtube_url: data.youtube_url || null,
         profile_image_url: profileUrl,
         portfolio_images: portfolioUrls,
+        user_id: authData.user.id,
       });
 
       if (error) throw error;
+
+      // Sign out after registration (needs approval + email confirmation)
+      await supabase.auth.signOut();
 
       setSuccess(true);
       toast({ title: "Cadastro enviado!", description: "Seu perfil será analisado pela equipe." });
@@ -140,13 +154,21 @@ const CadastroArtista = () => {
           <div className="animate-fade-up">
             <CheckCircle className="h-20 w-20 text-green-500 mx-auto mb-6" />
             <h1 className="text-3xl font-bold mb-4">Cadastro Enviado!</h1>
-            <p className="text-muted-foreground text-lg mb-8">
+            <p className="text-muted-foreground text-lg mb-4">
               Seu perfil foi recebido e será analisado pela equipe Amazônia Pop.
-              Você receberá um e-mail quando for aprovado.
+              Quando for aprovado, seu perfil ficará visível na plataforma.
             </p>
-            <Button variant="hero" size="lg" onClick={() => window.location.href = "/"}>
-              Voltar ao Início
-            </Button>
+            <p className="text-muted-foreground mb-8">
+              Você já pode fazer login para acompanhar o status do seu perfil.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Button variant="hero" size="lg" onClick={() => window.location.href = "/artista/login"}>
+                Fazer Login
+              </Button>
+              <Button variant="outline" size="lg" onClick={() => window.location.href = "/"}>
+                Voltar ao Início
+              </Button>
+            </div>
           </div>
         </div>
         <Footer />
@@ -197,6 +219,13 @@ const CadastroArtista = () => {
               <Input id="email" type="email" placeholder="seu@email.com" {...register("email")} />
               {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="password">Senha de Acesso *</Label>
+            <Input id="password" type="password" placeholder="Mínimo 6 caracteres" {...register("password")} />
+            {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
+            <p className="text-xs text-muted-foreground">Essa senha será usada para acessar seu painel de artista</p>
           </div>
 
           {/* Segment */}

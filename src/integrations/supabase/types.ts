@@ -29,6 +29,7 @@ export type Database = {
           profile_image_url: string | null
           segment: Database["public"]["Enums"]["artist_segment"]
           updated_at: string
+          user_id: string | null
           youtube_url: string | null
         }
         Insert: {
@@ -45,6 +46,7 @@ export type Database = {
           profile_image_url?: string | null
           segment: Database["public"]["Enums"]["artist_segment"]
           updated_at?: string
+          user_id?: string | null
           youtube_url?: string | null
         }
         Update: {
@@ -61,6 +63,7 @@ export type Database = {
           profile_image_url?: string | null
           segment?: Database["public"]["Enums"]["artist_segment"]
           updated_at?: string
+          user_id?: string | null
           youtube_url?: string | null
         }
         Relationships: []
