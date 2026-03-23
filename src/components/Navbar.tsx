@@ -1,7 +1,8 @@
-import { User, Menu, X, Shield } from "lucide-react";
+import { User, Menu, X, Shield, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const navLinks = [
   { label: "Início", to: "/" },
