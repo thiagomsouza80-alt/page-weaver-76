@@ -56,12 +56,29 @@ const Navbar = () => {
         ))}
       </div>
       <div className="flex items-center gap-3">
-        <Link to="/cadastro-artista">
-          <Button variant="nav" size="sm" className="gap-2 hidden md:inline-flex">
-            <User className="h-4 w-4" />
-            Fazer Cadastro
-          </Button>
-        </Link>
+        {isArtist ? (
+          <Link to="/meu-perfil">
+            <Button variant="nav" size="sm" className="gap-2 hidden md:inline-flex">
+              <User className="h-4 w-4" />
+              Meu Perfil
+            </Button>
+          </Link>
+        ) : (
+          <>
+            <Link to="/cadastro-artista">
+              <Button variant="nav" size="sm" className="gap-2 hidden md:inline-flex">
+                <User className="h-4 w-4" />
+                Fazer Cadastro
+              </Button>
+            </Link>
+            <Link to="/artista/login">
+              <Button variant="ghost" size="sm" className="gap-1.5 hidden md:inline-flex text-muted-foreground hover:text-primary">
+                <LogIn className="h-4 w-4" />
+                Login
+              </Button>
+            </Link>
+          </>
+        )}
         <Link to="/admin/login">
           <Button variant="ghost" size="sm" className="gap-1.5 hidden md:inline-flex text-muted-foreground hover:text-primary">
             <Shield className="h-4 w-4" />
