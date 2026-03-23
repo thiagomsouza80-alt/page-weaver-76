@@ -8,34 +8,19 @@ const WhatsAppIcon = ({ className }: { className?: string }) => (
 );
 
 const ShareButtons = ({ artistName }: { artistName: string }) => {
-  const profileUrl = window.location.href;
-  const shareText = `Confira o perfil de ${artistName} no Amazônia Pop! 🎨`;
-
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(profileUrl);
+    navigator.clipboard.writeText(window.location.href);
     toast.success("Link copiado!");
   };
 
-  const handleWhatsApp = () => {
-    window.open(
-      `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText + "\n" + profileUrl)}`,
-      "_blank"
-    );
-  };
-
-  const btnClass =
-    "inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all active:scale-[0.97]";
-
   return (
     <div className="mt-4 space-y-3">
-      <div className="flex flex-wrap items-center gap-2">
-        <button onClick={handleCopyLink} className={`${btnClass} bg-secondary hover:bg-secondary/80 text-foreground`}>
-          <Share2 className="h-4 w-4" /> Copiar link
-        </button>
-        <button onClick={handleWhatsApp} className={`${btnClass} bg-[#25D366]/15 hover:bg-[#25D366]/25 text-[#25D366]`}>
-          <WhatsAppIcon className="h-4 w-4" /> WhatsApp
-        </button>
-      </div>
+      <button
+        onClick={handleCopyLink}
+        className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all active:scale-[0.97] bg-secondary hover:bg-secondary/80 text-foreground"
+      >
+        <Share2 className="h-4 w-4" /> Compartilhar link do perfil
+      </button>
       <p className="text-xs text-muted-foreground">Compartilhe seu perfil e ganhe mais fans!</p>
     </div>
   );
