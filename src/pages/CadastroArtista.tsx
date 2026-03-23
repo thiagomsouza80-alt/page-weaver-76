@@ -181,7 +181,7 @@ const CadastroArtista = () => {
       <Navbar />
       <div className="pt-24 pb-16 px-6 max-w-3xl mx-auto">
         <div className="animate-fade-up">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">Cadastro de Artista</h1>
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">Faça seu cadastro</h1>
           <p className="text-muted-foreground mb-10">
             Preencha seus dados para fazer parte da comunidade Amazônia Pop.
           </p>
