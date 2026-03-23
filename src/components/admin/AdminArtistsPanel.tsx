@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, CheckCircle, XCircle, Instagram, Eye, X, Pencil, Trash2 } from "lucide-react";
+import { membershipTypes, getMembershipBadge } from "@/lib/membership";
 import type { Tables } from "@/integrations/supabase/types";
 import type { Database } from "@/integrations/supabase/types";
 
@@ -95,6 +96,7 @@ interface EditFormData {
   bio: string;
   profile_image_url: string;
   portfolio_images: string[];
+  membership_type: string;
 }
 
 const ArtistEditModal = ({ artist, onClose, onSave }: { artist: Artist; onClose: () => void; onSave: () => void }) => {
@@ -109,6 +111,7 @@ const ArtistEditModal = ({ artist, onClose, onSave }: { artist: Artist; onClose:
     bio: artist.bio || "",
     profile_image_url: artist.profile_image_url || "",
     portfolio_images: artist.portfolio_images || [],
+    membership_type: (artist as any).membership_type || "free",
   });
 
   const handleSave = async () => {
@@ -126,6 +129,7 @@ const ArtistEditModal = ({ artist, onClose, onSave }: { artist: Artist; onClose:
       bio: form.bio.trim() || null,
       profile_image_url: form.profile_image_url.trim() || null,
       portfolio_images: form.portfolio_images.length > 0 ? form.portfolio_images : null,
+      membership_type: form.membership_type,
     }).eq("id", artist.id);
     setSaving(false);
 
@@ -185,6 +189,17 @@ const ArtistEditModal = ({ artist, onClose, onSave }: { artist: Artist; onClose:
           <div>
             <label className="text-sm font-medium mb-1 block">Bio</label>
             <Textarea value={form.bio} onChange={e => setForm(f => ({ ...f, bio: e.target.value }))} rows={4} />
+          </div>
+          <div>
+            <label className="text-sm font-medium mb-1 block">Tipo de Membro</label>
+            <Select value={form.membership_type} onValueChange={(v) => setForm(f => ({ ...f, membership_type: v }))}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {membershipTypes.map(m => (
+                  <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Foto de perfil miniatura */}
@@ -295,10 +310,15 @@ const AdminArtistsPanel = () => {
                 </div>
               )}
               <div className="flex-1 min-w-0">
-                <h4 className="font-semibold text-sm">{item.name}</h4>
+                <h4 className="font-semibold text-sm">
+                  {item.name}
+                  {getMembershipBadge((item as any).membership_type) && (
+                    <span className="ml-2 text-xs font-semibold">{getMembershipBadge((item as any).membership_type)}</span>
+                  )}
+                </h4>
                 <p className="text-xs text-muted-foreground">
-297:                   {segmentLabels[item.segment]} • {item.city || "Sem cidade"} • {item.email}
-298:                   {item.phone && ` • 📱 ${item.phone}`}
+                  {segmentLabels[item.segment]} • {item.city || "Sem cidade"} • {item.email}
+                  {item.phone && ` • 📱 ${item.phone}`}
                 </p>
                 {item.instagram && (
                   <span className="text-xs text-primary flex items-center gap-1 mt-0.5">
