@@ -240,6 +240,26 @@ const CadastroArtista = () => {
             <p className="text-xs text-muted-foreground">Visível apenas para a administração do portal</p>
           </div>
 
+          {/* Membership Type */}
+          <div className="space-y-2">
+            <Label>Tipo de Membro *</Label>
+            <Select value={membershipValue} onValueChange={(val) => setValue("membership_type", val as "free" | "star" | "pro" | "hero")}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione o tipo de membro" />
+              </SelectTrigger>
+              <SelectContent>
+                {membershipTypes.map(m => (
+                  <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {membershipValue && membershipDescriptions[membershipValue] && (
+              <p className="text-sm text-primary font-medium mt-2 p-3 rounded-lg bg-primary/10">
+                {membershipDescriptions[membershipValue]}
+              </p>
+            )}
+          </div>
+
           {(segmentValue === "cosplayer" || segmentValue === "kpop" || segmentValue === "youtuber" || segmentValue === "influenciador_digital") && (
             <div className="space-y-2 sm:col-span-2">
               <Label htmlFor="youtube_url">Vídeo de Apresentação (YouTube)</Label>
