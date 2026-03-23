@@ -121,6 +121,7 @@ const CadastroArtista = () => {
         city: data.city || null,
         instagram: data.instagram || null,
         phone: data.phone || null,
+        membership_type: data.membership_type || "free",
         youtube_url: data.youtube_url || null,
         profile_image_url: profileUrl,
         portfolio_images: portfolioUrls,
