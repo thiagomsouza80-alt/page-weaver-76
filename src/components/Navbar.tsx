@@ -20,6 +20,26 @@ const actionLinks = [
 const Navbar = () => {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isArtist, setIsArtist] = useState(false);
+
+  useEffect(() => {
+    const checkArtist = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const { data } = await supabase
+          .from("artists")
+          .select("id")
+          .eq("user_id", session.user.id)
+          .maybeSingle();
+        setIsArtist(!!data);
+      } else {
+        setIsArtist(false);
+      }
+    };
+    checkArtist();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => checkArtist());
+    return () => subscription.unsubscribe();
+  }, []);
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-3 bg-background/80 backdrop-blur-md border-b border-border/50">
