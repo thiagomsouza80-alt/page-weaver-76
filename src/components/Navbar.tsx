@@ -102,12 +102,29 @@ const Navbar = () => {
               {link.label}
             </Link>
           ))}
-          <Link to="/cadastro-artista" onClick={() => setMobileOpen(false)}>
-            <Button variant="nav" size="sm" className="gap-2 w-fit">
-              <User className="h-4 w-4" />
-              Fazer Cadastro
-            </Button>
-          </Link>
+          {isArtist ? (
+            <Link to="/meu-perfil" onClick={() => setMobileOpen(false)}>
+              <Button variant="nav" size="sm" className="gap-2 w-fit">
+                <User className="h-4 w-4" />
+                Meu Perfil
+              </Button>
+            </Link>
+          ) : (
+            <>
+              <Link to="/cadastro-artista" onClick={() => setMobileOpen(false)}>
+                <Button variant="nav" size="sm" className="gap-2 w-fit">
+                  <User className="h-4 w-4" />
+                  Fazer Cadastro
+                </Button>
+              </Link>
+              <Link to="/artista/login" onClick={() => setMobileOpen(false)}>
+                <Button variant="ghost" size="sm" className="gap-1.5 w-fit text-muted-foreground hover:text-primary">
+                  <LogIn className="h-4 w-4" />
+                  Login
+                </Button>
+              </Link>
+            </>
+          )}
           <Link to="/admin/login" onClick={() => setMobileOpen(false)}>
             <Button variant="ghost" size="sm" className="gap-1.5 w-fit text-muted-foreground hover:text-primary">
               <Shield className="h-4 w-4" />
