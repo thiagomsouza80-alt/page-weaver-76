@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Loader2, Instagram, Heart } from "lucide-react";
+import { getMembershipBadge } from "@/lib/membership";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import artistIlustrador from "@/assets/artist-ilustrador.jpg";
