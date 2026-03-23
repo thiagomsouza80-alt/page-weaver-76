@@ -11,7 +11,7 @@ import AdminEntrepreneursPanel from "@/components/admin/AdminEntrepreneursPanel"
 import AdminPendingUpdatesPanel from "@/components/admin/AdminPendingUpdatesPanel";
 import logoOficial from "@/assets/logo-oficial.png";
 
-type Tab = "news" | "events" | "artists" | "entrepreneurs";
+type Tab = "news" | "events" | "artists" | "entrepreneurs" | "pending";
 
 const AdminDashboard = () => {
   const { loading, isAdmin } = useAdmin();
