@@ -65,6 +65,7 @@ export type Database = {
           fan_count: number
           id: string
           instagram: string | null
+          membership_type: string
           name: string
           phone: string | null
           portfolio_images: string[] | null
@@ -83,6 +84,7 @@ export type Database = {
           fan_count?: number
           id?: string
           instagram?: string | null
+          membership_type?: string
           name: string
           phone?: string | null
           portfolio_images?: string[] | null
@@ -101,6 +103,7 @@ export type Database = {
           fan_count?: number
           id?: string
           instagram?: string | null
+          membership_type?: string
           name?: string
           phone?: string | null
           portfolio_images?: string[] | null
