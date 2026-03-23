@@ -33,6 +33,7 @@ const schema = z.object({
   bio: z.string().trim().max(1000, "Máximo 1000 caracteres").optional(),
   city: z.string().trim().max(100).optional(),
   instagram: z.string().trim().max(100).optional(),
+  phone: z.string().trim().max(20, "Máximo 20 caracteres").optional(),
   youtube_url: z.string().trim().url("URL inválida").max(500).optional().or(z.literal("")),
 });
 
@@ -116,6 +117,7 @@ const CadastroArtista = () => {
         bio: data.bio || null,
         city: data.city || null,
         instagram: data.instagram || null,
+        phone: data.phone || null,
         youtube_url: data.youtube_url || null,
         profile_image_url: profileUrl,
         portfolio_images: portfolioUrls,
@@ -226,6 +228,12 @@ const CadastroArtista = () => {
               <Label htmlFor="instagram">Instagram</Label>
               <Input id="instagram" placeholder="@seuinstagram" {...register("instagram")} />
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="phone">Telefone / WhatsApp</Label>
+            <Input id="phone" placeholder="(91) 99999-9999" {...register("phone")} />
+            <p className="text-xs text-muted-foreground">Visível apenas para a administração do portal</p>
           </div>
 
           {(segmentValue === "cosplayer" || segmentValue === "kpop" || segmentValue === "youtuber" || segmentValue === "influenciador_digital") && (

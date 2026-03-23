@@ -51,6 +51,9 @@ const ArtistPreview = ({ artist, onClose }: { artist: Artist; onClose: () => voi
             <h2 className="text-2xl font-bold mb-1">{artist.name}</h2>
             <p className="text-sm text-muted-foreground mb-1">{artist.city || "Sem cidade"}</p>
             <p className="text-sm text-muted-foreground">{artist.email}</p>
+            {artist.phone && (
+              <p className="text-sm text-muted-foreground">📱 {artist.phone}</p>
+            )}
             {artist.instagram && (
               <p className="flex items-center gap-1.5 text-sm text-primary mt-2">
                 <Instagram className="h-4 w-4" /> {artist.instagram}
@@ -294,7 +297,8 @@ const AdminArtistsPanel = () => {
               <div className="flex-1 min-w-0">
                 <h4 className="font-semibold text-sm">{item.name}</h4>
                 <p className="text-xs text-muted-foreground">
-                  {segmentLabels[item.segment]} • {item.city || "Sem cidade"} • {item.email}
+297:                   {segmentLabels[item.segment]} • {item.city || "Sem cidade"} • {item.email}
+298:                   {item.phone && ` • 📱 ${item.phone}`}
                 </p>
                 {item.instagram && (
                   <span className="text-xs text-primary flex items-center gap-1 mt-0.5">
