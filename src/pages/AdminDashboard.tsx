@@ -78,6 +78,7 @@ const AdminDashboard = () => {
         {tab === "events" && <AdminEventsPanel />}
         {tab === "artists" && <AdminArtistsPanel />}
         {tab === "entrepreneurs" && <AdminEntrepreneursPanel />}
+        {tab === "pending" && <AdminPendingUpdatesPanel />}
       </main>
     </div>
   );
