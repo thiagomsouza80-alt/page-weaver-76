@@ -297,7 +297,8 @@ const AdminArtistsPanel = () => {
               <div className="flex-1 min-w-0">
                 <h4 className="font-semibold text-sm">{item.name}</h4>
                 <p className="text-xs text-muted-foreground">
-                  {segmentLabels[item.segment]} • {item.city || "Sem cidade"} • {item.email}
+297:                   {segmentLabels[item.segment]} • {item.city || "Sem cidade"} • {item.email}
+298:                   {item.phone && ` • 📱 ${item.phone}`}
                 </p>
                 {item.instagram && (
                   <span className="text-xs text-primary flex items-center gap-1 mt-0.5">
