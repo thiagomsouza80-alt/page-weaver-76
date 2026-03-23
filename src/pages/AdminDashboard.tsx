@@ -8,6 +8,7 @@ import AdminNewsPanel from "@/components/admin/AdminNewsPanel";
 import AdminEventsPanel from "@/components/admin/AdminEventsPanel";
 import AdminArtistsPanel from "@/components/admin/AdminArtistsPanel";
 import AdminEntrepreneursPanel from "@/components/admin/AdminEntrepreneursPanel";
+import AdminPendingUpdatesPanel from "@/components/admin/AdminPendingUpdatesPanel";
 import logoOficial from "@/assets/logo-oficial.png";
 
 type Tab = "news" | "events" | "artists" | "entrepreneurs";
