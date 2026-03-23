@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, CheckCircle, XCircle, Instagram, Eye, X, Pencil, Trash2 } from "lucide-react";
+import { membershipTypes, getMembershipBadge } from "@/lib/membership";
 import type { Tables } from "@/integrations/supabase/types";
 import type { Database } from "@/integrations/supabase/types";
 
