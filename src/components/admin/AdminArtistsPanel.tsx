@@ -111,6 +111,7 @@ const ArtistEditModal = ({ artist, onClose, onSave }: { artist: Artist; onClose:
     bio: artist.bio || "",
     profile_image_url: artist.profile_image_url || "",
     portfolio_images: artist.portfolio_images || [],
+    membership_type: (artist as any).membership_type || "free",
   });
 
   const handleSave = async () => {
