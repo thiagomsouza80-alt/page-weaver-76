@@ -38,6 +38,7 @@ const AdminDashboard = () => {
     { key: "events" as Tab, label: "Eventos", icon: CalendarDays },
     { key: "artists" as Tab, label: "Artistas", icon: Users },
     { key: "entrepreneurs" as Tab, label: "Empreendedores", icon: Store },
+    { key: "pending" as Tab, label: "Atualizações", icon: ClipboardCheck },
   ];
 
   return (
