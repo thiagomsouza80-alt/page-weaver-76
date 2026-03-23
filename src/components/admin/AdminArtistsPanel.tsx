@@ -51,6 +51,9 @@ const ArtistPreview = ({ artist, onClose }: { artist: Artist; onClose: () => voi
             <h2 className="text-2xl font-bold mb-1">{artist.name}</h2>
             <p className="text-sm text-muted-foreground mb-1">{artist.city || "Sem cidade"}</p>
             <p className="text-sm text-muted-foreground">{artist.email}</p>
+            {artist.phone && (
+              <p className="text-sm text-muted-foreground">📱 {artist.phone}</p>
+            )}
             {artist.instagram && (
               <p className="flex items-center gap-1.5 text-sm text-primary mt-2">
                 <Instagram className="h-4 w-4" /> {artist.instagram}
