@@ -190,6 +190,17 @@ const ArtistEditModal = ({ artist, onClose, onSave }: { artist: Artist; onClose:
             <label className="text-sm font-medium mb-1 block">Bio</label>
             <Textarea value={form.bio} onChange={e => setForm(f => ({ ...f, bio: e.target.value }))} rows={4} />
           </div>
+          <div>
+            <label className="text-sm font-medium mb-1 block">Tipo de Membro</label>
+            <Select value={form.membership_type} onValueChange={(v) => setForm(f => ({ ...f, membership_type: v }))}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {membershipTypes.map(m => (
+                  <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
           {/* Foto de perfil miniatura */}
           {form.profile_image_url && (
