@@ -96,6 +96,7 @@ interface EditFormData {
   bio: string;
   profile_image_url: string;
   portfolio_images: string[];
+  membership_type: string;
 }
 
 const ArtistEditModal = ({ artist, onClose, onSave }: { artist: Artist; onClose: () => void; onSave: () => void }) => {
