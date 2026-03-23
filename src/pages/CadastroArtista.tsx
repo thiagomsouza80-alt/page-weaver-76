@@ -196,8 +196,8 @@ const CadastroArtista = () => {
           {/* Basic Info */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="name">Nome Artístico *</Label>
-              <Input id="name" placeholder="Seu nome artístico" {...register("name")} />
+              <Label htmlFor="name">Nome Completo *</Label>
+              <Input id="name" placeholder="Seu nome completo" {...register("name")} />
               {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
             </div>
             <div className="space-y-2">
