@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Upload, X, Camera, CheckCircle, Loader2 } from "lucide-react";
+import { membershipTypes, membershipDescriptions } from "@/lib/membership";
 
 const segments = [
   { value: "cosplayer", label: "Cosplayer" },
