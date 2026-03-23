@@ -7,6 +7,7 @@ import FanButton from "@/components/FanButton";
 import ShareButtons from "@/components/ShareButtons";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
+import { getMembershipBadge } from "@/lib/membership";
 
 import artistIlustrador from "@/assets/artist-ilustrador.jpg";
 import artistCosplayer from "@/assets/artist-cosplayer.jpg";
