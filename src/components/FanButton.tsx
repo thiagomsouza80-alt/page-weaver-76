@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Heart } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
-import { useToast } from "@/hooks/use-toast";
 
 interface FanButtonProps {
   artistId: string;
@@ -10,24 +9,11 @@ interface FanButtonProps {
 }
 
 const FanButton = ({ artistId, initialCount }: FanButtonProps) => {
-  const { toast } = useToast();
   const [isFan, setIsFan] = useState(false);
   const [count, setCount] = useState(initialCount);
   const [animating, setAnimating] = useState(false);
-  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUserId(session?.user?.id || null);
-    });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
-      setUserId(session?.user?.id || null);
-    });
-    return () => subscription.unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    // Check if user already fanned (using localStorage as fallback)
     try {
       const fanned = JSON.parse(localStorage.getItem("amazonia_pop_fans") || "[]");
       setIsFan(fanned.includes(artistId));
@@ -38,15 +24,6 @@ const FanButton = ({ artistId, initialCount }: FanButtonProps) => {
 
   const handleToggleFan = async () => {
     if (isFan) return;
-
-    if (!userId) {
-      toast({
-        title: "Faça login para ser fã!",
-        description: "Você precisa estar cadastrado e logado para curtir um artista.",
-        variant: "destructive",
-      });
-      return;
-    }
 
     setAnimating(true);
     setTimeout(() => setAnimating(false), 600);
