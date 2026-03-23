@@ -35,6 +35,7 @@ const schema = z.object({
   city: z.string().trim().max(100).optional(),
   instagram: z.string().trim().max(100).optional(),
   phone: z.string().trim().max(20, "Máximo 20 caracteres").optional(),
+  membership_type: z.enum(["free", "star", "pro", "hero"]).default("free"),
   youtube_url: z.string().trim().url("URL inválida").max(500).optional().or(z.literal("")),
 });
 
