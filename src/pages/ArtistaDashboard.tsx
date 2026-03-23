@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import {
-  Loader2, LogOut, Save, Upload, X, Camera, Heart, Eye, ExternalLink,
+  Loader2, LogOut, Save, Upload, X, Camera, Heart, Eye, ExternalLink, Clock, CheckCircle, XCircle,
 } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -29,12 +29,24 @@ const segmentLabels: Record<string, string> = {
 const getSlug = (name: string) =>
   name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
+interface PendingUpdate {
+  id: string;
+  changes: Record<string, any>;
+  status: string;
+  admin_notes: string | null;
+  created_at: string;
+  reviewed_at: string | null;
+}
+
 const ArtistaDashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [artist, setArtist] = useState<Tables<"artists"> | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [pendingUpdates, setPendingUpdates] = useState<PendingUpdate[]>([]);
+  const [hasPending, setHasPending] = useState(false);
 
   // Editable fields
   const [bio, setBio] = useState("");
@@ -52,35 +64,45 @@ const ArtistaDashboard = () => {
   const [newPortfolioPreviews, setNewPortfolioPreviews] = useState<string[]>([]);
 
   useEffect(() => {
-    const loadArtist = async () => {
+    const loadData = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        navigate("/artista/login");
-        return;
-      }
+      if (!user) { navigate("/artista/login"); return; }
 
-      const { data, error } = await supabase
+      setUserId(user.id);
+
+      const { data: artistData } = await supabase
         .from("artists")
         .select("*")
         .eq("user_id", user.id)
         .maybeSingle();
 
-      if (error || !data) {
-        navigate("/artista/login");
-        return;
+      if (!artistData) { navigate("/artista/login"); return; }
+
+      setArtist(artistData);
+      setBio(artistData.bio || "");
+      setCity(artistData.city || "");
+      setInstagram(artistData.instagram || "");
+      setYoutubeUrl((artistData as any).youtube_url || "");
+      setPortfolioImages(artistData.portfolio_images?.filter(Boolean) || []);
+      setProfilePreview(artistData.profile_image_url);
+
+      // Load pending updates
+      const { data: pending } = await supabase
+        .from("artist_pending_updates")
+        .select("*")
+        .eq("artist_id", artistData.id)
+        .order("created_at", { ascending: false })
+        .limit(5);
+
+      if (pending) {
+        setPendingUpdates(pending as unknown as PendingUpdate[]);
+        setHasPending(pending.some((p: any) => p.status === "pending"));
       }
 
-      setArtist(data);
-      setBio(data.bio || "");
-      setCity(data.city || "");
-      setInstagram(data.instagram || "");
-      setYoutubeUrl((data as any).youtube_url || "");
-      setPortfolioImages(data.portfolio_images?.filter(Boolean) || []);
-      setProfilePreview(data.profile_image_url);
       setLoading(false);
     };
 
-    loadArtist();
+    loadData();
   }, [navigate]);
 
   const uploadFile = async (file: File, folder: string) => {
@@ -125,51 +147,84 @@ const ArtistaDashboard = () => {
   };
 
   const handleSave = async () => {
-    if (!artist) return;
-    setSaving(true);
+    if (!artist || !userId) return;
 
+    if (hasPending) {
+      toast({
+        title: "Atualização pendente",
+        description: "Você já tem uma atualização aguardando aprovação. Aguarde a análise do administrador.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSaving(true);
     try {
-      let profileUrl = artist.profile_image_url;
+      // Upload new images first
+      let newProfileUrl: string | null = null;
       if (newProfileImage) {
-        profileUrl = await uploadFile(newProfileImage, "profiles");
+        newProfileUrl = await uploadFile(newProfileImage, "profiles");
       }
 
-      const newUrls: string[] = [];
+      const newPortfolioUrls: string[] = [];
       for (const file of newPortfolioFiles) {
         const url = await uploadFile(file, "portfolio");
-        newUrls.push(url);
+        newPortfolioUrls.push(url);
       }
 
-      const allPortfolio = [...portfolioImages, ...newUrls];
+      const allPortfolio = [...portfolioImages, ...newPortfolioUrls];
 
+      // Build changes object (only changed fields)
+      const changes: Record<string, any> = {};
+      if (bio !== (artist.bio || "")) changes.bio = bio || null;
+      if (city !== (artist.city || "")) changes.city = city || null;
+      if (instagram !== (artist.instagram || "")) changes.instagram = instagram || null;
+      if (youtubeUrl !== ((artist as any).youtube_url || "")) changes.youtube_url = youtubeUrl || null;
+      if (newProfileUrl) changes.profile_image_url = newProfileUrl;
+
+      const currentPortfolio = artist.portfolio_images?.filter(Boolean) || [];
+      if (JSON.stringify(allPortfolio) !== JSON.stringify(currentPortfolio)) {
+        changes.portfolio_images = allPortfolio;
+      }
+
+      if (Object.keys(changes).length === 0) {
+        toast({ title: "Nenhuma alteração", description: "Você não modificou nenhum dado." });
+        setSaving(false);
+        return;
+      }
+
+      // Submit as pending update
       const { error } = await supabase
-        .from("artists")
-        .update({
-          bio: bio || null,
-          city: city || null,
-          instagram: instagram || null,
-          youtube_url: youtubeUrl || null,
-          profile_image_url: profileUrl,
-          portfolio_images: allPortfolio,
-        })
-        .eq("id", artist.id);
+        .from("artist_pending_updates")
+        .insert({
+          artist_id: artist.id,
+          user_id: userId,
+          changes,
+        });
 
       if (error) throw error;
 
-      setArtist(prev => prev ? {
-        ...prev,
-        bio, city, instagram, youtube_url: youtubeUrl,
-        profile_image_url: profileUrl,
-        portfolio_images: allPortfolio,
-      } : null);
-      setPortfolioImages(allPortfolio);
+      setHasPending(true);
+      setNewProfileImage(null);
       setNewPortfolioFiles([]);
       setNewPortfolioPreviews([]);
-      setNewProfileImage(null);
 
-      toast({ title: "Perfil atualizado!" });
+      // Refresh pending updates
+      const { data: pending } = await supabase
+        .from("artist_pending_updates")
+        .select("*")
+        .eq("artist_id", artist.id)
+        .order("created_at", { ascending: false })
+        .limit(5);
+
+      if (pending) setPendingUpdates(pending as unknown as PendingUpdate[]);
+
+      toast({
+        title: "Atualização enviada!",
+        description: "Suas alterações serão analisadas pelo administrador antes de serem publicadas.",
+      });
     } catch (err: any) {
-      toast({ title: "Erro ao salvar", description: err.message, variant: "destructive" });
+      toast({ title: "Erro ao enviar", description: err.message, variant: "destructive" });
     } finally {
       setSaving(false);
     }
@@ -196,6 +251,18 @@ const ArtistaDashboard = () => {
 
   const totalPortfolio = portfolioImages.length + newPortfolioFiles.length;
 
+  const statusIcon = (status: string) => {
+    if (status === "pending") return <Clock className="h-4 w-4 text-yellow-500" />;
+    if (status === "approved") return <CheckCircle className="h-4 w-4 text-green-500" />;
+    return <XCircle className="h-4 w-4 text-destructive" />;
+  };
+
+  const statusLabel = (status: string) => {
+    if (status === "pending") return "Em análise";
+    if (status === "approved") return "Aprovada";
+    return "Rejeitada";
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -218,6 +285,19 @@ const ArtistaDashboard = () => {
           </div>
         </div>
 
+        {/* Pending update banner */}
+        {hasPending && (
+          <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 mb-6 flex items-center gap-3 animate-fade-up">
+            <Clock className="h-5 w-5 text-yellow-500 shrink-0" />
+            <div>
+              <p className="text-sm font-medium">Atualização em análise</p>
+              <p className="text-xs text-muted-foreground">
+                Você tem alterações aguardando aprovação do administrador. Novas edições só poderão ser enviadas após a análise.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Stats */}
         <div className="grid grid-cols-2 gap-4 mb-8 animate-fade-up">
           <div className="bg-card rounded-xl border border-border p-6 text-center">
@@ -227,20 +307,51 @@ const ArtistaDashboard = () => {
           </div>
           <div className="bg-card rounded-xl border border-border p-6 text-center">
             <Eye className="h-6 w-6 text-primary mx-auto mb-2" />
-            <p className="text-3xl font-bold">
-              {artist.approved ? (
-                <span className="text-green-500 text-base font-semibold">Aprovado ✓</span>
-              ) : (
-                <span className="text-yellow-500 text-base font-semibold">Em análise</span>
-              )}
-            </p>
-            <p className="text-sm text-muted-foreground">Status</p>
+            {artist.approved ? (
+              <p className="text-base font-semibold text-green-500">Aprovado ✓</p>
+            ) : (
+              <p className="text-base font-semibold text-yellow-500">Em análise</p>
+            )}
+            <p className="text-sm text-muted-foreground mt-1">Status do perfil</p>
           </div>
         </div>
+
+        {/* Recent updates history */}
+        {pendingUpdates.length > 0 && (
+          <div className="bg-card rounded-2xl border border-border p-6 mb-8 animate-fade-up">
+            <h2 className="text-lg font-bold mb-4">Histórico de Atualizações</h2>
+            <div className="space-y-3">
+              {pendingUpdates.map((update) => (
+                <div key={update.id} className="flex items-center justify-between p-3 rounded-lg bg-secondary/50">
+                  <div className="flex items-center gap-3">
+                    {statusIcon(update.status)}
+                    <div>
+                      <p className="text-sm font-medium">{statusLabel(update.status)}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(update.created_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-muted-foreground">
+                      {Object.keys(update.changes).length} campo(s) alterado(s)
+                    </p>
+                    {update.admin_notes && (
+                      <p className="text-xs text-muted-foreground mt-0.5">Nota: {update.admin_notes}</p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Edit Form */}
         <div className="bg-card rounded-2xl border border-border p-8 space-y-8 animate-fade-up-delay-1">
           <h2 className="text-xl font-bold">Editar Informações</h2>
+          <p className="text-sm text-muted-foreground -mt-4">
+            As alterações serão enviadas para aprovação do administrador antes de serem publicadas.
+          </p>
 
           {/* Profile Photo */}
           <div className="space-y-3">
@@ -252,7 +363,7 @@ const ArtistaDashboard = () => {
                 ) : (
                   <Camera className="h-8 w-8 text-muted-foreground group-hover:text-primary transition-colors" />
                 )}
-                <input type="file" accept="image/*" onChange={handleProfileImage} className="hidden" />
+                <input type="file" accept="image/*" onChange={handleProfileImage} className="hidden" disabled={hasPending} />
               </label>
               <div className="text-sm text-muted-foreground">
                 <p>Clique para alterar</p>
@@ -277,22 +388,22 @@ const ArtistaDashboard = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label htmlFor="city">Cidade</Label>
-              <Input id="city" placeholder="Ex: Belém - PA" value={city} onChange={e => setCity(e.target.value)} />
+              <Input id="city" placeholder="Ex: Belém - PA" value={city} onChange={e => setCity(e.target.value)} disabled={hasPending} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="instagram">Instagram</Label>
-              <Input id="instagram" placeholder="@seuinstagram" value={instagram} onChange={e => setInstagram(e.target.value)} />
+              <Input id="instagram" placeholder="@seuinstagram" value={instagram} onChange={e => setInstagram(e.target.value)} disabled={hasPending} />
             </div>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="youtube_url">Vídeo de Apresentação (YouTube)</Label>
-            <Input id="youtube_url" placeholder="https://www.youtube.com/watch?v=..." value={youtubeUrl} onChange={e => setYoutubeUrl(e.target.value)} />
+            <Input id="youtube_url" placeholder="https://www.youtube.com/watch?v=..." value={youtubeUrl} onChange={e => setYoutubeUrl(e.target.value)} disabled={hasPending} />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="bio">Bio / Sobre você</Label>
-            <Textarea id="bio" placeholder="Conte um pouco sobre você..." rows={5} value={bio} onChange={e => setBio(e.target.value)} />
+            <Textarea id="bio" placeholder="Conte um pouco sobre você..." rows={5} value={bio} onChange={e => setBio(e.target.value)} disabled={hasPending} />
           </div>
 
           {/* Portfolio */}
@@ -302,13 +413,15 @@ const ArtistaDashboard = () => {
               {portfolioImages.map((src, i) => (
                 <div key={`existing-${i}`} className="relative aspect-square rounded-xl overflow-hidden bg-secondary group">
                   <img src={src} alt={`Portfolio ${i + 1}`} className="w-full h-full object-cover" />
-                  <button
-                    type="button"
-                    onClick={() => removeExistingPortfolio(i)}
-                    className="absolute top-2 right-2 bg-background/80 backdrop-blur-sm rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
+                  {!hasPending && (
+                    <button
+                      type="button"
+                      onClick={() => removeExistingPortfolio(i)}
+                      className="absolute top-2 right-2 bg-background/80 backdrop-blur-sm rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  )}
                 </div>
               ))}
               {newPortfolioPreviews.map((src, i) => (
@@ -324,7 +437,7 @@ const ArtistaDashboard = () => {
                   <span className="absolute bottom-2 left-2 text-[10px] bg-primary/80 text-primary-foreground px-2 py-0.5 rounded-full">Novo</span>
                 </div>
               ))}
-              {totalPortfolio < 6 && (
+              {totalPortfolio < 6 && !hasPending && (
                 <label className="aspect-square rounded-xl border-2 border-dashed border-border hover:border-primary/50 cursor-pointer flex flex-col items-center justify-center gap-2 transition-colors group">
                   <Upload className="h-6 w-6 text-muted-foreground group-hover:text-primary transition-colors" />
                   <span className="text-xs text-muted-foreground">Adicionar</span>
@@ -334,16 +447,21 @@ const ArtistaDashboard = () => {
             </div>
           </div>
 
-          <Button onClick={handleSave} variant="hero" size="lg" disabled={saving} className="w-full sm:w-auto">
+          <Button onClick={handleSave} variant="hero" size="lg" disabled={saving || hasPending} className="w-full sm:w-auto">
             {saving ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Salvando...
+                Enviando...
+              </>
+            ) : hasPending ? (
+              <>
+                <Clock className="h-4 w-4" />
+                Aguardando Aprovação
               </>
             ) : (
               <>
                 <Save className="h-4 w-4" />
-                Salvar Alterações
+                Enviar para Aprovação
               </>
             )}
           </Button>

@@ -2,15 +2,16 @@ import { useState } from "react";
 import { useAdmin } from "@/hooks/useAdmin";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Loader2, Newspaper, CalendarDays, Users, LogOut, ExternalLink, Store } from "lucide-react";
+import { Loader2, Newspaper, CalendarDays, Users, LogOut, ExternalLink, Store, ClipboardCheck } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import AdminNewsPanel from "@/components/admin/AdminNewsPanel";
 import AdminEventsPanel from "@/components/admin/AdminEventsPanel";
 import AdminArtistsPanel from "@/components/admin/AdminArtistsPanel";
 import AdminEntrepreneursPanel from "@/components/admin/AdminEntrepreneursPanel";
+import AdminPendingUpdatesPanel from "@/components/admin/AdminPendingUpdatesPanel";
 import logoOficial from "@/assets/logo-oficial.png";
 
-type Tab = "news" | "events" | "artists" | "entrepreneurs";
+type Tab = "news" | "events" | "artists" | "entrepreneurs" | "pending";
 
 const AdminDashboard = () => {
   const { loading, isAdmin } = useAdmin();
@@ -37,6 +38,7 @@ const AdminDashboard = () => {
     { key: "events" as Tab, label: "Eventos", icon: CalendarDays },
     { key: "artists" as Tab, label: "Artistas", icon: Users },
     { key: "entrepreneurs" as Tab, label: "Empreendedores", icon: Store },
+    { key: "pending" as Tab, label: "Atualizações", icon: ClipboardCheck },
   ];
 
   return (
@@ -76,6 +78,7 @@ const AdminDashboard = () => {
         {tab === "events" && <AdminEventsPanel />}
         {tab === "artists" && <AdminArtistsPanel />}
         {tab === "entrepreneurs" && <AdminEntrepreneursPanel />}
+        {tab === "pending" && <AdminPendingUpdatesPanel />}
       </main>
     </div>
   );
