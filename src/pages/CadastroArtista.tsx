@@ -55,6 +55,7 @@ const CadastroArtista = () => {
   });
 
   const segmentValue = watch("segment");
+  const membershipValue = watch("membership_type") || "free";
 
   const handleProfileImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
