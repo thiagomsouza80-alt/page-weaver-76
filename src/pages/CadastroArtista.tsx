@@ -229,6 +229,12 @@ const CadastroArtista = () => {
             </div>
           </div>
 
+          <div className="space-y-2">
+            <Label htmlFor="phone">Telefone / WhatsApp</Label>
+            <Input id="phone" placeholder="(91) 99999-9999" {...register("phone")} />
+            <p className="text-xs text-muted-foreground">Visível apenas para a administração do portal</p>
+          </div>
+
           {(segmentValue === "cosplayer" || segmentValue === "kpop" || segmentValue === "youtuber" || segmentValue === "influenciador_digital") && (
             <div className="space-y-2 sm:col-span-2">
               <Label htmlFor="youtube_url">Vídeo de Apresentação (YouTube)</Label>
