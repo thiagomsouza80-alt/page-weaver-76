@@ -154,13 +154,21 @@ const CadastroArtista = () => {
           <div className="animate-fade-up">
             <CheckCircle className="h-20 w-20 text-green-500 mx-auto mb-6" />
             <h1 className="text-3xl font-bold mb-4">Cadastro Enviado!</h1>
-            <p className="text-muted-foreground text-lg mb-8">
+            <p className="text-muted-foreground text-lg mb-4">
               Seu perfil foi recebido e será analisado pela equipe Amazônia Pop.
-              Você receberá um e-mail quando for aprovado.
+              Quando for aprovado, seu perfil ficará visível na plataforma.
             </p>
-            <Button variant="hero" size="lg" onClick={() => window.location.href = "/"}>
-              Voltar ao Início
-            </Button>
+            <p className="text-muted-foreground mb-8">
+              Você já pode fazer login para acompanhar o status do seu perfil.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Button variant="hero" size="lg" onClick={() => window.location.href = "/artista/login"}>
+                Fazer Login
+              </Button>
+              <Button variant="outline" size="lg" onClick={() => window.location.href = "/"}>
+                Voltar ao Início
+              </Button>
+            </div>
           </div>
         </div>
         <Footer />
