@@ -23,11 +23,6 @@ const ShareButtons = ({ artistName }: { artistName: string }) => {
     );
   };
 
-  const handleInstagram = () => {
-    navigator.clipboard.writeText(profileUrl);
-    toast.success("Link copiado! Cole nos seus Stories do Instagram 📸");
-  };
-
   const btnClass =
     "inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all active:scale-[0.97]";
 
@@ -39,9 +34,6 @@ const ShareButtons = ({ artistName }: { artistName: string }) => {
         </button>
         <button onClick={handleWhatsApp} className={`${btnClass} bg-[#25D366]/15 hover:bg-[#25D366]/25 text-[#25D366]`}>
           <WhatsAppIcon className="h-4 w-4" /> WhatsApp
-        </button>
-        <button onClick={handleInstagram} className={`${btnClass} bg-[#E1306C]/15 hover:bg-[#E1306C]/25 text-[#E1306C]`}>
-          <Instagram className="h-4 w-4" /> Instagram Stories
         </button>
       </div>
       <p className="text-xs text-muted-foreground">Compartilhe seu perfil e ganhe mais fans!</p>
