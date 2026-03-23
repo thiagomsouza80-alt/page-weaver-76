@@ -2,20 +2,7 @@ import { useState, useEffect } from "react";
 import { Heart } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
-
-const STORAGE_KEY = "amazonia_pop_fans";
-
-const getFannedArtists = (): string[] => {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-  } catch {
-    return [];
-  }
-};
-
-const setFannedArtists = (ids: string[]) => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(ids));
-};
+import { useToast } from "@/hooks/use-toast";
 
 interface FanButtonProps {
   artistId: string;
@@ -23,34 +10,60 @@ interface FanButtonProps {
 }
 
 const FanButton = ({ artistId, initialCount }: FanButtonProps) => {
+  const { toast } = useToast();
   const [isFan, setIsFan] = useState(false);
   const [count, setCount] = useState(initialCount);
   const [animating, setAnimating] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    setIsFan(getFannedArtists().includes(artistId));
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUserId(session?.user?.id || null);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+      setUserId(session?.user?.id || null);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    // Check if user already fanned (using localStorage as fallback)
+    try {
+      const fanned = JSON.parse(localStorage.getItem("amazonia_pop_fans") || "[]");
+      setIsFan(fanned.includes(artistId));
+    } catch {
+      setIsFan(false);
+    }
   }, [artistId]);
 
   const handleToggleFan = async () => {
-    if (isFan) return; // Anônimo — não permite desfazer
+    if (isFan) return;
+
+    if (!userId) {
+      toast({
+        title: "Faça login para ser fã!",
+        description: "Você precisa estar cadastrado e logado para curtir um artista.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setAnimating(true);
     setTimeout(() => setAnimating(false), 600);
 
-    // Optimistic update
     setCount((c) => c + 1);
     setIsFan(true);
-    setFannedArtists([...getFannedArtists(), artistId]);
+    const fanned = JSON.parse(localStorage.getItem("amazonia_pop_fans") || "[]");
+    localStorage.setItem("amazonia_pop_fans", JSON.stringify([...fanned, artistId]));
 
     const { data, error } = await supabase.rpc("increment_fan_count", {
       _artist_id: artistId,
     });
 
     if (error) {
-      // Rollback
       setCount((c) => c - 1);
       setIsFan(false);
-      setFannedArtists(getFannedArtists().filter((id) => id !== artistId));
+      localStorage.setItem("amazonia_pop_fans", JSON.stringify(fanned.filter((id: string) => id !== artistId)));
     } else if (typeof data === "number") {
       setCount(data);
     }
