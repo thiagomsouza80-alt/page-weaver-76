@@ -137,6 +137,9 @@ const ArtistsSection = () => {
                 </div>
                 <h3 className="font-bold text-sm md:text-base">{artist.name}</h3>
                 <p className="text-muted-foreground text-xs">{segmentLabels[artist.segment]}</p>
+                {getMembershipBadge((artist as any).membership_type) && (
+                  <p className="text-xs font-semibold mt-0.5">{getMembershipBadge((artist as any).membership_type)}</p>
+                )}
                 {artist.fan_count > 0 && (
                   <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
                     <Heart className="h-3 w-3 fill-primary text-primary" /> possui {artist.fan_count} {artist.fan_count === 1 ? "fan" : "fans"}

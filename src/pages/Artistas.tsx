@@ -110,6 +110,9 @@ const Artistas = () => {
                       <h3 className="font-bold text-lg">{artist.name}</h3>
                     </div>
                     <p className="text-primary text-sm font-medium">{segmentLabels[artist.segment]}</p>
+                    {getMembershipBadge((artist as any).membership_type) && (
+                      <p className="text-sm font-semibold">{getMembershipBadge((artist as any).membership_type)}</p>
+                    )}
                     {artist.fan_count > 0 && (
                       <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
                         <Heart className="h-3 w-3 fill-primary text-primary" /> possui {artist.fan_count} {artist.fan_count === 1 ? "fan" : "fans"}
