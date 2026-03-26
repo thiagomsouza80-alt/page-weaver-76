@@ -103,6 +103,14 @@ const CadastroArtista = () => {
   const onSubmit = async (data: FormData) => {
     setSubmitting(true);
     try {
+      // 1. Create auth account
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+      });
+      if (authError) throw authError;
+      if (!authData.user) throw new Error("Erro ao criar conta");
+
       let profileUrl: string | null = null;
       if (profileImage) {
         profileUrl = await uploadFile(profileImage, "profiles");
@@ -114,6 +122,7 @@ const CadastroArtista = () => {
         portfolioUrls.push(url);
       }
 
+      // 2. Insert artist profile linked to user
       const { error } = await supabase.from("artists").insert({
         name: data.name,
         email: data.email,
@@ -126,9 +135,13 @@ const CadastroArtista = () => {
         youtube_url: data.youtube_url || null,
         profile_image_url: profileUrl,
         portfolio_images: portfolioUrls,
+        user_id: authData.user.id,
       });
 
       if (error) throw error;
+
+      // Sign out so admin needs to approve first
+      await supabase.auth.signOut();
 
       setSuccess(true);
       toast({ title: "Cadastro enviado!", description: "Seu perfil será analisado pela equipe." });
