@@ -48,6 +48,8 @@ const App = () => (
           <Route path="/empreendedores/atelie-cosmaker" element={<AtelieCosmaker />} />
           <Route path="/empreendedores/:slug" element={<EmpreendedorDetalhe />} />
           <Route path="/cadastro-empreendedor" element={<CadastroEmpreendedor />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/meu-perfil" element={<MeuPerfil />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="*" element={<NotFound />} />

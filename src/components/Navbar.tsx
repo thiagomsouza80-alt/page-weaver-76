@@ -1,7 +1,8 @@
-import { User, Menu, X, Shield } from "lucide-react";
+import { User, Menu, X, Shield, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const navLinks = [
   { label: "Início", to: "/" },
@@ -15,6 +16,15 @@ const navLinks = [
 const Navbar = () => {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsLoggedIn(!!session);
+    });
+    supabase.auth.getSession().then(({ data: { session } }) => setIsLoggedIn(!!session));
+    return () => subscription.unsubscribe();
+  }, []);
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-3 bg-background/80 backdrop-blur-md border-b border-border/50">
@@ -37,6 +47,21 @@ const Navbar = () => {
             Fazer Cadastro
           </Button>
         </Link>
+        {isLoggedIn ? (
+          <Link to="/meu-perfil">
+            <Button variant="ghost" size="sm" className="gap-1.5 hidden md:inline-flex text-primary hover:text-primary/80">
+              <User className="h-4 w-4" />
+              Meu Perfil
+            </Button>
+          </Link>
+        ) : (
+          <Link to="/login">
+            <Button variant="ghost" size="sm" className="gap-1.5 hidden md:inline-flex text-muted-foreground hover:text-primary">
+              <LogIn className="h-4 w-4" />
+              Entrar
+            </Button>
+          </Link>
+        )}
         <Link to="/admin/login">
           <Button variant="ghost" size="sm" className="gap-1.5 hidden md:inline-flex text-muted-foreground hover:text-primary">
             <Shield className="h-4 w-4" />
@@ -66,6 +91,21 @@ const Navbar = () => {
               Fazer Cadastro
             </Button>
           </Link>
+          {isLoggedIn ? (
+            <Link to="/meu-perfil" onClick={() => setMobileOpen(false)}>
+              <Button variant="ghost" size="sm" className="gap-1.5 w-fit text-primary">
+                <User className="h-4 w-4" />
+                Meu Perfil
+              </Button>
+            </Link>
+          ) : (
+            <Link to="/login" onClick={() => setMobileOpen(false)}>
+              <Button variant="ghost" size="sm" className="gap-1.5 w-fit text-muted-foreground hover:text-primary">
+                <LogIn className="h-4 w-4" />
+                Entrar
+              </Button>
+            </Link>
+          )}
           <Link to="/admin/login" onClick={() => setMobileOpen(false)}>
             <Button variant="ghost" size="sm" className="gap-1.5 w-fit text-muted-foreground hover:text-primary">
               <Shield className="h-4 w-4" />
