@@ -7,12 +7,13 @@ import { Loader2, Check, X, Clock, Eye } from "lucide-react";
 
 interface PendingUpdate {
   id: string;
-  artist_id: string;
+  entity_id: string;
+  entity_type: "artist" | "entrepreneur";
   changes: Record<string, any>;
   status: string;
   admin_notes: string | null;
   created_at: string;
-  artist_name?: string;
+  entity_name?: string;
 }
 
 const fieldLabels: Record<string, string> = {
@@ -22,6 +23,11 @@ const fieldLabels: Record<string, string> = {
   youtube_url: "YouTube",
   profile_image_url: "Foto de Perfil",
   portfolio_images: "Portfólio",
+  description: "Descrição Curta",
+  full_description: "Descrição Completa",
+  address: "Endereço",
+  phone: "Telefone",
+  hero_image_url: "Imagem Principal",
 };
 
 const AdminPendingUpdatesPanel = () => {
@@ -34,65 +40,106 @@ const AdminPendingUpdatesPanel = () => {
 
   const loadUpdates = async () => {
     setLoading(true);
-    const { data } = await supabase
+    const allUpdates: PendingUpdate[] = [];
+
+    // Load artist pending updates
+    const { data: artistUpdates } = await supabase
       .from("artist_pending_updates")
       .select("*")
       .eq("status", "pending")
       .order("created_at", { ascending: true });
 
-    if (data) {
-      // Fetch artist names
-      const artistIds = [...new Set(data.map((u: any) => u.artist_id))];
+    if (artistUpdates && artistUpdates.length > 0) {
+      const artistIds = [...new Set(artistUpdates.map((u: any) => u.artist_id))];
       const { data: artists } = await supabase
         .from("artists")
         .select("id, name")
         .in("id", artistIds);
-
       const nameMap = new Map(artists?.map(a => [a.id, a.name]) || []);
 
-      setUpdates(data.map((u: any) => ({
-        ...u,
-        artist_name: nameMap.get(u.artist_id) || "Desconhecido",
-      })));
+      for (const u of artistUpdates) {
+        allUpdates.push({
+          id: u.id,
+          entity_id: u.artist_id,
+          entity_type: "artist",
+          changes: u.changes as Record<string, any>,
+          status: u.status,
+          admin_notes: u.admin_notes,
+          created_at: u.created_at,
+          entity_name: nameMap.get(u.artist_id) || "Desconhecido",
+        });
+      }
     }
+
+    // Load entrepreneur pending updates
+    const { data: entUpdates } = await supabase
+      .from("entrepreneur_pending_updates" as any)
+      .select("*")
+      .eq("status", "pending")
+      .order("created_at", { ascending: true });
+
+    if (entUpdates && (entUpdates as any[]).length > 0) {
+      const entIds = [...new Set((entUpdates as any[]).map((u: any) => u.entrepreneur_id))];
+      const { data: entrepreneurs } = await supabase
+        .from("entrepreneurs")
+        .select("id, name")
+        .in("id", entIds);
+      const nameMap = new Map(entrepreneurs?.map(e => [e.id, e.name]) || []);
+
+      for (const u of entUpdates as any[]) {
+        allUpdates.push({
+          id: u.id,
+          entity_id: u.entrepreneur_id,
+          entity_type: "entrepreneur",
+          changes: u.changes as Record<string, any>,
+          status: u.status,
+          admin_notes: u.admin_notes,
+          created_at: u.created_at,
+          entity_name: nameMap.get(u.entrepreneur_id) || "Desconhecido",
+        });
+      }
+    }
+
+    allUpdates.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+    setUpdates(allUpdates);
     setLoading(false);
   };
 
   useEffect(() => { loadUpdates(); }, []);
 
-  const handleAction = async (updateId: string, action: "approved" | "rejected") => {
-    setProcessingId(updateId);
-    const update = updates.find(u => u.id === updateId);
-    if (!update) return;
+  const handleAction = async (update: PendingUpdate, action: "approved" | "rejected") => {
+    setProcessingId(update.id);
 
     try {
       if (action === "approved") {
-        // Apply changes to artist profile
+        const table = update.entity_type === "artist" ? "artists" : "entrepreneurs";
         const { error: updateError } = await supabase
-          .from("artists")
+          .from(table)
           .update(update.changes)
-          .eq("id", update.artist_id);
-
+          .eq("id", update.entity_id);
         if (updateError) throw updateError;
       }
 
-      // Mark as approved/rejected
+      const pendingTable = update.entity_type === "artist"
+        ? "artist_pending_updates"
+        : "entrepreneur_pending_updates" as any;
+
       const { error } = await supabase
-        .from("artist_pending_updates")
+        .from(pendingTable)
         .update({
           status: action,
-          admin_notes: notes[updateId] || null,
+          admin_notes: notes[update.id] || null,
           reviewed_at: new Date().toISOString(),
-        })
-        .eq("id", updateId);
+        } as any)
+        .eq("id", update.id);
 
       if (error) throw error;
 
       toast({
         title: action === "approved" ? "Atualização aprovada!" : "Atualização rejeitada",
         description: action === "approved"
-          ? "As alterações foram aplicadas ao perfil do artista."
-          : "O artista será notificado da rejeição.",
+          ? "As alterações foram aplicadas ao perfil."
+          : "O usuário será notificado da rejeição.",
       });
 
       loadUpdates();
@@ -128,7 +175,6 @@ const AdminPendingUpdatesPanel = () => {
 
       {updates.map((update) => (
         <div key={update.id} className="bg-card rounded-xl border border-border overflow-hidden">
-          {/* Header */}
           <div
             className="flex items-center justify-between p-4 cursor-pointer hover:bg-secondary/30 transition-colors"
             onClick={() => setExpandedId(expandedId === update.id ? null : update.id)}
@@ -136,7 +182,12 @@ const AdminPendingUpdatesPanel = () => {
             <div className="flex items-center gap-3">
               <Clock className="h-5 w-5 text-yellow-500 shrink-0" />
               <div>
-                <p className="font-semibold">{update.artist_name}</p>
+                <p className="font-semibold">
+                  {update.entity_name}
+                  <span className="ml-2 text-xs font-normal px-2 py-0.5 rounded-full bg-secondary text-muted-foreground">
+                    {update.entity_type === "artist" ? "Artista" : "Empreendedor"}
+                  </span>
+                </p>
                 <p className="text-xs text-muted-foreground">
                   {new Date(update.created_at).toLocaleDateString("pt-BR", {
                     day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit",
@@ -149,10 +200,8 @@ const AdminPendingUpdatesPanel = () => {
             <Eye className="h-4 w-4 text-muted-foreground" />
           </div>
 
-          {/* Expanded details */}
           {expandedId === update.id && (
             <div className="border-t border-border p-4 space-y-4">
-              {/* Changes diff */}
               <div className="space-y-3">
                 <p className="text-sm font-medium">Alterações solicitadas:</p>
                 {Object.entries(update.changes).map(([key, value]) => (
@@ -160,7 +209,7 @@ const AdminPendingUpdatesPanel = () => {
                     <p className="text-xs font-medium text-muted-foreground mb-1">
                       {fieldLabels[key] || key}
                     </p>
-                    {key === "profile_image_url" && typeof value === "string" ? (
+                    {(key === "profile_image_url" || key === "hero_image_url") && typeof value === "string" ? (
                       <img src={value} alt="Nova foto" className="w-20 h-20 rounded-lg object-cover" />
                     ) : key === "portfolio_images" && Array.isArray(value) ? (
                       <div className="flex gap-2 flex-wrap">
@@ -175,21 +224,19 @@ const AdminPendingUpdatesPanel = () => {
                 ))}
               </div>
 
-              {/* Admin notes */}
               <div className="space-y-2">
-                <p className="text-sm font-medium">Nota para o artista (opcional):</p>
+                <p className="text-sm font-medium">Nota (opcional):</p>
                 <Textarea
-                  placeholder="Ex: A bio precisa de revisão..."
+                  placeholder="Ex: A descrição precisa de revisão..."
                   value={notes[update.id] || ""}
                   onChange={e => setNotes(prev => ({ ...prev, [update.id]: e.target.value }))}
                   rows={2}
                 />
               </div>
 
-              {/* Actions */}
               <div className="flex gap-3">
                 <Button
-                  onClick={() => handleAction(update.id, "approved")}
+                  onClick={() => handleAction(update, "approved")}
                   disabled={processingId === update.id}
                   className="bg-green-600 hover:bg-green-700 text-primary-foreground"
                 >
@@ -202,7 +249,7 @@ const AdminPendingUpdatesPanel = () => {
                 </Button>
                 <Button
                   variant="destructive"
-                  onClick={() => handleAction(update.id, "rejected")}
+                  onClick={() => handleAction(update, "rejected")}
                   disabled={processingId === update.id}
                 >
                   <X className="h-4 w-4" />

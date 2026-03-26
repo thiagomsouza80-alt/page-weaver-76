@@ -14,6 +14,8 @@ import NakamaTemakeria from "./pages/NakamaTemakeria.tsx";
 import AtelieCosmaker from "./pages/AtelieCosmaker.tsx";
 import CadastroEmpreendedor from "./pages/CadastroEmpreendedor.tsx";
 import CadastroArtista from "./pages/CadastroArtista.tsx";
+import Login from "./pages/Login.tsx";
+import MeuPerfil from "./pages/MeuPerfil.tsx";
 import AdminLogin from "./pages/AdminLogin.tsx";
 import AdminDashboard from "./pages/AdminDashboard.tsx";
 import NoticiaDetalhe from "./pages/NoticiaDetalhe.tsx";
@@ -46,6 +48,8 @@ const App = () => (
           <Route path="/empreendedores/atelie-cosmaker" element={<AtelieCosmaker />} />
           <Route path="/empreendedores/:slug" element={<EmpreendedorDetalhe />} />
           <Route path="/cadastro-empreendedor" element={<CadastroEmpreendedor />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/meu-perfil" element={<MeuPerfil />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="*" element={<NotFound />} />

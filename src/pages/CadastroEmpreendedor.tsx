@@ -14,6 +14,8 @@ import { Upload, X, CheckCircle, Loader2, Image } from "lucide-react";
 
 const schema = z.object({
   name: z.string().trim().min(2, "Nome deve ter pelo menos 2 caracteres").max(100),
+  email: z.string().trim().email("Email inválido").max(255),
+  password: z.string().min(6, "Senha deve ter pelo menos 6 caracteres"),
   badge: z.string().trim().min(1, "Informe a categoria").max(100),
   description: z.string().trim().min(5, "Descrição curta obrigatória").max(300),
   full_description: z.string().trim().max(3000, "Máximo 3000 caracteres").optional(),
@@ -87,6 +89,14 @@ const CadastroEmpreendedor = () => {
   const onSubmit = async (data: FormData) => {
     setSubmitting(true);
     try {
+      // 1. Create auth account
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+      });
+      if (authError) throw authError;
+      if (!authData.user) throw new Error("Erro ao criar conta");
+
       let heroUrl: string | null = null;
       if (heroFile) {
         heroUrl = await uploadFile(heroFile, "hero");
@@ -100,6 +110,7 @@ const CadastroEmpreendedor = () => {
 
       const slug = generateSlug(data.name);
 
+      // 2. Insert entrepreneur linked to user
       const { error } = await supabase.from("entrepreneurs").insert({
         name: data.name,
         slug,
@@ -113,9 +124,13 @@ const CadastroEmpreendedor = () => {
         instagram: data.instagram || null,
         portfolio_images: portfolioUrls.length > 0 ? portfolioUrls : null,
         published: false,
+        email: data.email,
+        user_id: authData.user.id,
       } as any);
 
       if (error) throw error;
+
+      await supabase.auth.signOut();
 
       setSuccess(true);
       toast({ title: "Cadastro enviado!", description: "Seu perfil será analisado pela equipe." });
@@ -200,6 +215,20 @@ const CadastroEmpreendedor = () => {
               {errors.badge && <p className="text-sm text-destructive">{errors.badge.message}</p>}
             </div>
           </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="email">E-mail *</Label>
+              <Input id="email" type="email" placeholder="seu@email.com" {...register("email")} />
+              {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Senha de Acesso *</Label>
+              <Input id="password" type="password" placeholder="Mínimo 6 caracteres" {...register("password")} />
+              {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground -mt-4">Essa senha será usada para acessar e editar seu perfil</p>
 
           <div className="space-y-2">
             <Label htmlFor="description">Descrição Curta *</Label>

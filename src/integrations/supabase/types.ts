@@ -115,12 +115,54 @@ export type Database = {
         }
         Relationships: []
       }
+      entrepreneur_pending_updates: {
+        Row: {
+          admin_notes: string | null
+          changes: Json
+          created_at: string
+          entrepreneur_id: string
+          id: string
+          reviewed_at: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          changes: Json
+          created_at?: string
+          entrepreneur_id: string
+          id?: string
+          reviewed_at?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          changes?: Json
+          created_at?: string
+          entrepreneur_id?: string
+          id?: string
+          reviewed_at?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "entrepreneur_pending_updates_entrepreneur_id_fkey"
+            columns: ["entrepreneur_id"]
+            isOneToOne: false
+            referencedRelation: "entrepreneurs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       entrepreneurs: {
         Row: {
           address: string | null
           badge: string
           created_at: string
           description: string
+          email: string | null
           full_description: string | null
           hero_image_url: string | null
           id: string
@@ -132,12 +174,14 @@ export type Database = {
           published: boolean
           slug: string
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           address?: string | null
           badge: string
           created_at?: string
           description: string
+          email?: string | null
           full_description?: string | null
           hero_image_url?: string | null
           id?: string
@@ -149,12 +193,14 @@ export type Database = {
           published?: boolean
           slug: string
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           address?: string | null
           badge?: string
           created_at?: string
           description?: string
+          email?: string | null
           full_description?: string | null
           hero_image_url?: string | null
           id?: string
@@ -166,6 +212,7 @@ export type Database = {
           published?: boolean
           slug?: string
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }

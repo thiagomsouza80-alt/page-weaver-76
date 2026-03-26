@@ -30,7 +30,7 @@ const AdminLogin = () => {
 
       if (!roleData) {
         await supabase.auth.signOut();
-        throw new Error("Acesso negado. Você não é administrador.");
+        throw new Error("Acesso negado. Você não é administrador. Use a página de login normal.");
       }
 
       navigate("/admin");
