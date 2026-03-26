@@ -216,6 +216,20 @@ const CadastroEmpreendedor = () => {
             </div>
           </div>
 
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="email">E-mail *</Label>
+              <Input id="email" type="email" placeholder="seu@email.com" {...register("email")} />
+              {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Senha de Acesso *</Label>
+              <Input id="password" type="password" placeholder="Mínimo 6 caracteres" {...register("password")} />
+              {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground -mt-4">Essa senha será usada para acessar e editar seu perfil</p>
+
           <div className="space-y-2">
             <Label htmlFor="description">Descrição Curta *</Label>
             <Input id="description" placeholder="Breve descrição do seu negócio" maxLength={300} {...register("description")} />
