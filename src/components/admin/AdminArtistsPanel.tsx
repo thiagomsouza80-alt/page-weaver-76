@@ -278,13 +278,21 @@ const AdminArtistsPanel = () => {
     toast({ title: item.approved ? "Artista desaprovado" : "Artista aprovado!" });
   };
 
-  const handleDelete = async (id: string) => {
-    const { error } = await supabase.from("artists").delete().eq("id", id);
-    if (error) {
-      toast({ title: "Erro ao excluir", description: error.message, variant: "destructive" });
-    } else {
+  const handleDelete = async (artist: Artist) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await supabase.functions.invoke("delete-profile", {
+        body: {
+          user_id: artist.user_id,
+          profile_type: "artist",
+          profile_id: artist.id,
+        },
+      });
+      if (res.error) throw res.error;
       toast({ title: "Artista excluído!" });
       fetchItems();
+    } catch (err: any) {
+      toast({ title: "Erro ao excluir", description: err.message, variant: "destructive" });
     }
     setDeleteConfirm(null);
   };
