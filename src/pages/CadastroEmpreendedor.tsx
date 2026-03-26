@@ -89,6 +89,14 @@ const CadastroEmpreendedor = () => {
   const onSubmit = async (data: FormData) => {
     setSubmitting(true);
     try {
+      // 1. Create auth account
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+      });
+      if (authError) throw authError;
+      if (!authData.user) throw new Error("Erro ao criar conta");
+
       let heroUrl: string | null = null;
       if (heroFile) {
         heroUrl = await uploadFile(heroFile, "hero");
@@ -102,6 +110,7 @@ const CadastroEmpreendedor = () => {
 
       const slug = generateSlug(data.name);
 
+      // 2. Insert entrepreneur linked to user
       const { error } = await supabase.from("entrepreneurs").insert({
         name: data.name,
         slug,
@@ -115,9 +124,13 @@ const CadastroEmpreendedor = () => {
         instagram: data.instagram || null,
         portfolio_images: portfolioUrls.length > 0 ? portfolioUrls : null,
         published: false,
+        email: data.email,
+        user_id: authData.user.id,
       } as any);
 
       if (error) throw error;
+
+      await supabase.auth.signOut();
 
       setSuccess(true);
       toast({ title: "Cadastro enviado!", description: "Seu perfil será analisado pela equipe." });
