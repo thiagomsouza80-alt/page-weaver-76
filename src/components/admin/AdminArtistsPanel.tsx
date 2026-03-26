@@ -349,7 +349,7 @@ const AdminArtistsPanel = () => {
                 </Button>
                 {deleteConfirm === item.id ? (
                   <div className="flex items-center gap-1 ml-1">
-                    <Button size="sm" variant="destructive" className="h-7 text-xs" onClick={() => handleDelete(item.id)}>Confirmar</Button>
+                    <Button size="sm" variant="destructive" className="h-7 text-xs" onClick={() => handleDelete(item)}>Confirmar</Button>
                     <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => setDeleteConfirm(null)}>Não</Button>
                   </div>
                 ) : (
