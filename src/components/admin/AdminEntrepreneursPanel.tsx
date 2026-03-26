@@ -21,6 +21,7 @@ type Entrepreneur = {
   portfolio_images: string[] | null;
   published: boolean;
   created_at: string;
+  user_id: string | null;
 };
 
 const emptyForm = {
