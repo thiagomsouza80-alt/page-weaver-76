@@ -10,7 +10,7 @@ import { membershipTypes, getMembershipBadge } from "@/lib/membership";
 import type { Tables } from "@/integrations/supabase/types";
 import type { Database } from "@/integrations/supabase/types";
 
-type Artist = Tables<"artists">;
+type Artist = Tables<"artists"> & { user_id: string | null };
 type ArtistSegment = Database["public"]["Enums"]["artist_segment"];
 
 const segmentLabels: Record<string, string> = {
