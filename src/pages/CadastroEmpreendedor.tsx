@@ -14,6 +14,8 @@ import { Upload, X, CheckCircle, Loader2, Image } from "lucide-react";
 
 const schema = z.object({
   name: z.string().trim().min(2, "Nome deve ter pelo menos 2 caracteres").max(100),
+  email: z.string().trim().email("Email inválido").max(255),
+  password: z.string().min(6, "Senha deve ter pelo menos 6 caracteres"),
   badge: z.string().trim().min(1, "Informe a categoria").max(100),
   description: z.string().trim().min(5, "Descrição curta obrigatória").max(300),
   full_description: z.string().trim().max(3000, "Máximo 3000 caracteres").optional(),
