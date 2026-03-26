@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Upload, X, CheckCircle, Loader2, Image } from "lucide-react";
+import { PasswordInput } from "@/components/ui/password-input";
 
 const schema = z.object({
   name: z.string().trim().min(2, "Nome deve ter pelo menos 2 caracteres").max(100),
@@ -224,7 +225,7 @@ const CadastroEmpreendedor = () => {
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Senha de Acesso *</Label>
-              <Input id="password" type="password" placeholder="Mínimo 6 caracteres" {...register("password")} />
+              <PasswordInput id="password" placeholder="Mínimo 6 caracteres" {...register("password")} />
               {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
             </div>
           </div>

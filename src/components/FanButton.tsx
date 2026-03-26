@@ -12,15 +12,41 @@ const FanButton = ({ artistId, initialCount }: FanButtonProps) => {
   const [isFan, setIsFan] = useState(false);
   const [count, setCount] = useState(initialCount);
   const [animating, setAnimating] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    try {
-      const fanned = JSON.parse(localStorage.getItem("amazonia_pop_fans") || "[]");
-      setIsFan(fanned.includes(artistId));
-    } catch {
-      setIsFan(false);
+    // Check auth state
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUserId(session?.user?.id ?? null);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUserId(session?.user?.id ?? null);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (userId) {
+      // Check if user already fanned this artist in DB
+      supabase
+        .from("fan_clicks")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("artist_id", artistId)
+        .maybeSingle()
+        .then(({ data }) => {
+          setIsFan(!!data);
+        });
+    } else {
+      // Fallback to localStorage for anonymous users
+      try {
+        const fanned = JSON.parse(localStorage.getItem("amazonia_pop_fans") || "[]");
+        setIsFan(fanned.includes(artistId));
+      } catch {
+        setIsFan(false);
+      }
     }
-  }, [artistId]);
+  }, [artistId, userId]);
 
   const handleToggleFan = async () => {
     if (isFan) return;
@@ -30,8 +56,23 @@ const FanButton = ({ artistId, initialCount }: FanButtonProps) => {
 
     setCount((c) => c + 1);
     setIsFan(true);
-    const fanned = JSON.parse(localStorage.getItem("amazonia_pop_fans") || "[]");
-    localStorage.setItem("amazonia_pop_fans", JSON.stringify([...fanned, artistId]));
+
+    if (userId) {
+      // Save to database
+      const { error: insertError } = await supabase
+        .from("fan_clicks")
+        .insert({ user_id: userId, artist_id: artistId } as any);
+
+      if (insertError) {
+        setCount((c) => c - 1);
+        setIsFan(false);
+        return;
+      }
+    } else {
+      // Fallback localStorage
+      const fanned = JSON.parse(localStorage.getItem("amazonia_pop_fans") || "[]");
+      localStorage.setItem("amazonia_pop_fans", JSON.stringify([...fanned, artistId]));
+    }
 
     const { data, error } = await supabase.rpc("increment_fan_count", {
       _artist_id: artistId,
@@ -40,7 +81,12 @@ const FanButton = ({ artistId, initialCount }: FanButtonProps) => {
     if (error) {
       setCount((c) => c - 1);
       setIsFan(false);
-      localStorage.setItem("amazonia_pop_fans", JSON.stringify(fanned.filter((id: string) => id !== artistId)));
+      if (userId) {
+        await supabase.from("fan_clicks").delete().eq("user_id", userId).eq("artist_id", artistId);
+      } else {
+        const fanned = JSON.parse(localStorage.getItem("amazonia_pop_fans") || "[]");
+        localStorage.setItem("amazonia_pop_fans", JSON.stringify(fanned.filter((id: string) => id !== artistId)));
+      }
     } else if (typeof data === "number") {
       setCount(data);
     }
