@@ -10,7 +10,7 @@ import { membershipTypes, getMembershipBadge } from "@/lib/membership";
 import type { Tables } from "@/integrations/supabase/types";
 import type { Database } from "@/integrations/supabase/types";
 
-type Artist = Tables<"artists">;
+type Artist = Tables<"artists"> & { user_id: string | null };
 type ArtistSegment = Database["public"]["Enums"]["artist_segment"];
 
 const segmentLabels: Record<string, string> = {
@@ -278,13 +278,21 @@ const AdminArtistsPanel = () => {
     toast({ title: item.approved ? "Artista desaprovado" : "Artista aprovado!" });
   };
 
-  const handleDelete = async (id: string) => {
-    const { error } = await supabase.from("artists").delete().eq("id", id);
-    if (error) {
-      toast({ title: "Erro ao excluir", description: error.message, variant: "destructive" });
-    } else {
+  const handleDelete = async (artist: Artist) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await supabase.functions.invoke("delete-profile", {
+        body: {
+          user_id: artist.user_id,
+          profile_type: "artist",
+          profile_id: artist.id,
+        },
+      });
+      if (res.error) throw res.error;
       toast({ title: "Artista excluído!" });
       fetchItems();
+    } catch (err: any) {
+      toast({ title: "Erro ao excluir", description: err.message, variant: "destructive" });
     }
     setDeleteConfirm(null);
   };
@@ -341,7 +349,7 @@ const AdminArtistsPanel = () => {
                 </Button>
                 {deleteConfirm === item.id ? (
                   <div className="flex items-center gap-1 ml-1">
-                    <Button size="sm" variant="destructive" className="h-7 text-xs" onClick={() => handleDelete(item.id)}>Confirmar</Button>
+                    <Button size="sm" variant="destructive" className="h-7 text-xs" onClick={() => handleDelete(item)}>Confirmar</Button>
                     <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => setDeleteConfirm(null)}>Não</Button>
                   </div>
                 ) : (
