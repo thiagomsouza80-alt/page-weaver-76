@@ -174,9 +174,20 @@ const AdminEntrepreneursPanel = () => {
   };
 
   const deleteItem = async (item: Entrepreneur) => {
-    await supabase.from("entrepreneurs").delete().eq("id", item.id);
-    fetchItems();
-    toast({ title: "Empreendedor excluído" });
+    try {
+      const res = await supabase.functions.invoke("delete-profile", {
+        body: {
+          user_id: item.user_id,
+          profile_type: "entrepreneur",
+          profile_id: item.id,
+        },
+      });
+      if (res.error) throw res.error;
+      toast({ title: "Empreendedor excluído" });
+      fetchItems();
+    } catch (err: any) {
+      toast({ title: "Erro ao excluir", description: err.message, variant: "destructive" });
+    }
   };
 
   if (loading) {
