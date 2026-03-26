@@ -14,6 +14,8 @@ import NakamaTemakeria from "./pages/NakamaTemakeria.tsx";
 import AtelieCosmaker from "./pages/AtelieCosmaker.tsx";
 import CadastroEmpreendedor from "./pages/CadastroEmpreendedor.tsx";
 import CadastroArtista from "./pages/CadastroArtista.tsx";
+import Login from "./pages/Login.tsx";
+import MeuPerfil from "./pages/MeuPerfil.tsx";
 import AdminLogin from "./pages/AdminLogin.tsx";
 import AdminDashboard from "./pages/AdminDashboard.tsx";
 import NoticiaDetalhe from "./pages/NoticiaDetalhe.tsx";
