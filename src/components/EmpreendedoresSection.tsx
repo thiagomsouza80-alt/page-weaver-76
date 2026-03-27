@@ -43,19 +43,17 @@ const EmpreendedoresSection = () => {
           <Store className="h-6 w-6 text-primary" />
           <h2 className="text-2xl md:text-3xl font-bold">Empreendedores da Cultura Pop</h2>
         </div>
-        <div className="flex items-center gap-3">
-          <Link to="/empreendedores" className="text-primary text-sm font-semibold hover:underline">Ver todos →</Link>
-          <Link to="/cadastro-empreendedor">
-            <button className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-6 py-2.5 text-sm font-semibold shadow-lg shadow-primary/25 hover:bg-primary/80 active:scale-[0.97] transition-all">
-              <Plus className="h-4 w-4" />
-              Cadastro de empreendedor
-            </button>
-          </Link>
-        </div>
+        <Link to="/empreendedores" className="text-primary text-sm font-semibold hover:underline">Ver todos →</Link>
       </div>
-      <p className="text-muted-foreground mb-8 max-w-2xl">
+      <p className="text-muted-foreground mb-4 max-w-2xl">
         Conheça os negócios que movimentam a cena geek e pop da Amazônia.
       </p>
+      <Link to="/cadastro-empreendedor" className="mb-8 inline-block">
+        <button className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-6 py-2.5 text-sm font-semibold shadow-lg shadow-primary/25 hover:bg-primary/80 active:scale-[0.97] transition-all">
+          <Plus className="h-4 w-4" />
+          Cadastro de empreendedor
+        </button>
+      </Link>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {businesses.map((biz, i) => {
           const img = biz.image_url || fallbackImages[biz.slug] || bizGeekstore;
