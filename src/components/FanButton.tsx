@@ -96,6 +96,8 @@ const FanButton = ({ artistId, initialCount }: FanButtonProps) => {
         .insert({ user_id: userId, artist_id: artistId } as any);
 
       if (insertError) {
+        console.error("Erro ao marcar fã:", insertError);
+        toast.error("Erro ao marcar como fã. Tente novamente.");
         setIsFan(false);
         setCount((c) => c - 1);
         setLoading(false);
