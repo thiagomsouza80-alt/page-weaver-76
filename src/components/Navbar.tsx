@@ -8,6 +8,7 @@ const navLinks = [
   { label: "Início", to: "/" },
   { label: "Notícias", to: "/noticias" },
   { label: "Artistas", to: "/artistas" },
+  { label: "Empreendedores", to: "/empreendedores" },
   { label: "Eventos", to: "/eventos" },
   { label: "Sobre", to: "/sobre" },
   { label: "Contato", to: "/contato" },
