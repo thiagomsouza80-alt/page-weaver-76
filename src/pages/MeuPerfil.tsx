@@ -9,6 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Save, LogOut, Camera, Upload, X, Clock, CheckCircle, XCircle, Pencil, Instagram, MapPin, Youtube, Phone, Home } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { membershipTypes, membershipDescriptions } from "@/lib/membership";
 
 type ProfileType = "artist" | "entrepreneur" | null;
 
@@ -20,6 +22,8 @@ interface ArtistData {
   city: string | null;
   instagram: string | null;
   youtube_url: string | null;
+  phone: string | null;
+  membership_type: string;
   profile_image_url: string | null;
   portfolio_images: string[] | null;
   fan_count: number;
@@ -45,6 +49,14 @@ interface PendingUpdate {
   created_at: string;
   changes: Record<string, any>;
 }
+
+const segments = [
+  { value: "cosplayer", label: "Cosplayer" }, { value: "cosmaker", label: "Cosmaker" },
+  { value: "kpop", label: "K-Pop" }, { value: "ilustrador", label: "Ilustrador" },
+  { value: "quadrinista", label: "Quadrinista" }, { value: "colecionador", label: "Colecionador" },
+  { value: "desenvolvedor_jogos", label: "Desenvolvedor de Jogos" }, { value: "fan_cultura_pop", label: "Fã de Cultura Pop" },
+  { value: "youtuber", label: "YouTuber" }, { value: "influenciador_digital", label: "Influenciador Digital" },
+] as const;
 
 const segmentLabels: Record<string, string> = {
   cosplayer: "Cosplayer", cosmaker: "Cosmaker", kpop: "K-Pop", ilustrador: "Ilustrador",
@@ -77,14 +89,14 @@ const MeuPerfil = () => {
 
     const { data: artist } = await supabase
       .from("artists")
-      .select("id, name, segment, bio, city, instagram, youtube_url, profile_image_url, portfolio_images, fan_count")
+      .select("id, name, segment, bio, city, instagram, youtube_url, phone, membership_type, profile_image_url, portfolio_images, fan_count")
       .eq("user_id", userId)
       .maybeSingle();
 
     if (artist) {
       setProfileType("artist");
       setArtistData(artist as ArtistData);
-      setForm({ bio: artist.bio || "", city: artist.city || "", instagram: artist.instagram || "", youtube_url: artist.youtube_url || "" });
+      setForm({ name: artist.name || "", segment: artist.segment || "", bio: artist.bio || "", city: artist.city || "", instagram: artist.instagram || "", youtube_url: artist.youtube_url || "", phone: artist.phone || "", membership_type: artist.membership_type || "free" });
       const { data: pending } = await supabase.from("artist_pending_updates").select("*").eq("artist_id", artist.id).order("created_at", { ascending: false }).limit(5);
       setPendingUpdates((pending || []) as unknown as PendingUpdate[]);
       setLoading(false);
@@ -100,7 +112,7 @@ const MeuPerfil = () => {
     if (entrepreneur) {
       setProfileType("entrepreneur");
       setEntrepreneurData(entrepreneur as EntrepreneurData);
-      setForm({ description: entrepreneur.description || "", full_description: entrepreneur.full_description || "", address: entrepreneur.address || "", phone: entrepreneur.phone || "", instagram: entrepreneur.instagram || "" });
+      setForm({ name: entrepreneur.name || "", badge: entrepreneur.badge || "", description: entrepreneur.description || "", full_description: entrepreneur.full_description || "", address: entrepreneur.address || "", phone: entrepreneur.phone || "", instagram: entrepreneur.instagram || "" });
       const { data: pending } = await supabase.from("entrepreneur_pending_updates" as any).select("*").eq("entrepreneur_id", entrepreneur.id).order("created_at", { ascending: false }).limit(5);
       setPendingUpdates((pending || []) as unknown as PendingUpdate[]);
       setLoading(false);
@@ -145,10 +157,14 @@ const MeuPerfil = () => {
       const changes: Record<string, any> = {};
 
       if (profileType === "artist" && artistData) {
+        if (form.name !== (artistData.name || "")) changes.name = form.name;
+        if (form.segment !== (artistData.segment || "")) changes.segment = form.segment;
         if (form.bio !== (artistData.bio || "")) changes.bio = form.bio;
         if (form.city !== (artistData.city || "")) changes.city = form.city;
         if (form.instagram !== (artistData.instagram || "")) changes.instagram = form.instagram;
         if (form.youtube_url !== (artistData.youtube_url || "")) changes.youtube_url = form.youtube_url;
+        if (form.phone !== (artistData.phone || "")) changes.phone = form.phone;
+        if (form.membership_type !== (artistData.membership_type || "free")) changes.membership_type = form.membership_type;
         if (newProfileImage) changes.profile_image_url = await uploadFile(newProfileImage, "artists", "profiles");
         if (newPortfolioFiles.length > 0) {
           const urls: string[] = [];
@@ -161,6 +177,8 @@ const MeuPerfil = () => {
       }
 
       if (profileType === "entrepreneur" && entrepreneurData) {
+        if (form.name !== (entrepreneurData.name || "")) changes.name = form.name;
+        if (form.badge !== (entrepreneurData.badge || "")) changes.badge = form.badge;
         if (form.description !== (entrepreneurData.description || "")) changes.description = form.description;
         if (form.full_description !== (entrepreneurData.full_description || "")) changes.full_description = form.full_description;
         if (form.address !== (entrepreneurData.address || "")) changes.address = form.address;
@@ -383,6 +401,25 @@ const MeuPerfil = () => {
 
         {profileType === "artist" && (
           <div className="space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label>Nome Completo</Label>
+                <Input value={form.name || ""} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Seu nome completo" />
+              </div>
+              <div className="space-y-2">
+                <Label>Segmento</Label>
+                <Select value={form.segment || ""} onValueChange={(val) => setForm(f => ({ ...f, segment: val }))}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione seu segmento" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {segments.map(s => (
+                      <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
             <div className="space-y-2">
               <Label>Bio</Label>
               <Textarea value={form.bio || ""} onChange={e => setForm(f => ({ ...f, bio: e.target.value }))} rows={4} placeholder="Sobre você..." />
@@ -397,15 +434,49 @@ const MeuPerfil = () => {
                 <Input value={form.instagram || ""} onChange={e => setForm(f => ({ ...f, instagram: e.target.value }))} placeholder="@seuinstagram" />
               </div>
             </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label>Telefone / WhatsApp</Label>
+                <Input value={form.phone || ""} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="(91) 99999-9999" />
+              </div>
+              <div className="space-y-2">
+                <Label>YouTube URL</Label>
+                <Input value={form.youtube_url || ""} onChange={e => setForm(f => ({ ...f, youtube_url: e.target.value }))} placeholder="https://youtube.com/..." />
+              </div>
+            </div>
             <div className="space-y-2">
-              <Label>YouTube URL</Label>
-              <Input value={form.youtube_url || ""} onChange={e => setForm(f => ({ ...f, youtube_url: e.target.value }))} placeholder="https://youtube.com/..." />
+              <Label>Tipo de Membro</Label>
+              <Select value={form.membership_type || "free"} onValueChange={(val) => setForm(f => ({ ...f, membership_type: val }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o tipo de membro" />
+                </SelectTrigger>
+                <SelectContent>
+                  {membershipTypes.map(m => (
+                    <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {form.membership_type && membershipDescriptions[form.membership_type] && (
+                <p className="text-sm text-primary font-medium mt-2 p-3 rounded-lg bg-primary/10">
+                  {membershipDescriptions[form.membership_type]}
+                </p>
+              )}
             </div>
           </div>
         )}
 
         {profileType === "entrepreneur" && (
           <div className="space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label>Nome do Negócio</Label>
+                <Input value={form.name || ""} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Nome do seu negócio" />
+              </div>
+              <div className="space-y-2">
+                <Label>Categoria</Label>
+                <Input value={form.badge || ""} onChange={e => setForm(f => ({ ...f, badge: e.target.value }))} placeholder="Ex: Loja Geek, Gastronomia" />
+              </div>
+            </div>
             <div className="space-y-2">
               <Label>Descrição Curta</Label>
               <Input value={form.description || ""} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} />
