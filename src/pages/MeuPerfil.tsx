@@ -467,6 +467,16 @@ const MeuPerfil = () => {
 
         {profileType === "entrepreneur" && (
           <div className="space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label>Nome do Negócio</Label>
+                <Input value={form.name || ""} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Nome do seu negócio" />
+              </div>
+              <div className="space-y-2">
+                <Label>Categoria</Label>
+                <Input value={form.badge || ""} onChange={e => setForm(f => ({ ...f, badge: e.target.value }))} placeholder="Ex: Loja Geek, Gastronomia" />
+              </div>
+            </div>
             <div className="space-y-2">
               <Label>Descrição Curta</Label>
               <Input value={form.description || ""} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} />
