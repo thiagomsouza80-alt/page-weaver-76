@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
+import SponsorsSection from "@/components/SponsorsSection";
 import NewsSection from "@/components/NewsSection";
 import EventsSection from "@/components/EventsSection";
 import ArtistsSection from "@/components/ArtistsSection";
