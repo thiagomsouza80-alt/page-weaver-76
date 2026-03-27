@@ -71,6 +71,8 @@ const FanButton = ({ artistId, initialCount }: FanButtonProps) => {
         .eq("artist_id", artistId);
 
       if (deleteError) {
+        console.error("Erro ao remover fã:", deleteError);
+        toast.error("Erro ao desmarcar fã. Tente novamente.");
         setIsFan(true);
         setCount((c) => c + 1);
         setLoading(false);
