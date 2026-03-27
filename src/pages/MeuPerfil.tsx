@@ -177,6 +177,8 @@ const MeuPerfil = () => {
       }
 
       if (profileType === "entrepreneur" && entrepreneurData) {
+        if (form.name !== (entrepreneurData.name || "")) changes.name = form.name;
+        if (form.badge !== (entrepreneurData.badge || "")) changes.badge = form.badge;
         if (form.description !== (entrepreneurData.description || "")) changes.description = form.description;
         if (form.full_description !== (entrepreneurData.full_description || "")) changes.full_description = form.full_description;
         if (form.address !== (entrepreneurData.address || "")) changes.address = form.address;
