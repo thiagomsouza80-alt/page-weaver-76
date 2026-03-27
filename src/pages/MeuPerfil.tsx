@@ -401,6 +401,25 @@ const MeuPerfil = () => {
 
         {profileType === "artist" && (
           <div className="space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label>Nome Completo</Label>
+                <Input value={form.name || ""} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Seu nome completo" />
+              </div>
+              <div className="space-y-2">
+                <Label>Segmento</Label>
+                <Select value={form.segment || ""} onValueChange={(val) => setForm(f => ({ ...f, segment: val }))}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione seu segmento" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {segments.map(s => (
+                      <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
             <div className="space-y-2">
               <Label>Bio</Label>
               <Textarea value={form.bio || ""} onChange={e => setForm(f => ({ ...f, bio: e.target.value }))} rows={4} placeholder="Sobre você..." />
@@ -415,9 +434,33 @@ const MeuPerfil = () => {
                 <Input value={form.instagram || ""} onChange={e => setForm(f => ({ ...f, instagram: e.target.value }))} placeholder="@seuinstagram" />
               </div>
             </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label>Telefone / WhatsApp</Label>
+                <Input value={form.phone || ""} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="(91) 99999-9999" />
+              </div>
+              <div className="space-y-2">
+                <Label>YouTube URL</Label>
+                <Input value={form.youtube_url || ""} onChange={e => setForm(f => ({ ...f, youtube_url: e.target.value }))} placeholder="https://youtube.com/..." />
+              </div>
+            </div>
             <div className="space-y-2">
-              <Label>YouTube URL</Label>
-              <Input value={form.youtube_url || ""} onChange={e => setForm(f => ({ ...f, youtube_url: e.target.value }))} placeholder="https://youtube.com/..." />
+              <Label>Tipo de Membro</Label>
+              <Select value={form.membership_type || "free"} onValueChange={(val) => setForm(f => ({ ...f, membership_type: val }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o tipo de membro" />
+                </SelectTrigger>
+                <SelectContent>
+                  {membershipTypes.map(m => (
+                    <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {form.membership_type && membershipDescriptions[form.membership_type] && (
+                <p className="text-sm text-primary font-medium mt-2 p-3 rounded-lg bg-primary/10">
+                  {membershipDescriptions[form.membership_type]}
+                </p>
+              )}
             </div>
           </div>
         )}
