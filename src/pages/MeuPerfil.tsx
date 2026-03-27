@@ -89,14 +89,14 @@ const MeuPerfil = () => {
 
     const { data: artist } = await supabase
       .from("artists")
-      .select("id, name, segment, bio, city, instagram, youtube_url, profile_image_url, portfolio_images, fan_count")
+      .select("id, name, segment, bio, city, instagram, youtube_url, phone, membership_type, profile_image_url, portfolio_images, fan_count")
       .eq("user_id", userId)
       .maybeSingle();
 
     if (artist) {
       setProfileType("artist");
       setArtistData(artist as ArtistData);
-      setForm({ bio: artist.bio || "", city: artist.city || "", instagram: artist.instagram || "", youtube_url: artist.youtube_url || "" });
+      setForm({ name: artist.name || "", segment: artist.segment || "", bio: artist.bio || "", city: artist.city || "", instagram: artist.instagram || "", youtube_url: artist.youtube_url || "", phone: artist.phone || "", membership_type: artist.membership_type || "free" });
       const { data: pending } = await supabase.from("artist_pending_updates").select("*").eq("artist_id", artist.id).order("created_at", { ascending: false }).limit(5);
       setPendingUpdates((pending || []) as unknown as PendingUpdate[]);
       setLoading(false);
