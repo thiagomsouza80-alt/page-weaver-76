@@ -157,10 +157,14 @@ const MeuPerfil = () => {
       const changes: Record<string, any> = {};
 
       if (profileType === "artist" && artistData) {
+        if (form.name !== (artistData.name || "")) changes.name = form.name;
+        if (form.segment !== (artistData.segment || "")) changes.segment = form.segment;
         if (form.bio !== (artistData.bio || "")) changes.bio = form.bio;
         if (form.city !== (artistData.city || "")) changes.city = form.city;
         if (form.instagram !== (artistData.instagram || "")) changes.instagram = form.instagram;
         if (form.youtube_url !== (artistData.youtube_url || "")) changes.youtube_url = form.youtube_url;
+        if (form.phone !== (artistData.phone || "")) changes.phone = form.phone;
+        if (form.membership_type !== (artistData.membership_type || "free")) changes.membership_type = form.membership_type;
         if (newProfileImage) changes.profile_image_url = await uploadFile(newProfileImage, "artists", "profiles");
         if (newPortfolioFiles.length > 0) {
           const urls: string[] = [];
