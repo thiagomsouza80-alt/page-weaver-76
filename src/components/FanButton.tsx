@@ -71,6 +71,8 @@ const FanButton = ({ artistId, initialCount }: FanButtonProps) => {
         .eq("artist_id", artistId);
 
       if (deleteError) {
+        console.error("Erro ao remover fã:", deleteError);
+        toast.error("Erro ao desmarcar fã. Tente novamente.");
         setIsFan(true);
         setCount((c) => c + 1);
         setLoading(false);
@@ -94,6 +96,8 @@ const FanButton = ({ artistId, initialCount }: FanButtonProps) => {
         .insert({ user_id: userId, artist_id: artistId } as any);
 
       if (insertError) {
+        console.error("Erro ao marcar fã:", insertError);
+        toast.error("Erro ao marcar como fã. Tente novamente.");
         setIsFan(false);
         setCount((c) => c - 1);
         setLoading(false);
