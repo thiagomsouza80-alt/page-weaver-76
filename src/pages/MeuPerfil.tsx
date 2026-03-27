@@ -22,6 +22,8 @@ interface ArtistData {
   city: string | null;
   instagram: string | null;
   youtube_url: string | null;
+  phone: string | null;
+  membership_type: string;
   profile_image_url: string | null;
   portfolio_images: string[] | null;
   fan_count: number;
