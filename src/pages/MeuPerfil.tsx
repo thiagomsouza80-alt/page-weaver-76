@@ -48,6 +48,14 @@ interface PendingUpdate {
   changes: Record<string, any>;
 }
 
+const segments = [
+  { value: "cosplayer", label: "Cosplayer" }, { value: "cosmaker", label: "Cosmaker" },
+  { value: "kpop", label: "K-Pop" }, { value: "ilustrador", label: "Ilustrador" },
+  { value: "quadrinista", label: "Quadrinista" }, { value: "colecionador", label: "Colecionador" },
+  { value: "desenvolvedor_jogos", label: "Desenvolvedor de Jogos" }, { value: "fan_cultura_pop", label: "Fã de Cultura Pop" },
+  { value: "youtuber", label: "YouTuber" }, { value: "influenciador_digital", label: "Influenciador Digital" },
+] as const;
+
 const segmentLabels: Record<string, string> = {
   cosplayer: "Cosplayer", cosmaker: "Cosmaker", kpop: "K-Pop", ilustrador: "Ilustrador",
   quadrinista: "Quadrinista", colecionador: "Colecionador", desenvolvedor_jogos: "Desenvolvedor de Jogos",
