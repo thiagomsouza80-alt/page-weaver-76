@@ -112,7 +112,7 @@ const MeuPerfil = () => {
     if (entrepreneur) {
       setProfileType("entrepreneur");
       setEntrepreneurData(entrepreneur as EntrepreneurData);
-      setForm({ description: entrepreneur.description || "", full_description: entrepreneur.full_description || "", address: entrepreneur.address || "", phone: entrepreneur.phone || "", instagram: entrepreneur.instagram || "" });
+      setForm({ name: entrepreneur.name || "", badge: entrepreneur.badge || "", description: entrepreneur.description || "", full_description: entrepreneur.full_description || "", address: entrepreneur.address || "", phone: entrepreneur.phone || "", instagram: entrepreneur.instagram || "" });
       const { data: pending } = await supabase.from("entrepreneur_pending_updates" as any).select("*").eq("entrepreneur_id", entrepreneur.id).order("created_at", { ascending: false }).limit(5);
       setPendingUpdates((pending || []) as unknown as PendingUpdate[]);
       setLoading(false);
