@@ -90,6 +90,9 @@ const CadastroEmpreendedor = () => {
   const onSubmit = async (data: FormData) => {
     setSubmitting(true);
     try {
+      // Sign out any existing session first to avoid conflicts
+      await supabase.auth.signOut();
+
       // 1. Create auth account
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: data.email,
