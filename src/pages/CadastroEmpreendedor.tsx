@@ -98,6 +98,11 @@ const CadastroEmpreendedor = () => {
       if (authError) throw authError;
       if (!authData.user) throw new Error("Erro ao criar conta");
 
+      const userId = authData.user.id;
+
+      // Sign out immediately so the insert runs as anon (avoids RLS issues with unconfirmed session)
+      await supabase.auth.signOut();
+
       let heroUrl: string | null = null;
       if (heroFile) {
         heroUrl = await uploadFile(heroFile, "hero");
@@ -111,7 +116,7 @@ const CadastroEmpreendedor = () => {
 
       const slug = generateSlug(data.name);
 
-      // 2. Insert entrepreneur linked to user
+      // 2. Insert entrepreneur linked to user (as anon, matching public INSERT policy)
       const { error } = await supabase.from("entrepreneurs").insert({
         name: data.name,
         slug,
@@ -126,12 +131,10 @@ const CadastroEmpreendedor = () => {
         portfolio_images: portfolioUrls.length > 0 ? portfolioUrls : null,
         published: false,
         email: data.email,
-        user_id: authData.user.id,
+        user_id: userId,
       } as any);
 
       if (error) throw error;
-
-      await supabase.auth.signOut();
 
       setSuccess(true);
       toast({ title: "Cadastro enviado!", description: "Seu perfil será analisado pela equipe." });
