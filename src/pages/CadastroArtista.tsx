@@ -112,6 +112,11 @@ const CadastroArtista = () => {
       if (authError) throw authError;
       if (!authData.user) throw new Error("Erro ao criar conta");
 
+      const userId = authData.user.id;
+
+      // Sign out immediately so the insert runs as anon (avoids RLS issues with unconfirmed session)
+      await supabase.auth.signOut();
+
       let profileUrl: string | null = null;
       if (profileImage) {
         profileUrl = await uploadFile(profileImage, "profiles");
@@ -123,7 +128,7 @@ const CadastroArtista = () => {
         portfolioUrls.push(url);
       }
 
-      // 2. Insert artist profile linked to user
+      // 2. Insert artist profile linked to user (as anon, matching public INSERT policy)
       const { error } = await supabase.from("artists").insert({
         name: data.name,
         email: data.email,
@@ -136,13 +141,10 @@ const CadastroArtista = () => {
         youtube_url: data.youtube_url || null,
         profile_image_url: profileUrl,
         portfolio_images: portfolioUrls,
-        user_id: authData.user.id,
+        user_id: userId,
       });
 
       if (error) throw error;
-
-      // Sign out so admin needs to approve first
-      await supabase.auth.signOut();
 
       setSuccess(true);
       toast({ title: "Cadastro enviado!", description: "Seu perfil será analisado pela equipe." });
