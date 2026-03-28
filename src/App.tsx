@@ -12,8 +12,7 @@ import Contato from "./pages/Contato.tsx";
 import Nivel99GeekStore from "./pages/Nivel99GeekStore.tsx";
 import NakamaTemakeria from "./pages/NakamaTemakeria.tsx";
 import AtelieCosmaker from "./pages/AtelieCosmaker.tsx";
-import CadastroEmpreendedor from "./pages/CadastroEmpreendedor.tsx";
-import CadastroArtista from "./pages/CadastroArtista.tsx";
+import Cadastro from "./pages/Cadastro.tsx";
 import Login from "./pages/Login.tsx";
 import MeuPerfil from "./pages/MeuPerfil.tsx";
 import AdminLogin from "./pages/AdminLogin.tsx";
@@ -39,7 +38,8 @@ const App = () => (
           <Route path="/noticias/:slug" element={<NoticiaDetalhe />} />
           <Route path="/artistas" element={<Artistas />} />
           <Route path="/artistas/:slug" element={<ArtistaDetalhe />} />
-          <Route path="/cadastro-artista" element={<CadastroArtista />} />
+          <Route path="/cadastro" element={<Cadastro />} />
+          <Route path="/cadastro-artista" element={<Cadastro />} />
           <Route path="/eventos" element={<Eventos />} />
           <Route path="/eventos/:slug" element={<EventoDetalhe />} />
           <Route path="/sobre" element={<Sobre />} />
@@ -49,7 +49,7 @@ const App = () => (
           <Route path="/empreendedores/nakama-temakeria" element={<NakamaTemakeria />} />
           <Route path="/empreendedores/atelie-cosmaker" element={<AtelieCosmaker />} />
           <Route path="/empreendedores/:slug" element={<EmpreendedorDetalhe />} />
-          <Route path="/cadastro-empreendedor" element={<CadastroEmpreendedor />} />
+          <Route path="/cadastro-empreendedor" element={<Cadastro />} />
           <Route path="/login" element={<Login />} />
           <Route path="/meu-perfil" element={<MeuPerfil />} />
           <Route path="/admin/login" element={<AdminLogin />} />

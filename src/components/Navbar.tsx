@@ -42,7 +42,7 @@ const Navbar = () => {
         ))}
       </div>
       <div className="flex items-center gap-3">
-        <Link to="/cadastro-artista">
+        <Link to="/cadastro">
           <Button variant="nav" size="sm" className="gap-2 hidden md:inline-flex">
             <User className="h-4 w-4" />
             Fazer Cadastro
@@ -86,7 +86,7 @@ const Navbar = () => {
               {link.label}
             </Link>
           ))}
-          <Link to="/cadastro-artista" onClick={() => setMobileOpen(false)}>
+          <Link to="/cadastro" onClick={() => setMobileOpen(false)}>
             <Button variant="nav" size="sm" className="gap-2 w-fit">
               <User className="h-4 w-4" />
               Fazer Cadastro
