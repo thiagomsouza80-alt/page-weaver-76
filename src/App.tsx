@@ -48,7 +48,7 @@ const App = () => (
           <Route path="/empreendedores/nakama-temakeria" element={<NakamaTemakeria />} />
           <Route path="/empreendedores/atelie-cosmaker" element={<AtelieCosmaker />} />
           <Route path="/empreendedores/:slug" element={<EmpreendedorDetalhe />} />
-          <Route path="/cadastro-empreendedor" element={<CadastroEmpreendedor />} />
+          <Route path="/cadastro-empreendedor" element={<Cadastro />} />
           <Route path="/login" element={<Login />} />
           <Route path="/meu-perfil" element={<MeuPerfil />} />
           <Route path="/admin/login" element={<AdminLogin />} />

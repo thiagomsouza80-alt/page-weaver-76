@@ -86,7 +86,7 @@ const Navbar = () => {
               {link.label}
             </Link>
           ))}
-          <Link to="/cadastro-artista" onClick={() => setMobileOpen(false)}>
+          <Link to="/cadastro" onClick={() => setMobileOpen(false)}>
             <Button variant="nav" size="sm" className="gap-2 w-fit">
               <User className="h-4 w-4" />
               Fazer Cadastro
