@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 const navLinks = [
   { label: "Início", to: "/" },
@@ -18,14 +19,62 @@ const Navbar = () => {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [profileName, setProfileName] = useState<string>("");
 
   useEffect(() => {
+    const fetchProfile = async (userId: string) => {
+      // Check artist profile
+      const { data: artist } = await supabase
+        .from("artists")
+        .select("profile_image_url, name")
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (artist) {
+        setProfileImage(artist.profile_image_url);
+        setProfileName(artist.name);
+        return;
+      }
+      // Check entrepreneur profile
+      const { data: entrepreneur } = await supabase
+        .from("entrepreneurs")
+        .select("image_url, name")
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (entrepreneur) {
+        setProfileImage(entrepreneur.image_url);
+        setProfileName(entrepreneur.name);
+      }
+    };
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setIsLoggedIn(!!session);
+      if (session?.user) {
+        fetchProfile(session.user.id);
+      } else {
+        setProfileImage(null);
+        setProfileName("");
+      }
     });
-    supabase.auth.getSession().then(({ data: { session } }) => setIsLoggedIn(!!session));
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsLoggedIn(!!session);
+      if (session?.user) fetchProfile(session.user.id);
+    });
     return () => subscription.unsubscribe();
   }, []);
+
+  const initials = profileName
+    ? profileName.split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase()
+    : "U";
+
+  const ProfileAvatar = ({ size = "sm" }: { size?: "sm" | "md" }) => (
+    <Avatar className={size === "sm" ? "h-8 w-8" : "h-9 w-9"}>
+      {profileImage && <AvatarImage src={profileImage} alt={profileName} />}
+      <AvatarFallback className="bg-primary/20 text-primary text-xs font-semibold">
+        {initials}
+      </AvatarFallback>
+    </Avatar>
+  );
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-3 bg-background/80 backdrop-blur-md border-b border-border/50">
@@ -42,26 +91,26 @@ const Navbar = () => {
         ))}
       </div>
       <div className="flex items-center gap-3">
-        <Link to="/cadastro">
-          <Button variant="nav" size="sm" className="gap-2 hidden md:inline-flex">
-            <User className="h-4 w-4" />
-            Fazer Cadastro
-          </Button>
-        </Link>
         {isLoggedIn ? (
-          <Link to="/meu-perfil">
-            <Button variant="ghost" size="sm" className="gap-1.5 hidden md:inline-flex text-primary hover:text-primary/80">
-              <User className="h-4 w-4" />
-              Meu Perfil
-            </Button>
+          <Link to="/meu-perfil" className="hidden md:flex items-center gap-2 hover:opacity-80 transition-opacity">
+            <ProfileAvatar />
+            <span className="text-sm font-medium text-primary">{profileName.split(" ")[0]}</span>
           </Link>
         ) : (
-          <Link to="/login">
-            <Button variant="ghost" size="sm" className="gap-1.5 hidden md:inline-flex text-muted-foreground hover:text-primary">
-              <LogIn className="h-4 w-4" />
-              Entrar
-            </Button>
-          </Link>
+          <>
+            <Link to="/cadastro">
+              <Button variant="nav" size="sm" className="gap-2 hidden md:inline-flex">
+                <User className="h-4 w-4" />
+                Fazer Cadastro
+              </Button>
+            </Link>
+            <Link to="/login">
+              <Button variant="ghost" size="sm" className="gap-1.5 hidden md:inline-flex text-muted-foreground hover:text-primary">
+                <LogIn className="h-4 w-4" />
+                Entrar
+              </Button>
+            </Link>
+          </>
         )}
         <Link to="/admin/login">
           <Button variant="ghost" size="sm" className="gap-1.5 hidden md:inline-flex text-muted-foreground hover:text-primary">
@@ -86,26 +135,26 @@ const Navbar = () => {
               {link.label}
             </Link>
           ))}
-          <Link to="/cadastro" onClick={() => setMobileOpen(false)}>
-            <Button variant="nav" size="sm" className="gap-2 w-fit">
-              <User className="h-4 w-4" />
-              Fazer Cadastro
-            </Button>
-          </Link>
           {isLoggedIn ? (
-            <Link to="/meu-perfil" onClick={() => setMobileOpen(false)}>
-              <Button variant="ghost" size="sm" className="gap-1.5 w-fit text-primary">
-                <User className="h-4 w-4" />
-                Meu Perfil
-              </Button>
+            <Link to="/meu-perfil" onClick={() => setMobileOpen(false)} className="flex items-center gap-3">
+              <ProfileAvatar size="md" />
+              <span className="text-sm font-medium text-primary">{profileName}</span>
             </Link>
           ) : (
-            <Link to="/login" onClick={() => setMobileOpen(false)}>
-              <Button variant="ghost" size="sm" className="gap-1.5 w-fit text-muted-foreground hover:text-primary">
-                <LogIn className="h-4 w-4" />
-                Entrar
-              </Button>
-            </Link>
+            <>
+              <Link to="/cadastro" onClick={() => setMobileOpen(false)}>
+                <Button variant="nav" size="sm" className="gap-2 w-fit">
+                  <User className="h-4 w-4" />
+                  Fazer Cadastro
+                </Button>
+              </Link>
+              <Link to="/login" onClick={() => setMobileOpen(false)}>
+                <Button variant="ghost" size="sm" className="gap-1.5 w-fit text-muted-foreground hover:text-primary">
+                  <LogIn className="h-4 w-4" />
+                  Entrar
+                </Button>
+              </Link>
+            </>
           )}
           <Link to="/admin/login" onClick={() => setMobileOpen(false)}>
             <Button variant="ghost" size="sm" className="gap-1.5 w-fit text-muted-foreground hover:text-primary">
