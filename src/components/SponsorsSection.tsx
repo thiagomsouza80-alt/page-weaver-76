@@ -24,7 +24,7 @@ const SponsorsSection = () => {
     },
   });
 
-  if (sponsors.length === 0) return null;
+  const hasSponsors = sponsors.length > 0;
 
   return (
     <section className="px-6 md:px-12 py-12 max-w-7xl mx-auto">
