@@ -1,14 +1,30 @@
 import { Handshake } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+
+interface Sponsor {
+  id: string;
+  name: string;
+  logo_url: string;
+  website_url: string | null;
+  display_order: number;
+}
 
 const SponsorsSection = () => {
-  // Placeholder logos — replace with actual sponsor images
-  const sponsors = [
-    { name: "Apoiador 1", logo: null },
-    { name: "Apoiador 2", logo: null },
-    { name: "Apoiador 3", logo: null },
-    { name: "Apoiador 4", logo: null },
-    { name: "Apoiador 5", logo: null },
-  ];
+  const { data: sponsors = [] } = useQuery<Sponsor[]>({
+    queryKey: ["sponsors"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("sponsors")
+        .select("id, name, logo_url, website_url, display_order")
+        .eq("active", true)
+        .order("display_order", { ascending: true });
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  if (sponsors.length === 0) return null;
 
   return (
     <section className="px-6 md:px-12 py-12 max-w-7xl mx-auto">
@@ -20,18 +36,34 @@ const SponsorsSection = () => {
         Empresas e parceiros que apoiam a cultura pop na Amazônia.
       </p>
       <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12">
-        {sponsors.map((sponsor, i) => (
-          <div
-            key={i}
-            className="w-28 h-28 md:w-36 md:h-36 rounded-xl bg-card border border-border/50 flex items-center justify-center transition-all hover:border-primary/30 hover:shadow-md"
-          >
-            {sponsor.logo ? (
-              <img src={sponsor.logo} alt={sponsor.name} className="max-w-[80%] max-h-[80%] object-contain" />
-            ) : (
-              <span className="text-xs text-muted-foreground text-center px-2">{sponsor.name}</span>
-            )}
-          </div>
-        ))}
+        {sponsors.map((sponsor) => {
+          const content = (
+            <div className="w-28 h-28 md:w-36 md:h-36 rounded-xl bg-card border border-border/50 flex items-center justify-center p-4 transition-all hover:border-primary/30 hover:shadow-md">
+              <img
+                src={sponsor.logo_url}
+                alt={sponsor.name}
+                className="max-w-full max-h-full object-contain"
+                loading="lazy"
+              />
+            </div>
+          );
+
+          return sponsor.website_url ? (
+            <a
+              key={sponsor.id}
+              href={sponsor.website_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={sponsor.name}
+            >
+              {content}
+            </a>
+          ) : (
+            <div key={sponsor.id} title={sponsor.name}>
+              {content}
+            </div>
+          );
+        })}
       </div>
     </section>
   );
