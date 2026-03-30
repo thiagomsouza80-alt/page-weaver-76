@@ -40,6 +40,7 @@ const AdminDashboard = () => {
     { key: "artists" as Tab, label: "Artistas", icon: Users },
     { key: "entrepreneurs" as Tab, label: "Empreendedores", icon: Store },
     { key: "pending" as Tab, label: "Atualizações", icon: ClipboardCheck },
+    { key: "sponsors" as Tab, label: "Apoiadores", icon: Handshake },
   ];
 
   return (
