@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useAdmin } from "@/hooks/useAdmin";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Loader2, Newspaper, CalendarDays, Users, LogOut, ExternalLink, Store, ClipboardCheck } from "lucide-react";
+import { Loader2, Newspaper, CalendarDays, Users, LogOut, ExternalLink, Store, ClipboardCheck, Handshake } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import AdminNewsPanel from "@/components/admin/AdminNewsPanel";
 import AdminEventsPanel from "@/components/admin/AdminEventsPanel";
