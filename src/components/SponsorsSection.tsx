@@ -24,7 +24,7 @@ const SponsorsSection = () => {
     },
   });
 
-  if (sponsors.length === 0) return null;
+  const hasSponsors = sponsors.length > 0;
 
   return (
     <section className="px-6 md:px-12 py-12 max-w-7xl mx-auto">
@@ -36,34 +36,45 @@ const SponsorsSection = () => {
         Empresas e parceiros que apoiam a cultura pop na Amazônia.
       </p>
       <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12">
-        {sponsors.map((sponsor) => {
-          const content = (
-            <div className="w-28 h-28 md:w-36 md:h-36 rounded-xl bg-card border border-border/50 flex items-center justify-center p-4 transition-all hover:border-primary/30 hover:shadow-md">
-              <img
-                src={sponsor.logo_url}
-                alt={sponsor.name}
-                className="max-w-full max-h-full object-contain"
-                loading="lazy"
-              />
-            </div>
-          );
+        {hasSponsors ? (
+          sponsors.map((sponsor) => {
+            const content = (
+              <div className="w-28 h-28 md:w-36 md:h-36 rounded-xl bg-card border border-border/50 flex items-center justify-center p-4 transition-all hover:border-primary/30 hover:shadow-md">
+                <img
+                  src={sponsor.logo_url}
+                  alt={sponsor.name}
+                  className="max-w-full max-h-full object-contain"
+                  loading="lazy"
+                />
+              </div>
+            );
 
-          return sponsor.website_url ? (
-            <a
-              key={sponsor.id}
-              href={sponsor.website_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              title={sponsor.name}
+            return sponsor.website_url ? (
+              <a
+                key={sponsor.id}
+                href={sponsor.website_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={sponsor.name}
+              >
+                {content}
+              </a>
+            ) : (
+              <div key={sponsor.id} title={sponsor.name}>
+                {content}
+              </div>
+            );
+          })
+        ) : (
+          Array.from({ length: 5 }).map((_, i) => (
+            <div
+              key={i}
+              className="w-28 h-28 md:w-36 md:h-36 rounded-xl bg-card border border-border/50 flex items-center justify-center transition-all hover:border-primary/30 hover:shadow-md"
             >
-              {content}
-            </a>
-          ) : (
-            <div key={sponsor.id} title={sponsor.name}>
-              {content}
+              <span className="text-xs text-muted-foreground text-center px-2">Apoiador {i + 1}</span>
             </div>
-          );
-        })}
+          ))
+        )}
       </div>
     </section>
   );
