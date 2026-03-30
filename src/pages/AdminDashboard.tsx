@@ -12,7 +12,7 @@ import AdminPendingUpdatesPanel from "@/components/admin/AdminPendingUpdatesPane
 import AdminSponsorsPanel from "@/components/admin/AdminSponsorsPanel";
 import logoOficial from "@/assets/logo-oficial.png";
 
-type Tab = "news" | "events" | "artists" | "entrepreneurs" | "pending";
+type Tab = "news" | "events" | "artists" | "entrepreneurs" | "pending" | "sponsors";
 
 const AdminDashboard = () => {
   const { loading, isAdmin } = useAdmin();
