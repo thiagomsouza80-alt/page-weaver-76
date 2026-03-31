@@ -155,10 +155,10 @@ const CadastroEmpreendedor = () => {
         <div className="pt-24 pb-16 px-6 max-w-2xl mx-auto text-center">
           <div className="animate-fade-up">
             <CheckCircle className="h-20 w-20 text-green-500 mx-auto mb-6" />
-            <h1 className="text-3xl font-bold mb-4">Cadastro Enviado!</h1>
+            <h1 className="text-3xl font-bold mb-4">Cadastro Concluído!</h1>
             <p className="text-muted-foreground text-lg mb-8">
-              Seu empreendimento foi recebido e será analisado pela equipe Amazônia Pop.
-              Após aprovação, seu perfil será publicado no portal.
+              Seu empreendimento já está publicado no portal Amazônia Pop.
+              Você pode acessar e editar seu perfil a qualquer momento.
             </p>
             <Button variant="hero" size="lg" onClick={() => window.location.href = "/"}>
               Voltar ao Início

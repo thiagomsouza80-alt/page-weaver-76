@@ -156,10 +156,10 @@ const CadastroArtistaForm = () => {
     return (
       <div className="text-center py-8">
         <CheckCircle className="h-20 w-20 text-green-500 mx-auto mb-6" />
-        <h2 className="text-3xl font-bold mb-4">Cadastro Enviado!</h2>
+        <h2 className="text-3xl font-bold mb-4">Cadastro Concluído!</h2>
         <p className="text-muted-foreground text-lg mb-4">
-          Seu perfil foi recebido e será analisado pela equipe Amazônia Pop.
-          Quando for aprovado, seu perfil ficará visível na plataforma.
+          Seu perfil já está ativo no portal Amazônia Pop.
+          Você pode acessar e editar seu perfil a qualquer momento.
         </p>
         <Button variant="outline" size="lg" onClick={() => window.location.href = "/"}>
           Voltar ao Início
