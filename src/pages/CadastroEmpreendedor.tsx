@@ -132,7 +132,7 @@ const CadastroEmpreendedor = () => {
         phone: data.phone || null,
         instagram: data.instagram || null,
         portfolio_images: portfolioUrls.length > 0 ? portfolioUrls : null,
-        published: false,
+        published: true,
         email: data.email,
         user_id: userId,
       } as any);
@@ -140,7 +140,7 @@ const CadastroEmpreendedor = () => {
       if (error) throw error;
 
       setSuccess(true);
-      toast({ title: "Cadastro enviado!", description: "Seu perfil será analisado pela equipe." });
+      toast({ title: "Cadastro concluído!", description: "Seu perfil já está ativo no portal." });
     } catch (err: any) {
       toast({ title: "Erro ao cadastrar", description: err.message, variant: "destructive" });
     } finally {

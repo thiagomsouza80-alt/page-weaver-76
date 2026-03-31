@@ -138,12 +138,13 @@ const CadastroArtistaForm = () => {
         profile_image_url: profileUrl,
         portfolio_images: portfolioUrls,
         user_id: userId,
+        approved: true,
       });
 
       if (error) throw error;
 
       setSuccess(true);
-      toast({ title: "Cadastro enviado!", description: "Seu perfil será analisado pela equipe." });
+      toast({ title: "Cadastro concluído!", description: "Seu perfil já está ativo no portal." });
     } catch (err: any) {
       toast({ title: "Erro ao cadastrar", description: err.message, variant: "destructive" });
     } finally {

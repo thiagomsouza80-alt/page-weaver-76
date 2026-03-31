@@ -125,7 +125,7 @@ const CadastroEmpreendedorForm = () => {
         phone: data.phone || null,
         instagram: data.instagram || null,
         portfolio_images: portfolioUrls.length > 0 ? portfolioUrls : null,
-        published: false,
+        published: true,
         email: data.email,
         user_id: userId,
       } as any);
