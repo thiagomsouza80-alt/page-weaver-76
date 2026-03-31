@@ -125,7 +125,7 @@ const CadastroEmpreendedorForm = () => {
         phone: data.phone || null,
         instagram: data.instagram || null,
         portfolio_images: portfolioUrls.length > 0 ? portfolioUrls : null,
-        published: false,
+        published: true,
         email: data.email,
         user_id: userId,
       } as any);
@@ -133,7 +133,7 @@ const CadastroEmpreendedorForm = () => {
       if (error) throw error;
 
       setSuccess(true);
-      toast({ title: "Cadastro enviado!", description: "Seu perfil será analisado pela equipe." });
+      toast({ title: "Cadastro concluído!", description: "Seu perfil já está ativo no portal." });
     } catch (err: any) {
       toast({ title: "Erro ao cadastrar", description: err.message, variant: "destructive" });
     } finally {
@@ -145,10 +145,10 @@ const CadastroEmpreendedorForm = () => {
     return (
       <div className="text-center py-8">
         <CheckCircle className="h-20 w-20 text-green-500 mx-auto mb-6" />
-        <h2 className="text-3xl font-bold mb-4">Cadastro Enviado!</h2>
+        <h2 className="text-3xl font-bold mb-4">Cadastro Concluído!</h2>
         <p className="text-muted-foreground text-lg mb-8">
-          Seu empreendimento foi recebido e será analisado pela equipe Amazônia Pop.
-          Após aprovação, seu perfil será publicado no portal.
+          Seu empreendimento já está publicado no portal Amazônia Pop.
+          Você pode acessar e editar seu perfil a qualquer momento.
         </p>
         <Button variant="outline" size="lg" onClick={() => window.location.href = "/"}>
           Voltar ao Início
