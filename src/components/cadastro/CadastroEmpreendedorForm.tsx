@@ -40,9 +40,21 @@ const CadastroEmpreendedorForm = () => {
   const heroInputRef = useRef<HTMLInputElement>(null);
   const portfolioInputRef = useRef<HTMLInputElement>(null);
 
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, formState: { errors }, watch } = useForm<FormData>({
     resolver: zodResolver(schema),
   });
+
+  const birthDateValue = watch("birth_date");
+
+  const isMinor = (() => {
+    if (!birthDateValue) return false;
+    const birth = new Date(birthDateValue);
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+    return age < 18;
+  })();
 
   const handleHeroImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
