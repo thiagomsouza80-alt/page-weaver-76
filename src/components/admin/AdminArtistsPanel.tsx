@@ -60,6 +60,16 @@ const ArtistPreview = ({ artist, onClose }: { artist: Artist; onClose: () => voi
                 <Instagram className="h-4 w-4" /> {artist.instagram}
               </p>
             )}
+            {(artist as any).birth_date && (
+              <p className="text-sm text-muted-foreground mt-1">🎂 {new Date((artist as any).birth_date).toLocaleDateString("pt-BR")}</p>
+            )}
+            {((artist as any).guardian_name || (artist as any).guardian_phone) && (
+              <div className="mt-2 p-2 rounded-md bg-yellow-500/10 border border-yellow-500/20">
+                <p className="text-xs font-semibold text-yellow-600 dark:text-yellow-400 mb-1">Responsável (menor de idade)</p>
+                {(artist as any).guardian_name && <p className="text-sm text-muted-foreground">👤 {(artist as any).guardian_name}</p>}
+                {(artist as any).guardian_phone && <p className="text-sm text-muted-foreground">📞 {(artist as any).guardian_phone}</p>}
+              </div>
+            )}
           </div>
         </div>
 
