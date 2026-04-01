@@ -359,6 +359,14 @@ const AdminEntrepreneursPanel = () => {
               <div className="flex-1 min-w-0">
                 <h4 className="font-semibold text-sm">{item.name}</h4>
                 <p className="text-xs text-muted-foreground">{item.badge} • /{item.slug}</p>
+                {item.birth_date && (
+                  <p className="text-xs text-muted-foreground">🎂 {new Date(item.birth_date).toLocaleDateString("pt-BR")}</p>
+                )}
+                {(item.guardian_name || item.guardian_phone) && (
+                  <p className="text-xs text-yellow-600 dark:text-yellow-400">
+                    ⚠️ Responsável: {item.guardian_name || "—"} {item.guardian_phone ? `• 📞 ${item.guardian_phone}` : ""}
+                  </p>
+                )}
               </div>
               <span className={`text-xs font-medium px-2 py-1 rounded-md ${item.published ? "bg-green-500/10 text-green-500" : "bg-yellow-500/10 text-yellow-500"}`}>
                 {item.published ? "Publicado" : "Rascunho"}

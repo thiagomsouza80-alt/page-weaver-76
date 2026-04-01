@@ -338,6 +338,14 @@ const AdminArtistsPanel = () => {
                   {segmentLabels[item.segment]} • {item.city || "Sem cidade"} • {item.email}
                   {item.phone && ` • 📱 ${item.phone}`}
                 </p>
+                {(item as any).birth_date && (
+                  <p className="text-xs text-muted-foreground">🎂 {new Date((item as any).birth_date).toLocaleDateString("pt-BR")}</p>
+                )}
+                {((item as any).guardian_name || (item as any).guardian_phone) && (
+                  <p className="text-xs text-yellow-600 dark:text-yellow-400">
+                    ⚠️ Responsável: {(item as any).guardian_name || "—"} {(item as any).guardian_phone ? `• 📞 ${(item as any).guardian_phone}` : ""}
+                  </p>
+                )}
                 {item.instagram && (
                   <span className="text-xs text-primary flex items-center gap-1 mt-0.5">
                     <Instagram className="h-3 w-3" /> {item.instagram}
