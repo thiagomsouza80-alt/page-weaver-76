@@ -60,6 +60,16 @@ const ArtistPreview = ({ artist, onClose }: { artist: Artist; onClose: () => voi
                 <Instagram className="h-4 w-4" /> {artist.instagram}
               </p>
             )}
+            {(artist as any).birth_date && (
+              <p className="text-sm text-muted-foreground mt-1">🎂 {new Date((artist as any).birth_date).toLocaleDateString("pt-BR")}</p>
+            )}
+            {((artist as any).guardian_name || (artist as any).guardian_phone) && (
+              <div className="mt-2 p-2 rounded-md bg-yellow-500/10 border border-yellow-500/20">
+                <p className="text-xs font-semibold text-yellow-600 dark:text-yellow-400 mb-1">Responsável (menor de idade)</p>
+                {(artist as any).guardian_name && <p className="text-sm text-muted-foreground">👤 {(artist as any).guardian_name}</p>}
+                {(artist as any).guardian_phone && <p className="text-sm text-muted-foreground">📞 {(artist as any).guardian_phone}</p>}
+              </div>
+            )}
           </div>
         </div>
 
@@ -328,6 +338,14 @@ const AdminArtistsPanel = () => {
                   {segmentLabels[item.segment]} • {item.city || "Sem cidade"} • {item.email}
                   {item.phone && ` • 📱 ${item.phone}`}
                 </p>
+                {(item as any).birth_date && (
+                  <p className="text-xs text-muted-foreground">🎂 {new Date((item as any).birth_date).toLocaleDateString("pt-BR")}</p>
+                )}
+                {((item as any).guardian_name || (item as any).guardian_phone) && (
+                  <p className="text-xs text-yellow-600 dark:text-yellow-400">
+                    ⚠️ Responsável: {(item as any).guardian_name || "—"} {(item as any).guardian_phone ? `• 📞 ${(item as any).guardian_phone}` : ""}
+                  </p>
+                )}
                 {item.instagram && (
                   <span className="text-xs text-primary flex items-center gap-1 mt-0.5">
                     <Instagram className="h-3 w-3" /> {item.instagram}
