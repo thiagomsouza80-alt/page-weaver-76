@@ -8,8 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, X, CheckCircle, Loader2, Image } from "lucide-react";
+import { Upload, X, CheckCircle, Loader2, Image, AlertTriangle } from "lucide-react";
 import { PasswordInput } from "@/components/ui/password-input";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const schema = z.object({
   name: z.string().trim().min(2, "Nome deve ter pelo menos 2 caracteres").max(100),
@@ -17,6 +18,9 @@ const schema = z.object({
   password: z.string().min(6, "Senha deve ter pelo menos 6 caracteres"),
   badge: z.string().trim().min(1, "Informe a categoria").max(100),
   description: z.string().trim().min(5, "Descrição curta obrigatória").max(300),
+  birth_date: z.string().min(1, "Data de nascimento é obrigatória"),
+  guardian_name: z.string().trim().max(100).optional(),
+  guardian_phone: z.string().trim().max(30).optional(),
   full_description: z.string().trim().max(3000, "Máximo 3000 caracteres").optional(),
   address: z.string().trim().max(200).optional(),
   phone: z.string().trim().max(30).optional(),
@@ -36,9 +40,21 @@ const CadastroEmpreendedorForm = () => {
   const heroInputRef = useRef<HTMLInputElement>(null);
   const portfolioInputRef = useRef<HTMLInputElement>(null);
 
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, formState: { errors }, watch } = useForm<FormData>({
     resolver: zodResolver(schema),
   });
+
+  const birthDateValue = watch("birth_date");
+
+  const isMinor = (() => {
+    if (!birthDateValue) return false;
+    const birth = new Date(birthDateValue);
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+    return age < 18;
+  })();
 
   const handleHeroImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -125,6 +141,9 @@ const CadastroEmpreendedorForm = () => {
         phone: data.phone || null,
         instagram: data.instagram || null,
         portfolio_images: portfolioUrls.length > 0 ? portfolioUrls : null,
+        birth_date: data.birth_date,
+        guardian_name: data.guardian_name || null,
+        guardian_phone: data.guardian_phone || null,
         published: true,
         email: data.email,
         user_id: userId,
@@ -219,6 +238,34 @@ const CadastroEmpreendedorForm = () => {
           </div>
         </div>
         <p className="text-xs text-muted-foreground -mt-4">Essa senha será usada para acessar e editar seu perfil</p>
+
+        {/* Birth Date */}
+        <div className="space-y-2">
+          <Label htmlFor="emp-birth_date">Data de Nascimento *</Label>
+          <Input id="emp-birth_date" type="date" {...register("birth_date")} />
+          {errors.birth_date && <p className="text-sm text-destructive">{errors.birth_date.message}</p>}
+        </div>
+
+        {isMinor && (
+          <div className="space-y-4">
+            <Alert className="border-yellow-500/50 bg-yellow-500/10">
+              <AlertTriangle className="h-4 w-4 text-yellow-600" />
+              <AlertDescription className="text-yellow-700 dark:text-yellow-400 font-medium">
+                Menores de 18 anos devem ter autorização dos pais ou responsáveis para se cadastrar no portal
+              </AlertDescription>
+            </Alert>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="emp-guardian_name">Nome do pai, mãe ou responsável</Label>
+                <Input id="emp-guardian_name" placeholder="Nome completo do responsável" {...register("guardian_name")} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="emp-guardian_phone">Telefone do pai, mãe ou responsável</Label>
+                <Input id="emp-guardian_phone" placeholder="(91) 99999-9999" {...register("guardian_phone")} />
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="space-y-2">
           <Label htmlFor="emp-description">Descrição Curta *</Label>
