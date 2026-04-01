@@ -59,10 +59,13 @@ export type Database = {
         Row: {
           approved: boolean
           bio: string | null
+          birth_date: string | null
           city: string | null
           created_at: string
           email: string
           fan_count: number
+          guardian_name: string | null
+          guardian_phone: string | null
           id: string
           instagram: string | null
           membership_type: string
@@ -78,10 +81,13 @@ export type Database = {
         Insert: {
           approved?: boolean
           bio?: string | null
+          birth_date?: string | null
           city?: string | null
           created_at?: string
           email: string
           fan_count?: number
+          guardian_name?: string | null
+          guardian_phone?: string | null
           id?: string
           instagram?: string | null
           membership_type?: string
@@ -97,10 +103,13 @@ export type Database = {
         Update: {
           approved?: boolean
           bio?: string | null
+          birth_date?: string | null
           city?: string | null
           created_at?: string
           email?: string
           fan_count?: number
+          guardian_name?: string | null
+          guardian_phone?: string | null
           id?: string
           instagram?: string | null
           membership_type?: string
@@ -160,10 +169,13 @@ export type Database = {
         Row: {
           address: string | null
           badge: string
+          birth_date: string | null
           created_at: string
           description: string
           email: string | null
           full_description: string | null
+          guardian_name: string | null
+          guardian_phone: string | null
           hero_image_url: string | null
           id: string
           image_url: string | null
@@ -179,10 +191,13 @@ export type Database = {
         Insert: {
           address?: string | null
           badge: string
+          birth_date?: string | null
           created_at?: string
           description: string
           email?: string | null
           full_description?: string | null
+          guardian_name?: string | null
+          guardian_phone?: string | null
           hero_image_url?: string | null
           id?: string
           image_url?: string | null
@@ -198,10 +213,13 @@ export type Database = {
         Update: {
           address?: string | null
           badge?: string
+          birth_date?: string | null
           created_at?: string
           description?: string
           email?: string | null
           full_description?: string | null
+          guardian_name?: string | null
+          guardian_phone?: string | null
           hero_image_url?: string | null
           id?: string
           image_url?: string | null
