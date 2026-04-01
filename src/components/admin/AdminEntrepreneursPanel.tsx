@@ -22,6 +22,9 @@ type Entrepreneur = {
   published: boolean;
   created_at: string;
   user_id: string | null;
+  birth_date: string | null;
+  guardian_name: string | null;
+  guardian_phone: string | null;
 };
 
 const emptyForm = {
