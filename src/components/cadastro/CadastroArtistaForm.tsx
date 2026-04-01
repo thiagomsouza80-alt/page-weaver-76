@@ -234,6 +234,34 @@ const CadastroArtistaForm = () => {
           <p className="text-xs text-muted-foreground">Essa senha será usada para acessar e editar seu perfil</p>
         </div>
 
+        {/* Birth Date */}
+        <div className="space-y-2">
+          <Label htmlFor="artist-birth_date">Data de Nascimento *</Label>
+          <Input id="artist-birth_date" type="date" {...register("birth_date")} />
+          {errors.birth_date && <p className="text-sm text-destructive">{errors.birth_date.message}</p>}
+        </div>
+
+        {isMinor && (
+          <div className="space-y-4">
+            <Alert className="border-yellow-500/50 bg-yellow-500/10">
+              <AlertTriangle className="h-4 w-4 text-yellow-600" />
+              <AlertDescription className="text-yellow-700 dark:text-yellow-400 font-medium">
+                Menores de 18 anos devem ter autorização dos pais ou responsáveis para se cadastrar no portal
+              </AlertDescription>
+            </Alert>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="artist-guardian_name">Nome do pai, mãe ou responsável</Label>
+                <Input id="artist-guardian_name" placeholder="Nome completo do responsável" {...register("guardian_name")} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="artist-guardian_phone">Telefone do pai, mãe ou responsável</Label>
+                <Input id="artist-guardian_phone" placeholder="(91) 99999-9999" {...register("guardian_phone")} />
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Segment */}
         <div className="space-y-2">
           <Label>Segmento *</Label>
