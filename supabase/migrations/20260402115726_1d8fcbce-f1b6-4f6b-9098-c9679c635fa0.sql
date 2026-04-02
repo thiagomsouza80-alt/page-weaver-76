@@ -1,0 +1,1 @@
+ALTER TABLE public.news ADD COLUMN gallery_images text[] DEFAULT '{}'::text[];

@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Loader2, ArrowLeft, CalendarDays } from "lucide-react";
+import { Loader2, ArrowLeft, CalendarDays, X, ChevronLeft, ChevronRight } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 import convencaoImg1 from "@/assets/news-convencao-geek-1.jpg";
 import convencaoImg2 from "@/assets/news-convencao-geek-2.jpg";
@@ -18,7 +18,7 @@ const fallbackNews: Record<string, { title: string; summary: string; category: s
     category: "Eventos",
     date: "15 de março de 2026",
     image: convencaoImg1,
-    content: null, // será renderizado inline abaixo
+    content: null,
   },
 };
 
@@ -87,10 +87,72 @@ const ConvencaoGeekContent = () => (
   </div>
 );
 
+interface LightboxProps {
+  images: string[];
+  initialIndex: number;
+  onClose: () => void;
+}
+
+const ImageLightbox = ({ images, initialIndex, onClose }: LightboxProps) => {
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
+
+  const goNext = () => setCurrentIndex((prev) => (prev + 1) % images.length);
+  const goPrev = () => setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+      if (e.key === "ArrowRight") goNext();
+      if (e.key === "ArrowLeft") goPrev();
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, []);
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center" onClick={onClose}>
+      <button onClick={onClose} className="absolute top-4 right-4 text-white/80 hover:text-white z-10">
+        <X className="h-8 w-8" />
+      </button>
+
+      {images.length > 1 && (
+        <>
+          <button
+            onClick={(e) => { e.stopPropagation(); goPrev(); }}
+            className="absolute left-4 text-white/80 hover:text-white z-10"
+          >
+            <ChevronLeft className="h-10 w-10" />
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); goNext(); }}
+            className="absolute right-4 text-white/80 hover:text-white z-10"
+          >
+            <ChevronRight className="h-10 w-10" />
+          </button>
+        </>
+      )}
+
+      <img
+        src={images[currentIndex]}
+        alt={`Imagem ${currentIndex + 1}`}
+        className="max-w-[90vw] max-h-[85vh] object-contain rounded-lg"
+        onClick={(e) => e.stopPropagation()}
+      />
+
+      {images.length > 1 && (
+        <div className="absolute bottom-4 text-white/60 text-sm">
+          {currentIndex + 1} / {images.length}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const NoticiaDetalhe = () => {
   const { slug } = useParams();
   const [item, setItem] = useState<News | null>(null);
   const [loading, setLoading] = useState(true);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   const fallback = slug ? fallbackNews[slug] : undefined;
 
@@ -111,7 +173,7 @@ const NoticiaDetalhe = () => {
     );
   }
 
-  // Fallback para notícias fictícias (prioridade sobre DB quando há conteúdo rico)
+  // Fallback para notícias fictícias
   if (fallback) {
     return (
       <div className="min-h-screen bg-background">
@@ -156,6 +218,8 @@ const NoticiaDetalhe = () => {
     );
   }
 
+  const galleryImages: string[] = (item as any).gallery_images || [];
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -184,7 +248,34 @@ const NoticiaDetalhe = () => {
         <div className="prose prose-invert max-w-none text-foreground/85 leading-relaxed whitespace-pre-wrap">
           {item.content}
         </div>
+
+        {/* Gallery */}
+        {galleryImages.length > 0 && (
+          <div className="mt-12 pt-8 border-t border-border">
+            <h3 className="text-lg font-semibold mb-4">📷 Galeria de Fotos</h3>
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+              {galleryImages.map((src, i) => (
+                <button
+                  key={i}
+                  onClick={() => setLightboxIndex(i)}
+                  className="aspect-square rounded-lg overflow-hidden bg-secondary hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-primary"
+                >
+                  <img src={src} alt={`Foto ${i + 1}`} className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </article>
+
+      {lightboxIndex !== null && (
+        <ImageLightbox
+          images={galleryImages}
+          initialIndex={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+        />
+      )}
+
       <Footer />
     </div>
   );
