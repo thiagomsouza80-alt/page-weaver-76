@@ -39,7 +39,7 @@ const SponsorsSection = () => {
         {hasSponsors ? (
           sponsors.map((sponsor) => {
             const content = (
-              <div className="w-28 h-28 md:w-36 md:h-36 rounded-xl bg-card border border-border/50 flex items-center justify-center p-4 transition-all hover:border-primary/30 hover:shadow-md">
+              <div className="w-[10.5rem] h-[10.5rem] md:w-[13.5rem] md:h-[13.5rem] rounded-xl bg-card border border-border/50 flex items-center justify-center p-4 transition-all hover:border-primary/30 hover:shadow-md">
                 <img
                   src={sponsor.logo_url}
                   alt={sponsor.name}
