@@ -194,8 +194,11 @@ const MeuPerfil = () => {
           changes.portfolio_images = [...(entrepreneurData.portfolio_images || []), ...urls];
         }
         if (Object.keys(changes).length === 0) { toast({ title: "Nenhuma alteração detectada" }); setSaving(false); return; }
-        const { error } = await supabase.from("entrepreneur_pending_updates" as any).insert({ entrepreneur_id: entrepreneurData.id, user_id: session.user.id, changes } as any);
-        if (error) throw error;
+        // Apply changes directly to the profile
+        const { error: updateError } = await supabase.from("entrepreneurs").update(changes).eq("id", entrepreneurData.id);
+        if (updateError) throw updateError;
+        // Also record the update for admin tracking
+        await supabase.from("entrepreneur_pending_updates" as any).insert({ entrepreneur_id: entrepreneurData.id, user_id: session.user.id, changes, status: "auto_approved" } as any);
       }
 
       toast({ title: "Alterações enviadas!", description: "Suas alterações serão analisadas pelo administrador." });
