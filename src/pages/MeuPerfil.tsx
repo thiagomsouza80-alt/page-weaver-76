@@ -142,9 +142,10 @@ const MeuPerfil = () => {
   };
 
   const uploadFile = async (file: File, bucket: string, folder: string) => {
-    const ext = file.name.split(".").pop();
+    const compressed = await compressImage(file);
+    const ext = compressed.name.split(".").pop();
     const path = `${folder}/${crypto.randomUUID()}.${ext}`;
-    const { error } = await supabase.storage.from(bucket).upload(path, file);
+    const { error } = await supabase.storage.from(bucket).upload(path, compressed);
     if (error) throw error;
     const { data } = supabase.storage.from(bucket).getPublicUrl(path);
     return data.publicUrl;

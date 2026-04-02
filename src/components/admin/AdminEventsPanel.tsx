@@ -61,9 +61,10 @@ const AdminEventsPanel = () => {
     try {
       let imageUrl = editing?.image_url || null;
       if (imageFile) {
-        const ext = imageFile.name.split(".").pop();
+        const compressed = await compressImage(imageFile);
+        const ext = compressed.name.split(".").pop();
         const path = `${crypto.randomUUID()}.${ext}`;
-        const { error: uploadErr } = await supabase.storage.from("events").upload(path, imageFile);
+        const { error: uploadErr } = await supabase.storage.from("events").upload(path, compressed);
         if (uploadErr) throw uploadErr;
         imageUrl = supabase.storage.from("events").getPublicUrl(path).data.publicUrl;
       }
