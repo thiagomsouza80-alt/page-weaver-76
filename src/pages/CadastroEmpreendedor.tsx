@@ -93,22 +93,7 @@ const CadastroEmpreendedor = () => {
   const onSubmit = async (data: FormData) => {
     setSubmitting(true);
     try {
-      // Sign out any existing session first to avoid conflicts
-      await supabase.auth.signOut();
-
-      // 1. Create auth account
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: data.email,
-        password: data.password,
-      });
-      if (authError) throw authError;
-      if (!authData.user) throw new Error("Erro ao criar conta");
-
-      const userId = authData.user.id;
-
-      // Sign out immediately so the insert runs as anon (avoids RLS issues with unconfirmed session)
-      await supabase.auth.signOut();
-
+      // 1. Upload files FIRST (before creating auth account to prevent orphan users on failure)
       let heroUrl: string | null = null;
       if (heroFile) {
         heroUrl = await uploadFile(heroFile, "hero");
@@ -120,13 +105,25 @@ const CadastroEmpreendedor = () => {
         portfolioUrls.push(url);
       }
 
+      // 2. Create auth account (only after uploads succeed)
+      await supabase.auth.signOut();
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+      });
+      if (authError) throw authError;
+      if (!authData.user) throw new Error("Erro ao criar conta");
+
+      const userId = authData.user.id;
+      await supabase.auth.signOut();
+
       const slug = generateSlug(data.name);
 
       // Determine if minor
       const birthDate = data.birth_date ? new Date(data.birth_date) : null;
       const isMinorUser = birthDate ? Math.floor((Date.now() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000)) < 18 : false;
 
-      // 2. Insert entrepreneur linked to user (as anon, matching public INSERT policy)
+      // 3. Insert entrepreneur profile
       const { error } = await supabase.from("entrepreneurs").insert({
         name: data.name,
         slug,

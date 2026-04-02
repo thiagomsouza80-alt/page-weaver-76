@@ -104,18 +104,7 @@ const CadastroEmpreendedorForm = () => {
   const onSubmit = async (data: FormData) => {
     setSubmitting(true);
     try {
-      await supabase.auth.signOut();
-
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: data.email,
-        password: data.password,
-      });
-      if (authError) throw authError;
-      if (!authData.user) throw new Error("Erro ao criar conta");
-
-      const userId = authData.user.id;
-      await supabase.auth.signOut();
-
+      // 1. Upload files FIRST (before creating auth account to prevent orphan users on failure)
       let heroUrl: string | null = null;
       if (heroFile) {
         heroUrl = await uploadFile(heroFile, "hero");
@@ -127,8 +116,21 @@ const CadastroEmpreendedorForm = () => {
         portfolioUrls.push(url);
       }
 
+      // 2. Create auth account (only after uploads succeed)
+      await supabase.auth.signOut();
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+      });
+      if (authError) throw authError;
+      if (!authData.user) throw new Error("Erro ao criar conta");
+
+      const userId = authData.user.id;
+      await supabase.auth.signOut();
+
       const slug = generateSlug(data.name);
 
+      // 3. Insert entrepreneur profile
       const { error } = await supabase.from("entrepreneurs").insert({
         name: data.name,
         slug,
