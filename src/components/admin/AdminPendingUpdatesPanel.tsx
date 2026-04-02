@@ -224,7 +224,7 @@ const AdminPendingUpdatesPanel = () => {
 
               <div className="flex gap-3">
                 <Button
-                  onClick={() => handleAction(update, "approved")}
+                  onClick={() => handleAction(update, "reviewed")}
                   disabled={processingId === update.id}
                   className="bg-green-600 hover:bg-green-700 text-primary-foreground"
                 >
@@ -233,15 +233,7 @@ const AdminPendingUpdatesPanel = () => {
                   ) : (
                     <Check className="h-4 w-4" />
                   )}
-                  Aprovar
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={() => handleAction(update, "rejected")}
-                  disabled={processingId === update.id}
-                >
-                  <X className="h-4 w-4" />
-                  Rejeitar
+                  Marcar como Revisado
                 </Button>
               </div>
             </div>
