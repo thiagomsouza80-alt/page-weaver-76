@@ -51,7 +51,7 @@ const Eventos = () => {
               >
                 <div className="relative md:w-80 shrink-0 aspect-video md:aspect-auto overflow-hidden">
                   {event.image_url ? (
-                    <img src={event.image_url} alt={event.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                    <img src={event.image_url} alt={event.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" style={{ objectPosition: (event as any).image_position || "center" }} />
                   ) : (
                     <div className="w-full h-full bg-secondary flex items-center justify-center min-h-[200px]">
                       <CalendarDays className="h-12 w-12 text-muted-foreground/40" />
