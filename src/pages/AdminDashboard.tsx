@@ -18,7 +18,19 @@ type Tab = "news" | "events" | "artists" | "entrepreneurs" | "pending" | "sponso
 const AdminDashboard = () => {
   const { loading, isAdmin } = useAdmin();
   const [tab, setTab] = useState<Tab>("news");
+  const [pendingCount, setPendingCount] = useState(0);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchPendingCount = async () => {
+      const [{ count: artistCount }, { count: entCount }] = await Promise.all([
+        supabase.from("artist_pending_updates").select("*", { count: "exact", head: true }).in("status", ["pending", "auto_approved"]),
+        supabase.from("entrepreneur_pending_updates" as any).select("*", { count: "exact", head: true }).in("status", ["pending", "auto_approved"]),
+      ]);
+      setPendingCount((artistCount || 0) + ((entCount as number) || 0));
+    };
+    fetchPendingCount();
+  }, [tab]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
