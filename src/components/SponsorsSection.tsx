@@ -69,7 +69,7 @@ const SponsorsSection = () => {
           Array.from({ length: 5 }).map((_, i) => (
             <div
               key={i}
-              className="w-28 h-28 md:w-36 md:h-36 rounded-xl bg-card border border-border/50 flex items-center justify-center transition-all hover:border-primary/30 hover:shadow-md"
+              className="w-[10.5rem] h-[10.5rem] md:w-[13.5rem] md:h-[13.5rem] rounded-xl bg-card border border-border/50 flex items-center justify-center transition-all hover:border-primary/30 hover:shadow-md"
             >
               <span className="text-xs text-muted-foreground text-center px-2">Apoiador {i + 1}</span>
             </div>
