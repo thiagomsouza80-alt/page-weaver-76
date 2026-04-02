@@ -40,7 +40,7 @@ const AdminNewsPanel = () => {
   useEffect(() => { fetchItems(); }, []);
 
   const resetForm = () => {
-    setTitle(""); setSummary(""); setContent(""); setCategory("geral");
+    setTitle(""); setSummary(""); setContent(""); setCategory("geral"); setImagePosition("center");
     setImageFile(null); setEditing(null); setShowForm(false);
     setGalleryFiles([]); setGalleryPreviews([]); setExistingGallery([]);
   };
