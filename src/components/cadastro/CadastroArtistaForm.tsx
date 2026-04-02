@@ -52,7 +52,7 @@ const CadastroArtistaForm = () => {
   const [portfolioFiles, setPortfolioFiles] = useState<File[]>([]);
   const [portfolioPreviews, setPortfolioPreviews] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [success, setSuccess] = useState<false | "approved" | "pending">(false);
 
   const { register, handleSubmit, setValue, formState: { errors }, watch } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -140,6 +140,11 @@ const CadastroArtistaForm = () => {
         portfolioUrls.push(url);
       }
 
+      // Determine if minor
+      const birthDate = new Date(data.birth_date);
+      const age = Math.floor((Date.now() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+      const isMinorUser = age < 18;
+
       const { error } = await supabase.from("artists").insert({
         name: data.name,
         email: data.email,
@@ -156,13 +161,13 @@ const CadastroArtistaForm = () => {
         profile_image_url: profileUrl,
         portfolio_images: portfolioUrls,
         user_id: userId,
-        approved: true,
+        approved: !isMinorUser,
       });
 
       if (error) throw error;
 
-      setSuccess(true);
-      toast({ title: "Cadastro concluído!", description: "Seu perfil já está ativo no portal." });
+      setSuccess(isMinorUser ? "pending" : "approved");
+      toast({ title: "Cadastro concluído!", description: isMinorUser ? "Seu cadastro será analisado pelo administrador." : "Seu perfil já está ativo no portal." });
     } catch (err: any) {
       toast({ title: "Erro ao cadastrar", description: err.message, variant: "destructive" });
     } finally {
@@ -176,8 +181,9 @@ const CadastroArtistaForm = () => {
         <CheckCircle className="h-20 w-20 text-green-500 mx-auto mb-6" />
         <h2 className="text-3xl font-bold mb-4">Cadastro Concluído!</h2>
         <p className="text-muted-foreground text-lg mb-4">
-          Seu perfil já está ativo no portal Amazônia Pop.
-          Você pode acessar e editar seu perfil a qualquer momento.
+          {success === "pending"
+            ? "Como você é menor de 18 anos, seu cadastro será analisado e aprovado pelo administrador antes de ser publicado."
+            : "Seu perfil já está ativo no portal Amazônia Pop. Você pode acessar e editar seu perfil a qualquer momento."}
         </p>
         <Button variant="outline" size="lg" onClick={() => window.location.href = "/"}>
           Voltar ao Início

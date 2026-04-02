@@ -23,6 +23,9 @@ const schema = z.object({
   address: z.string().trim().max(200).optional(),
   phone: z.string().trim().max(30).optional(),
   instagram: z.string().trim().max(100).optional(),
+  birth_date: z.string().optional(),
+  guardian_name: z.string().trim().max(100).optional(),
+  guardian_phone: z.string().trim().max(30).optional(),
 });
 
 type FormData = z.infer<typeof schema>;
@@ -34,7 +37,7 @@ const CadastroEmpreendedor = () => {
   const [portfolioFiles, setPortfolioFiles] = useState<File[]>([]);
   const [portfolioPreviews, setPortfolioPreviews] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [success, setSuccess] = useState<false | "approved" | "pending">(false);
   const heroInputRef = useRef<HTMLInputElement>(null);
   const portfolioInputRef = useRef<HTMLInputElement>(null);
 
@@ -119,6 +122,10 @@ const CadastroEmpreendedor = () => {
 
       const slug = generateSlug(data.name);
 
+      // Determine if minor
+      const birthDate = data.birth_date ? new Date(data.birth_date) : null;
+      const isMinorUser = birthDate ? Math.floor((Date.now() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000)) < 18 : false;
+
       // 2. Insert entrepreneur linked to user (as anon, matching public INSERT policy)
       const { error } = await supabase.from("entrepreneurs").insert({
         name: data.name,
@@ -132,15 +139,18 @@ const CadastroEmpreendedor = () => {
         phone: data.phone || null,
         instagram: data.instagram || null,
         portfolio_images: portfolioUrls.length > 0 ? portfolioUrls : null,
-        published: true,
+        published: !isMinorUser,
         email: data.email,
         user_id: userId,
+        birth_date: data.birth_date || null,
+        guardian_name: data.guardian_name || null,
+        guardian_phone: data.guardian_phone || null,
       } as any);
 
       if (error) throw error;
 
-      setSuccess(true);
-      toast({ title: "Cadastro concluído!", description: "Seu perfil já está ativo no portal." });
+      setSuccess(isMinorUser ? "pending" : "approved");
+      toast({ title: "Cadastro concluído!", description: isMinorUser ? "Seu cadastro será analisado pelo administrador." : "Seu perfil já está ativo no portal." });
     } catch (err: any) {
       toast({ title: "Erro ao cadastrar", description: err.message, variant: "destructive" });
     } finally {
@@ -157,8 +167,9 @@ const CadastroEmpreendedor = () => {
             <CheckCircle className="h-20 w-20 text-green-500 mx-auto mb-6" />
             <h1 className="text-3xl font-bold mb-4">Cadastro Concluído!</h1>
             <p className="text-muted-foreground text-lg mb-8">
-              Seu empreendimento já está publicado no portal Amazônia Pop.
-              Você pode acessar e editar seu perfil a qualquer momento.
+              {success === "pending"
+                ? "Como você é menor de 18 anos, seu cadastro será analisado e aprovado pelo administrador antes de ser publicado."
+                : "Seu empreendimento já está publicado no portal Amazônia Pop. Você pode acessar e editar seu perfil a qualquer momento."}
             </p>
             <Button variant="hero" size="lg" onClick={() => window.location.href = "/"}>
               Voltar ao Início
