@@ -247,6 +247,13 @@ const CadastroEmpreendedor = () => {
           </div>
           <p className="text-xs text-muted-foreground -mt-4">Essa senha será usada para acessar e editar seu perfil</p>
 
+          {/* Birth Date */}
+          <div className="space-y-2">
+            <Label htmlFor="birth_date">Data de Nascimento</Label>
+            <Input id="birth_date" type="date" className="appearance-auto" {...register("birth_date")} />
+            {errors.birth_date && <p className="text-sm text-destructive">{errors.birth_date.message}</p>}
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="description">Descrição Curta *</Label>
             <Input id="description" placeholder="Breve descrição do seu negócio" maxLength={300} {...register("description")} />

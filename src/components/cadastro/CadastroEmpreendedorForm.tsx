@@ -246,7 +246,7 @@ const CadastroEmpreendedorForm = () => {
         {/* Birth Date */}
         <div className="space-y-2">
           <Label htmlFor="emp-birth_date">Data de Nascimento *</Label>
-          <Input id="emp-birth_date" type="date" {...register("birth_date")} />
+          <Input id="emp-birth_date" type="date" className="appearance-auto" {...register("birth_date")} />
           {errors.birth_date && <p className="text-sm text-destructive">{errors.birth_date.message}</p>}
         </div>
 

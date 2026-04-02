@@ -12,7 +12,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, X, Camera, CheckCircle, Loader2 } from "lucide-react";
+import { Upload, X, Camera, CheckCircle, Loader2, AlertTriangle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { PasswordInput } from "@/components/ui/password-input";
 import { membershipTypes, membershipDescriptions } from "@/lib/membership";
 
@@ -34,6 +35,9 @@ const schema = z.object({
   email: z.string().trim().email("Email inválido").max(255),
   password: z.string().min(6, "Senha deve ter pelo menos 6 caracteres"),
   segment: z.enum(["cosplayer", "cosmaker", "kpop", "ilustrador", "quadrinista", "colecionador", "desenvolvedor_jogos", "fan_cultura_pop", "youtuber", "influenciador_digital"], { required_error: "Selecione um segmento" }),
+  birth_date: z.string().min(1, "Data de nascimento é obrigatória"),
+  guardian_name: z.string().trim().max(100).optional(),
+  guardian_phone: z.string().trim().max(30).optional(),
   bio: z.string().trim().max(1000, "Máximo 1000 caracteres").optional(),
   city: z.string().trim().max(100).optional(),
   instagram: z.string().trim().max(100).optional(),
@@ -51,7 +55,7 @@ const CadastroArtista = () => {
   const [portfolioFiles, setPortfolioFiles] = useState<File[]>([]);
   const [portfolioPreviews, setPortfolioPreviews] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [success, setSuccess] = useState<false | "approved" | "pending">(false);
 
   const { register, handleSubmit, setValue, formState: { errors }, watch } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -59,6 +63,17 @@ const CadastroArtista = () => {
 
   const segmentValue = watch("segment");
   const membershipValue = watch("membership_type") || "free";
+  const birthDateValue = watch("birth_date");
+
+  const isMinor = (() => {
+    if (!birthDateValue) return false;
+    const birth = new Date(birthDateValue);
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+    return age < 18;
+  })();
 
   const handleProfileImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -130,11 +145,19 @@ const CadastroArtista = () => {
       const userId = authData.user.id;
       await supabase.auth.signOut();
 
-      // 3. Insert artist profile
+      // 3. Determine if minor
+      const birthDate = new Date(data.birth_date);
+      const age = Math.floor((Date.now() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+      const isMinorUser = age < 18;
+
+      // 4. Insert artist profile
       const { error } = await supabase.from("artists").insert({
         name: data.name,
         email: data.email,
         segment: data.segment,
+        birth_date: data.birth_date,
+        guardian_name: data.guardian_name || null,
+        guardian_phone: data.guardian_phone || null,
         bio: data.bio || null,
         city: data.city || null,
         instagram: data.instagram || null,
@@ -144,13 +167,13 @@ const CadastroArtista = () => {
         profile_image_url: profileUrl,
         portfolio_images: portfolioUrls,
         user_id: userId,
-        approved: true,
+        approved: !isMinorUser,
       });
 
       if (error) throw error;
 
-      setSuccess(true);
-      toast({ title: "Cadastro concluído!", description: "Seu perfil já está ativo no portal." });
+      setSuccess(isMinorUser ? "pending" : "approved");
+      toast({ title: "Cadastro concluído!", description: isMinorUser ? "Seu cadastro será analisado pelo administrador." : "Seu perfil já está ativo no portal." });
     } catch (err: any) {
       toast({ title: "Erro ao cadastrar", description: err.message, variant: "destructive" });
     } finally {
@@ -167,8 +190,9 @@ const CadastroArtista = () => {
             <CheckCircle className="h-20 w-20 text-green-500 mx-auto mb-6" />
             <h1 className="text-3xl font-bold mb-4">Cadastro Concluído!</h1>
             <p className="text-muted-foreground text-lg mb-4">
-              Seu perfil já está ativo no portal Amazônia Pop.
-              Você pode acessar e editar seu perfil a qualquer momento.
+              {success === "pending"
+                ? "Como você é menor de 18 anos, seu cadastro será analisado e aprovado pelo administrador antes de ser publicado."
+                : "Seu perfil já está ativo no portal Amazônia Pop. Você pode acessar e editar seu perfil a qualquer momento."}
             </p>
             <div className="flex justify-center">
               <Button variant="outline" size="lg" onClick={() => window.location.href = "/"}>
@@ -233,6 +257,34 @@ const CadastroArtista = () => {
             {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
             <p className="text-xs text-muted-foreground">Essa senha será usada para acessar e editar seu perfil</p>
           </div>
+
+          {/* Birth Date */}
+          <div className="space-y-2">
+            <Label htmlFor="birth_date">Data de Nascimento *</Label>
+            <Input id="birth_date" type="date" className="appearance-auto" {...register("birth_date")} />
+            {errors.birth_date && <p className="text-sm text-destructive">{errors.birth_date.message}</p>}
+          </div>
+
+          {isMinor && (
+            <div className="space-y-4">
+              <Alert className="border-yellow-500/50 bg-yellow-500/10">
+                <AlertTriangle className="h-4 w-4 text-yellow-600" />
+                <AlertDescription className="text-yellow-700 dark:text-yellow-400 font-medium">
+                  Menores de 18 anos devem ter autorização dos pais ou responsáveis para se cadastrar no portal
+                </AlertDescription>
+              </Alert>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="guardian_name">Nome do pai, mãe ou responsável</Label>
+                  <Input id="guardian_name" placeholder="Nome completo do responsável" {...register("guardian_name")} />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="guardian_phone">Telefone do pai, mãe ou responsável</Label>
+                  <Input id="guardian_phone" placeholder="(91) 99999-9999" {...register("guardian_phone")} />
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Segment */}
           <div className="space-y-2">
