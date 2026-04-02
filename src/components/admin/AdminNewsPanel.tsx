@@ -51,7 +51,7 @@ const AdminNewsPanel = () => {
     setSummary(item.summary);
     setContent(item.content);
     setCategory(item.category);
-    setExistingGallery((item as any).gallery_images || []);
+    setImagePosition((item as any).image_position || "center");
     setGalleryFiles([]);
     setGalleryPreviews([]);
     setShowForm(true);
