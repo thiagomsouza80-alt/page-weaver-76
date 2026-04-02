@@ -254,6 +254,7 @@ const CadastroEmpreendedor = () => {
             {errors.birth_date && <p className="text-sm text-destructive">{errors.birth_date.message}</p>}
           </div>
 
+          <div className="space-y-2">
             <Label htmlFor="description">Descrição Curta *</Label>
             <Input id="description" placeholder="Breve descrição do seu negócio" maxLength={300} {...register("description")} />
             {errors.description && <p className="text-sm text-destructive">{errors.description.message}</p>}
