@@ -107,19 +107,10 @@ const AdminPendingUpdatesPanel = () => {
 
   useEffect(() => { loadUpdates(); }, []);
 
-  const handleAction = async (update: PendingUpdate, action: "approved" | "rejected") => {
+  const handleAction = async (update: PendingUpdate, action: "reviewed" | "rejected") => {
     setProcessingId(update.id);
 
     try {
-      if (action === "approved") {
-        const table = update.entity_type === "artist" ? "artists" : "entrepreneurs";
-        const { error: updateError } = await supabase
-          .from(table)
-          .update(update.changes)
-          .eq("id", update.entity_id);
-        if (updateError) throw updateError;
-      }
-
       const pendingTable = update.entity_type === "artist"
         ? "artist_pending_updates"
         : "entrepreneur_pending_updates" as any;
@@ -136,10 +127,7 @@ const AdminPendingUpdatesPanel = () => {
       if (error) throw error;
 
       toast({
-        title: action === "approved" ? "Atualização aprovada!" : "Atualização rejeitada",
-        description: action === "approved"
-          ? "As alterações foram aplicadas ao perfil."
-          : "O usuário será notificado da rejeição.",
+        title: action === "reviewed" ? "Atualização marcada como revisada" : "Registro removido",
       });
 
       loadUpdates();
