@@ -73,6 +73,12 @@ const AdminDashboard = () => {
             >
               <t.icon className="h-4 w-4" />
               {t.label}
+              {t.key === "pending" && pendingCount > 0 && (
+                <span className="ml-auto flex items-center gap-1 bg-destructive text-destructive-foreground text-xs font-bold rounded-full px-2 py-0.5">
+                  <Bell className="h-3 w-3" />
+                  {pendingCount}
+                </span>
+              )}
             </button>
           ))}
         </nav>
