@@ -295,7 +295,10 @@ const CadastroArtistaForm = () => {
           </div>
           <div className="space-y-2">
             <Label htmlFor="artist-instagram">Instagram</Label>
-            <Input id="artist-instagram" placeholder="@seuinstagram" {...register("instagram")} />
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">@</span>
+              <Input id="artist-instagram" placeholder="seuinstagram" className="pl-7" {...register("instagram")} />
+            </div>
           </div>
         </div>
 

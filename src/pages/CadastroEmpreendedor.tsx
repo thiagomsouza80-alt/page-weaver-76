@@ -285,7 +285,10 @@ const CadastroEmpreendedor = () => {
             </div>
             <div className="space-y-2">
               <Label htmlFor="instagram">Instagram</Label>
-              <Input id="instagram" placeholder="@usuario" {...register("instagram")} />
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">@</span>
+                <Input id="instagram" placeholder="usuario" className="pl-7" {...register("instagram")} />
+              </div>
             </div>
           </div>
 
