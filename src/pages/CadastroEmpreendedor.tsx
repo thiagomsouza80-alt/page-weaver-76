@@ -23,6 +23,9 @@ const schema = z.object({
   address: z.string().trim().max(200).optional(),
   phone: z.string().trim().max(30).optional(),
   instagram: z.string().trim().max(100).optional(),
+  birth_date: z.string().optional(),
+  guardian_name: z.string().trim().max(100).optional(),
+  guardian_phone: z.string().trim().max(30).optional(),
 });
 
 type FormData = z.infer<typeof schema>;
