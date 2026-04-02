@@ -102,6 +102,7 @@ const Noticias = () => {
     date: formatDate(n.created_at),
     title: n.title,
     summary: n.summary,
+    imagePosition: n.image_position || "center",
     isDb: true,
   }));
 
@@ -130,7 +131,7 @@ const Noticias = () => {
               >
                 <div className="relative aspect-[4/3] overflow-hidden">
                   {item.img ? (
-                    <img src={item.img} alt={item.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                    <img src={item.img} alt={item.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" style={{ objectPosition: (item as any).imagePosition || "center" }} />
                   ) : (
                     <div className="w-full h-full bg-secondary flex items-center justify-center">
                       <span className="text-4xl font-bold text-muted-foreground/30">{item.title[0]}</span>

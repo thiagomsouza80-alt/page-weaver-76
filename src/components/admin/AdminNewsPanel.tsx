@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, Loader2, Eye, EyeOff, X, Image } from "lucide-react";
+import ImagePositionSelector from "@/components/admin/ImagePositionSelector";
 import type { Tables } from "@/integrations/supabase/types";
 
 type News = Tables<"news">;
@@ -28,6 +29,7 @@ const AdminNewsPanel = () => {
   const [summary, setSummary] = useState("");
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("geral");
+  const [imagePosition, setImagePosition] = useState("center");
 
   const fetchItems = async () => {
     const { data } = await supabase.from("news").select("*").order("created_at", { ascending: false });
@@ -38,7 +40,7 @@ const AdminNewsPanel = () => {
   useEffect(() => { fetchItems(); }, []);
 
   const resetForm = () => {
-    setTitle(""); setSummary(""); setContent(""); setCategory("geral");
+    setTitle(""); setSummary(""); setContent(""); setCategory("geral"); setImagePosition("center");
     setImageFile(null); setEditing(null); setShowForm(false);
     setGalleryFiles([]); setGalleryPreviews([]); setExistingGallery([]);
   };
@@ -49,7 +51,7 @@ const AdminNewsPanel = () => {
     setSummary(item.summary);
     setContent(item.content);
     setCategory(item.category);
-    setExistingGallery((item as any).gallery_images || []);
+    setImagePosition((item as any).image_position || "center");
     setGalleryFiles([]);
     setGalleryPreviews([]);
     setShowForm(true);
@@ -111,7 +113,7 @@ const AdminNewsPanel = () => {
       const allGallery = [...existingGallery, ...newGalleryUrls];
 
       const slug = generateSlug(title);
-      const payload = { title, slug, summary, content, category, image_url: imageUrl, gallery_images: allGallery } as any;
+      const payload = { title, slug, summary, content, category, image_url: imageUrl, gallery_images: allGallery, image_position: imagePosition } as any;
 
       if (editing) {
         const { error } = await supabase.from("news").update(payload).eq("id", editing.id);
@@ -179,6 +181,11 @@ const AdminNewsPanel = () => {
             <Label>Imagem Principal (topo da notícia)</Label>
             <Input type="file" accept="image/*" onChange={e => setImageFile(e.target.files?.[0] || null)} />
           </div>
+          <ImagePositionSelector
+            value={imagePosition}
+            onChange={setImagePosition}
+            imageUrl={imageFile ? URL.createObjectURL(imageFile) : editing?.image_url}
+          />
 
           {/* Gallery Images */}
           <div className="space-y-3">

@@ -79,7 +79,7 @@ const EventsSection = () => {
               <article className="bg-card rounded-xl overflow-hidden card-hover cursor-pointer group flex flex-col sm:flex-row">
                 <div className="relative sm:w-56 shrink-0 aspect-video sm:aspect-auto overflow-hidden">
                   {ev.image_url ? (
-                    <img src={ev.image_url} alt={ev.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                    <img src={ev.image_url} alt={ev.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" style={{ objectPosition: (ev as any).image_position || "center" }} />
                   ) : (
                     <div className="w-full h-full bg-secondary" />
                   )}

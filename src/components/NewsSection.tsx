@@ -42,7 +42,7 @@ const NewsSection = () => {
               <article className={`bg-card rounded-xl overflow-hidden card-hover cursor-pointer group animate-fade-up-delay-${i + 1}`}>
                 <div className="relative aspect-[4/3] overflow-hidden">
                   {entry.data.image_url ? (
-                    <img src={entry.data.image_url} alt={entry.data.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                    <img src={entry.data.image_url} alt={entry.data.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" style={{ objectPosition: (entry.data as any).image_position || "center" }} />
                   ) : (
                     <img src={newsAnimeFest} alt={entry.data.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   )}

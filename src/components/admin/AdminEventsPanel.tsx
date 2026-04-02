@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, Loader2, Eye, EyeOff } from "lucide-react";
+import ImagePositionSelector from "@/components/admin/ImagePositionSelector";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Event = Tables<"events">;
@@ -24,6 +25,7 @@ const AdminEventsPanel = () => {
   const [content, setContent] = useState("");
   const [location, setLocation] = useState("");
   const [eventDate, setEventDate] = useState("");
+  const [imagePosition, setImagePosition] = useState("center");
 
   const fetchItems = async () => {
     const { data } = await supabase.from("events").select("*").order("event_date", { ascending: true });
@@ -34,7 +36,7 @@ const AdminEventsPanel = () => {
   useEffect(() => { fetchItems(); }, []);
 
   const resetForm = () => {
-    setTitle(""); setDescription(""); setContent(""); setLocation(""); setEventDate("");
+    setTitle(""); setDescription(""); setContent(""); setLocation(""); setEventDate(""); setImagePosition("center");
     setImageFile(null); setEditing(null); setShowForm(false);
   };
 
@@ -45,6 +47,7 @@ const AdminEventsPanel = () => {
     setContent(item.content);
     setLocation(item.location);
     setEventDate(item.event_date.slice(0, 16));
+    setImagePosition((item as any).image_position || "center");
     setShowForm(true);
   };
 
@@ -65,7 +68,7 @@ const AdminEventsPanel = () => {
       }
 
       const slug = generateSlug(title);
-      const payload = { title, slug, description, content, location, event_date: new Date(eventDate).toISOString(), image_url: imageUrl };
+      const payload = { title, slug, description, content, location, event_date: new Date(eventDate).toISOString(), image_url: imageUrl, image_position: imagePosition } as any;
 
       if (editing) {
         const { error } = await supabase.from("events").update(payload).eq("id", editing.id);
@@ -135,6 +138,11 @@ const AdminEventsPanel = () => {
             <Label>Imagem de Capa</Label>
             <Input type="file" accept="image/*" onChange={e => setImageFile(e.target.files?.[0] || null)} />
           </div>
+          <ImagePositionSelector
+            value={imagePosition}
+            onChange={setImagePosition}
+            imageUrl={imageFile ? URL.createObjectURL(imageFile) : editing?.image_url}
+          />
           <div className="flex gap-3">
             <Button type="submit" disabled={submitting}>
               {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : editing ? "Salvar" : "Publicar"}

@@ -53,7 +53,7 @@ const EventoDetalhe = () => {
 
         {item.image_url && (
           <div className="aspect-video rounded-xl overflow-hidden mb-8">
-            <img src={item.image_url} alt={item.title} className="w-full h-full object-cover" />
+            <img src={item.image_url} alt={item.title} className="w-full h-full object-cover" style={{ objectPosition: (item as any).image_position || "center" }} />
           </div>
         )}
 
