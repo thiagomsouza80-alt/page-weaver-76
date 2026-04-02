@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { compressImage } from "@/lib/imageCompression";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -93,9 +94,10 @@ const CadastroEmpreendedorForm = () => {
     name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
   const uploadFile = async (file: File, folder: string) => {
-    const ext = file.name.split(".").pop();
+    const compressed = await compressImage(file);
+    const ext = compressed.name.split(".").pop();
     const path = `${folder}/${crypto.randomUUID()}.${ext}`;
-    const { error } = await supabase.storage.from("entrepreneurs").upload(path, file);
+    const { error } = await supabase.storage.from("entrepreneurs").upload(path, compressed);
     if (error) throw error;
     const { data } = supabase.storage.from("entrepreneurs").getPublicUrl(path);
     return data.publicUrl;

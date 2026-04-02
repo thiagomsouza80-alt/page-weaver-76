@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import { compressImage } from "@/lib/imageCompression";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -93,9 +94,10 @@ const CadastroArtista = () => {
   };
 
   const uploadFile = async (file: File, folder: string) => {
-    const ext = file.name.split(".").pop();
+    const compressed = await compressImage(file);
+    const ext = compressed.name.split(".").pop();
     const path = `${folder}/${crypto.randomUUID()}.${ext}`;
-    const { error } = await supabase.storage.from("artists").upload(path, file);
+    const { error } = await supabase.storage.from("artists").upload(path, compressed);
     if (error) throw error;
     const { data } = supabase.storage.from("artists").getPublicUrl(path);
     return data.publicUrl;
