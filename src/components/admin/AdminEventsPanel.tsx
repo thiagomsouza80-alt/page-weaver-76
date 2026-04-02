@@ -25,6 +25,7 @@ const AdminEventsPanel = () => {
   const [content, setContent] = useState("");
   const [location, setLocation] = useState("");
   const [eventDate, setEventDate] = useState("");
+  const [imagePosition, setImagePosition] = useState("center");
 
   const fetchItems = async () => {
     const { data } = await supabase.from("events").select("*").order("event_date", { ascending: true });
