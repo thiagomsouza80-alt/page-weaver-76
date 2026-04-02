@@ -113,7 +113,7 @@ const AdminNewsPanel = () => {
       const allGallery = [...existingGallery, ...newGalleryUrls];
 
       const slug = generateSlug(title);
-      const payload = { title, slug, summary, content, category, image_url: imageUrl, gallery_images: allGallery } as any;
+      const payload = { title, slug, summary, content, category, image_url: imageUrl, gallery_images: allGallery, image_position: imagePosition } as any;
 
       if (editing) {
         const { error } = await supabase.from("news").update(payload).eq("id", editing.id);
