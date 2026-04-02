@@ -102,6 +102,7 @@ const Noticias = () => {
     date: formatDate(n.created_at),
     title: n.title,
     summary: n.summary,
+    imagePosition: n.image_position || "center",
     isDb: true,
   }));
 
