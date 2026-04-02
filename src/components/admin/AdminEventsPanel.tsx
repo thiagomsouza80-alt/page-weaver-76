@@ -36,7 +36,7 @@ const AdminEventsPanel = () => {
   useEffect(() => { fetchItems(); }, []);
 
   const resetForm = () => {
-    setTitle(""); setDescription(""); setContent(""); setLocation(""); setEventDate("");
+    setTitle(""); setDescription(""); setContent(""); setLocation(""); setEventDate(""); setImagePosition("center");
     setImageFile(null); setEditing(null); setShowForm(false);
   };
 
