@@ -93,15 +93,8 @@ const CadastroEmpreendedorForm = () => {
   const generateSlug = (name: string) =>
     name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
-  const uploadFile = async (file: File, folder: string) => {
-    const compressed = await compressImage(file);
-    const ext = compressed.name.split(".").pop();
-    const path = `${folder}/${crypto.randomUUID()}.${ext}`;
-    const { error } = await supabase.storage.from("entrepreneurs").upload(path, compressed);
-    if (error) throw error;
-    const { data } = supabase.storage.from("entrepreneurs").getPublicUrl(path);
-    return data.publicUrl;
-  };
+  const uploadFile = (file: File, folder: string) =>
+    uploadWithRetry(file, "entrepreneurs", folder);
 
   const onSubmit = async (data: FormData) => {
     setSubmitting(true);
