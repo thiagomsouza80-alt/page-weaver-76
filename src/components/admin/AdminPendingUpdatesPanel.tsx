@@ -75,7 +75,7 @@ const AdminPendingUpdatesPanel = () => {
     const { data: entUpdates } = await supabase
       .from("entrepreneur_pending_updates" as any)
       .select("*")
-      .eq("status", "pending")
+      .in("status", ["pending", "auto_approved"])
       .order("created_at", { ascending: true });
 
     if (entUpdates && (entUpdates as any[]).length > 0) {
