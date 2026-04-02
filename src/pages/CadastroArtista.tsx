@@ -172,8 +172,8 @@ const CadastroArtista = () => {
 
       if (error) throw error;
 
-      setSuccess(true);
-      toast({ title: "Cadastro concluído!", description: "Seu perfil já está ativo no portal." });
+      setSuccess(isMinorUser ? "pending" : "approved");
+      toast({ title: "Cadastro concluído!", description: isMinorUser ? "Seu cadastro será analisado pelo administrador." : "Seu perfil já está ativo no portal." });
     } catch (err: any) {
       toast({ title: "Erro ao cadastrar", description: err.message, variant: "destructive" });
     } finally {
