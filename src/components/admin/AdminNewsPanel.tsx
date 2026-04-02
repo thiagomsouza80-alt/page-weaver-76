@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, Loader2, Eye, EyeOff } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, Eye, EyeOff, X, Image } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 
 type News = Tables<"news">;
@@ -18,6 +18,10 @@ const AdminNewsPanel = () => {
   const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
+  const [galleryPreviews, setGalleryPreviews] = useState<string[]>([]);
+  const [existingGallery, setExistingGallery] = useState<string[]>([]);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
 
   // Form state
   const [title, setTitle] = useState("");
@@ -36,6 +40,7 @@ const AdminNewsPanel = () => {
   const resetForm = () => {
     setTitle(""); setSummary(""); setContent(""); setCategory("geral");
     setImageFile(null); setEditing(null); setShowForm(false);
+    setGalleryFiles([]); setGalleryPreviews([]); setExistingGallery([]);
   };
 
   const openEdit = (item: News) => {
@@ -44,11 +49,41 @@ const AdminNewsPanel = () => {
     setSummary(item.summary);
     setContent(item.content);
     setCategory(item.category);
+    setExistingGallery((item as any).gallery_images || []);
+    setGalleryFiles([]);
+    setGalleryPreviews([]);
     setShowForm(true);
   };
 
   const generateSlug = (text: string) =>
     text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
+  const handleGalleryImages = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const totalCount = existingGallery.length + galleryFiles.length + files.length;
+    if (totalCount > 9) {
+      toast({ title: "Máximo 9 imagens de galeria", description: "Remova algumas para adicionar novas", variant: "destructive" });
+      return;
+    }
+    const valid = files.filter(f => {
+      if (f.size > 5 * 1024 * 1024) {
+        toast({ title: `${f.name} muito grande`, description: "Máximo 5MB", variant: "destructive" });
+        return false;
+      }
+      return true;
+    });
+    setGalleryFiles(prev => [...prev, ...valid]);
+    setGalleryPreviews(prev => [...prev, ...valid.map(f => URL.createObjectURL(f))]);
+  };
+
+  const removeGalleryNew = (index: number) => {
+    setGalleryFiles(prev => prev.filter((_, i) => i !== index));
+    setGalleryPreviews(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const removeGalleryExisting = (index: number) => {
+    setExistingGallery(prev => prev.filter((_, i) => i !== index));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,8 +98,20 @@ const AdminNewsPanel = () => {
         imageUrl = supabase.storage.from("news").getPublicUrl(path).data.publicUrl;
       }
 
+      // Upload new gallery images
+      const newGalleryUrls: string[] = [];
+      for (const file of galleryFiles) {
+        const ext = file.name.split(".").pop();
+        const path = `gallery/${crypto.randomUUID()}.${ext}`;
+        const { error: uploadErr } = await supabase.storage.from("news").upload(path, file);
+        if (uploadErr) throw uploadErr;
+        newGalleryUrls.push(supabase.storage.from("news").getPublicUrl(path).data.publicUrl);
+      }
+
+      const allGallery = [...existingGallery, ...newGalleryUrls];
+
       const slug = generateSlug(title);
-      const payload = { title, slug, summary, content, category, image_url: imageUrl };
+      const payload = { title, slug, summary, content, category, image_url: imageUrl, gallery_images: allGallery } as any;
 
       if (editing) {
         const { error } = await supabase.from("news").update(payload).eq("id", editing.id);
@@ -95,6 +142,8 @@ const AdminNewsPanel = () => {
     fetchItems();
     toast({ title: "Notícia excluída" });
   };
+
+  const totalGalleryCount = existingGallery.length + galleryFiles.length;
 
   return (
     <div>
@@ -127,9 +176,53 @@ const AdminNewsPanel = () => {
             <Textarea value={content} onChange={e => setContent(e.target.value)} rows={8} required />
           </div>
           <div className="space-y-2">
-            <Label>Imagem de Capa</Label>
+            <Label>Imagem Principal (topo da notícia)</Label>
             <Input type="file" accept="image/*" onChange={e => setImageFile(e.target.files?.[0] || null)} />
           </div>
+
+          {/* Gallery Images */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label>Galeria de Imagens (até 9 fotos adicionais)</Label>
+              {totalGalleryCount < 9 && (
+                <Button type="button" variant="outline" size="sm" onClick={() => galleryInputRef.current?.click()}>
+                  <Image className="h-4 w-4 mr-1" />
+                  Adicionar fotos
+                </Button>
+              )}
+              <input ref={galleryInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleGalleryImages} />
+            </div>
+            <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
+              {existingGallery.map((src, i) => (
+                <div key={`existing-${i}`} className="relative aspect-square rounded-lg overflow-hidden bg-secondary group">
+                  <img src={src} alt={`Galeria ${i + 1}`} className="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => removeGalleryExisting(i)}
+                    className="absolute top-1 right-1 bg-background/80 backdrop-blur-sm rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              ))}
+              {galleryPreviews.map((src, i) => (
+                <div key={`new-${i}`} className="relative aspect-square rounded-lg overflow-hidden bg-secondary group">
+                  <img src={src} alt={`Nova ${i + 1}`} className="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => removeGalleryNew(i)}
+                    className="absolute top-1 right-1 bg-background/80 backdrop-blur-sm rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+            {totalGalleryCount === 0 && (
+              <p className="text-xs text-muted-foreground">Adicione fotos que aparecerão como miniaturas no final da notícia.</p>
+            )}
+          </div>
+
           <div className="flex gap-3">
             <Button type="submit" disabled={submitting}>
               {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : editing ? "Salvar" : "Publicar"}
@@ -152,7 +245,10 @@ const AdminNewsPanel = () => {
               )}
               <div className="flex-1 min-w-0">
                 <h4 className="font-semibold text-sm truncate">{item.title}</h4>
-                <p className="text-xs text-muted-foreground">{item.category} • {new Date(item.created_at).toLocaleDateString("pt-BR")}</p>
+                <p className="text-xs text-muted-foreground">
+                  {item.category} • {new Date(item.created_at).toLocaleDateString("pt-BR")}
+                  {((item as any).gallery_images?.length > 0) && ` • 📷 ${(item as any).gallery_images.length} fotos`}
+                </p>
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 <Button variant="ghost" size="icon" onClick={() => togglePublish(item)} title={item.published ? "Despublicar" : "Publicar"}>
