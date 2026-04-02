@@ -18,70 +18,76 @@ export async function compressImage(
     return file;
   }
 
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
+  return new Promise((resolve) => {
+    try {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
 
-    img.onload = () => {
-      URL.revokeObjectURL(url);
+      img.onload = () => {
+        try {
+          URL.revokeObjectURL(url);
 
-      let { width, height } = img;
+          let { width, height } = img;
 
-      // Scale down if needed
-      if (width > maxWidth || height > maxHeight) {
-        const ratio = Math.min(maxWidth / width, maxHeight / height);
-        width = Math.round(width * ratio);
-        height = Math.round(height * ratio);
-      }
+          // Scale down if needed
+          if (width > maxWidth || height > maxHeight) {
+            const ratio = Math.min(maxWidth / width, maxHeight / height);
+            width = Math.round(width * ratio);
+            height = Math.round(height * ratio);
+          }
 
-      const canvas = document.createElement("canvas");
-      canvas.width = width;
-      canvas.height = height;
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
 
-      const ctx = canvas.getContext("2d");
-      if (!ctx) {
-        resolve(file); // fallback to original
-        return;
-      }
-
-      ctx.drawImage(img, 0, 0, width, height);
-
-      canvas.toBlob(
-        (blob) => {
-          if (!blob) {
+          const ctx = canvas.getContext("2d");
+          if (!ctx) {
+            console.warn("Canvas context unavailable, using original file");
             resolve(file);
             return;
           }
 
-          // If compressed is larger than original, use original
-          if (blob.size >= file.size) {
-            resolve(file);
-            return;
-          }
+          ctx.drawImage(img, 0, 0, width, height);
 
-          const compressedFile = new File(
-            [blob],
-            file.name.replace(/\.\w+$/, ".jpg"),
-            { type: "image/jpeg", lastModified: Date.now() }
+          canvas.toBlob(
+            (blob) => {
+              if (!blob || blob.size >= file.size) {
+                resolve(file);
+                return;
+              }
+
+              const compressedFile = new File(
+                [blob],
+                file.name.replace(/\.\w+$/, ".jpg"),
+                { type: "image/jpeg", lastModified: Date.now() }
+              );
+
+              console.log(
+                `Image compressed: ${(file.size / 1024).toFixed(0)}KB → ${(compressedFile.size / 1024).toFixed(0)}KB`
+              );
+
+              resolve(compressedFile);
+            },
+            "image/jpeg",
+            quality
           );
+        } catch (canvasError) {
+          console.warn("Compression failed, using original file:", canvasError);
+          resolve(file);
+        }
+      };
 
-          console.log(
-            `Image compressed: ${(file.size / 1024).toFixed(0)}KB → ${(compressedFile.size / 1024).toFixed(0)}KB`
-          );
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        console.warn("Could not load image for compression, using original file");
+        resolve(file); // Fallback to original instead of rejecting
+      };
 
-          resolve(compressedFile);
-        },
-        "image/jpeg",
-        quality
-      );
-    };
-
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error("Falha ao carregar imagem para compressão"));
-    };
-
-    img.src = url;
+      img.src = url;
+    } catch (err) {
+      console.warn("Image compression setup failed, using original file:", err);
+      resolve(file);
+    }
   });
 }
 
