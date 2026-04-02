@@ -181,6 +181,11 @@ const AdminNewsPanel = () => {
             <Label>Imagem Principal (topo da notícia)</Label>
             <Input type="file" accept="image/*" onChange={e => setImageFile(e.target.files?.[0] || null)} />
           </div>
+          <ImagePositionSelector
+            value={imagePosition}
+            onChange={setImagePosition}
+            imageUrl={imageFile ? URL.createObjectURL(imageFile) : editing?.image_url}
+          />
 
           {/* Gallery Images */}
           <div className="space-y-3">

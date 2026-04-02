@@ -138,6 +138,11 @@ const AdminEventsPanel = () => {
             <Label>Imagem de Capa</Label>
             <Input type="file" accept="image/*" onChange={e => setImageFile(e.target.files?.[0] || null)} />
           </div>
+          <ImagePositionSelector
+            value={imagePosition}
+            onChange={setImagePosition}
+            imageUrl={imageFile ? URL.createObjectURL(imageFile) : editing?.image_url}
+          />
           <div className="flex gap-3">
             <Button type="submit" disabled={submitting}>
               {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : editing ? "Salvar" : "Publicar"}
