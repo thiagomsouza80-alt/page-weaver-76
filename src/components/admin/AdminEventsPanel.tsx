@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, Loader2, Eye, EyeOff } from "lucide-react";
+import ImagePositionSelector from "@/components/admin/ImagePositionSelector";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Event = Tables<"events">;
