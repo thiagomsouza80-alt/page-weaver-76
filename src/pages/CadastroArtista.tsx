@@ -104,22 +104,7 @@ const CadastroArtista = () => {
   const onSubmit = async (data: FormData) => {
     setSubmitting(true);
     try {
-      // Sign out any existing session first to avoid conflicts
-      await supabase.auth.signOut();
-
-      // 1. Create auth account
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: data.email,
-        password: data.password,
-      });
-      if (authError) throw authError;
-      if (!authData.user) throw new Error("Erro ao criar conta");
-
-      const userId = authData.user.id;
-
-      // Sign out immediately so the insert runs as anon (avoids RLS issues with unconfirmed session)
-      await supabase.auth.signOut();
-
+      // 1. Upload files FIRST (before creating auth account to prevent orphan users on failure)
       let profileUrl: string | null = null;
       if (profileImage) {
         profileUrl = await uploadFile(profileImage, "profiles");
@@ -131,7 +116,19 @@ const CadastroArtista = () => {
         portfolioUrls.push(url);
       }
 
-      // 2. Insert artist profile linked to user (as anon, matching public INSERT policy)
+      // 2. Create auth account (only after uploads succeed)
+      await supabase.auth.signOut();
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+      });
+      if (authError) throw authError;
+      if (!authData.user) throw new Error("Erro ao criar conta");
+
+      const userId = authData.user.id;
+      await supabase.auth.signOut();
+
+      // 3. Insert artist profile
       const { error } = await supabase.from("artists").insert({
         name: data.name,
         email: data.email,

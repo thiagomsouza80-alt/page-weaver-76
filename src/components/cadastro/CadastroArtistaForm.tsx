@@ -117,18 +117,7 @@ const CadastroArtistaForm = () => {
   const onSubmit = async (data: FormData) => {
     setSubmitting(true);
     try {
-      await supabase.auth.signOut();
-
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: data.email,
-        password: data.password,
-      });
-      if (authError) throw authError;
-      if (!authData.user) throw new Error("Erro ao criar conta");
-
-      const userId = authData.user.id;
-      await supabase.auth.signOut();
-
+      // 1. Upload files FIRST (before creating auth account to prevent orphan users on failure)
       let profileUrl: string | null = null;
       if (profileImage) {
         profileUrl = await uploadFile(profileImage, "profiles");
@@ -140,11 +129,24 @@ const CadastroArtistaForm = () => {
         portfolioUrls.push(url);
       }
 
-      // Determine if minor
+      // 2. Create auth account (only after uploads succeed)
+      await supabase.auth.signOut();
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+      });
+      if (authError) throw authError;
+      if (!authData.user) throw new Error("Erro ao criar conta");
+
+      const userId = authData.user.id;
+      await supabase.auth.signOut();
+
+      // 3. Determine if minor
       const birthDate = new Date(data.birth_date);
       const age = Math.floor((Date.now() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
       const isMinorUser = age < 18;
 
+      // 4. Insert artist profile
       const { error } = await supabase.from("artists").insert({
         name: data.name,
         email: data.email,
