@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { compressImage } from "@/lib/imageCompression";
+import { uploadWithRetry } from "@/lib/uploadWithRetry";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
