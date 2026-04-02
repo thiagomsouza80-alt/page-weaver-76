@@ -46,7 +46,7 @@ const AdminPendingUpdatesPanel = () => {
     const { data: artistUpdates } = await supabase
       .from("artist_pending_updates")
       .select("*")
-      .eq("status", "pending")
+      .in("status", ["pending", "auto_approved"])
       .order("created_at", { ascending: true });
 
     if (artistUpdates && artistUpdates.length > 0) {
@@ -75,7 +75,7 @@ const AdminPendingUpdatesPanel = () => {
     const { data: entUpdates } = await supabase
       .from("entrepreneur_pending_updates" as any)
       .select("*")
-      .eq("status", "pending")
+      .in("status", ["pending", "auto_approved"])
       .order("created_at", { ascending: true });
 
     if (entUpdates && (entUpdates as any[]).length > 0) {
@@ -107,19 +107,10 @@ const AdminPendingUpdatesPanel = () => {
 
   useEffect(() => { loadUpdates(); }, []);
 
-  const handleAction = async (update: PendingUpdate, action: "approved" | "rejected") => {
+  const handleAction = async (update: PendingUpdate, action: "reviewed" | "rejected") => {
     setProcessingId(update.id);
 
     try {
-      if (action === "approved") {
-        const table = update.entity_type === "artist" ? "artists" : "entrepreneurs";
-        const { error: updateError } = await supabase
-          .from(table)
-          .update(update.changes)
-          .eq("id", update.entity_id);
-        if (updateError) throw updateError;
-      }
-
       const pendingTable = update.entity_type === "artist"
         ? "artist_pending_updates"
         : "entrepreneur_pending_updates" as any;
@@ -136,10 +127,7 @@ const AdminPendingUpdatesPanel = () => {
       if (error) throw error;
 
       toast({
-        title: action === "approved" ? "Atualização aprovada!" : "Atualização rejeitada",
-        description: action === "approved"
-          ? "As alterações foram aplicadas ao perfil."
-          : "O usuário será notificado da rejeição.",
+        title: action === "reviewed" ? "Atualização marcada como revisada" : "Registro removido",
       });
 
       loadUpdates();
@@ -236,7 +224,7 @@ const AdminPendingUpdatesPanel = () => {
 
               <div className="flex gap-3">
                 <Button
-                  onClick={() => handleAction(update, "approved")}
+                  onClick={() => handleAction(update, "reviewed")}
                   disabled={processingId === update.id}
                   className="bg-green-600 hover:bg-green-700 text-primary-foreground"
                 >
@@ -245,15 +233,7 @@ const AdminPendingUpdatesPanel = () => {
                   ) : (
                     <Check className="h-4 w-4" />
                   )}
-                  Aprovar
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={() => handleAction(update, "rejected")}
-                  disabled={processingId === update.id}
-                >
-                  <X className="h-4 w-4" />
-                  Rejeitar
+                  Marcar como Revisado
                 </Button>
               </div>
             </div>

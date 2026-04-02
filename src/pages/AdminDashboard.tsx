@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAdmin } from "@/hooks/useAdmin";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Loader2, Newspaper, CalendarDays, Users, LogOut, ExternalLink, Store, ClipboardCheck, Handshake, UserX } from "lucide-react";
+import { Loader2, Newspaper, CalendarDays, Users, LogOut, ExternalLink, Store, ClipboardCheck, Handshake, UserX, Bell } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import AdminNewsPanel from "@/components/admin/AdminNewsPanel";
 import AdminEventsPanel from "@/components/admin/AdminEventsPanel";
@@ -18,7 +18,19 @@ type Tab = "news" | "events" | "artists" | "entrepreneurs" | "pending" | "sponso
 const AdminDashboard = () => {
   const { loading, isAdmin } = useAdmin();
   const [tab, setTab] = useState<Tab>("news");
+  const [pendingCount, setPendingCount] = useState(0);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchPendingCount = async () => {
+      const [{ count: artistCount }, { count: entCount }] = await Promise.all([
+        supabase.from("artist_pending_updates").select("*", { count: "exact", head: true }).in("status", ["pending", "auto_approved"]),
+        supabase.from("entrepreneur_pending_updates" as any).select("*", { count: "exact", head: true }).in("status", ["pending", "auto_approved"]),
+      ]);
+      setPendingCount((artistCount || 0) + ((entCount as number) || 0));
+    };
+    fetchPendingCount();
+  }, [tab]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -61,6 +73,12 @@ const AdminDashboard = () => {
             >
               <t.icon className="h-4 w-4" />
               {t.label}
+              {t.key === "pending" && pendingCount > 0 && (
+                <span className="ml-auto flex items-center gap-1 bg-destructive text-destructive-foreground text-xs font-bold rounded-full px-2 py-0.5">
+                  <Bell className="h-3 w-3" />
+                  {pendingCount}
+                </span>
+              )}
             </button>
           ))}
         </nav>
