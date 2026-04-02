@@ -55,7 +55,7 @@ const CadastroArtista = () => {
   const [portfolioFiles, setPortfolioFiles] = useState<File[]>([]);
   const [portfolioPreviews, setPortfolioPreviews] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [success, setSuccess] = useState<false | "approved" | "pending">(false);
 
   const { register, handleSubmit, setValue, formState: { errors }, watch } = useForm<FormData>({
     resolver: zodResolver(schema),
