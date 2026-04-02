@@ -242,6 +242,7 @@ export type Database = {
           description: string
           event_date: string
           id: string
+          image_position: string
           image_url: string | null
           location: string
           published: boolean
@@ -256,6 +257,7 @@ export type Database = {
           description: string
           event_date: string
           id?: string
+          image_position?: string
           image_url?: string | null
           location: string
           published?: boolean
@@ -270,6 +272,7 @@ export type Database = {
           description?: string
           event_date?: string
           id?: string
+          image_position?: string
           image_url?: string | null
           location?: string
           published?: boolean
@@ -308,6 +311,7 @@ export type Database = {
           created_at: string
           gallery_images: string[] | null
           id: string
+          image_position: string
           image_url: string | null
           published: boolean
           slug: string
@@ -322,6 +326,7 @@ export type Database = {
           created_at?: string
           gallery_images?: string[] | null
           id?: string
+          image_position?: string
           image_url?: string | null
           published?: boolean
           slug: string
@@ -336,6 +341,7 @@ export type Database = {
           created_at?: string
           gallery_images?: string[] | null
           id?: string
+          image_position?: string
           image_url?: string | null
           published?: boolean
           slug?: string
