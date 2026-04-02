@@ -140,6 +140,11 @@ const CadastroArtistaForm = () => {
         portfolioUrls.push(url);
       }
 
+      // Determine if minor
+      const birthDate = new Date(data.birth_date);
+      const age = Math.floor((Date.now() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+      const isMinorUser = age < 18;
+
       const { error } = await supabase.from("artists").insert({
         name: data.name,
         email: data.email,
@@ -156,13 +161,13 @@ const CadastroArtistaForm = () => {
         profile_image_url: profileUrl,
         portfolio_images: portfolioUrls,
         user_id: userId,
-        approved: true,
+        approved: !isMinorUser,
       });
 
       if (error) throw error;
 
-      setSuccess(true);
-      toast({ title: "Cadastro concluído!", description: "Seu perfil já está ativo no portal." });
+      setSuccess(isMinorUser ? "pending" : "approved");
+      toast({ title: "Cadastro concluído!", description: isMinorUser ? "Seu cadastro será analisado pelo administrador." : "Seu perfil já está ativo no portal." });
     } catch (err: any) {
       toast({ title: "Erro ao cadastrar", description: err.message, variant: "destructive" });
     } finally {

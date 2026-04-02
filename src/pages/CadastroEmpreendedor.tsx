@@ -119,6 +119,10 @@ const CadastroEmpreendedor = () => {
 
       const slug = generateSlug(data.name);
 
+      // Determine if minor
+      const birthDate = data.birth_date ? new Date(data.birth_date) : null;
+      const isMinorUser = birthDate ? Math.floor((Date.now() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000)) < 18 : false;
+
       // 2. Insert entrepreneur linked to user (as anon, matching public INSERT policy)
       const { error } = await supabase.from("entrepreneurs").insert({
         name: data.name,
@@ -132,15 +136,18 @@ const CadastroEmpreendedor = () => {
         phone: data.phone || null,
         instagram: data.instagram || null,
         portfolio_images: portfolioUrls.length > 0 ? portfolioUrls : null,
-        published: true,
+        published: !isMinorUser,
         email: data.email,
         user_id: userId,
+        birth_date: data.birth_date || null,
+        guardian_name: data.guardian_name || null,
+        guardian_phone: data.guardian_phone || null,
       } as any);
 
       if (error) throw error;
 
-      setSuccess(true);
-      toast({ title: "Cadastro concluído!", description: "Seu perfil já está ativo no portal." });
+      setSuccess(isMinorUser ? "pending" : "approved");
+      toast({ title: "Cadastro concluído!", description: isMinorUser ? "Seu cadastro será analisado pelo administrador." : "Seu perfil já está ativo no portal." });
     } catch (err: any) {
       toast({ title: "Erro ao cadastrar", description: err.message, variant: "destructive" });
     } finally {
