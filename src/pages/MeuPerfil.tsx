@@ -201,7 +201,7 @@ const MeuPerfil = () => {
         await supabase.from("entrepreneur_pending_updates" as any).insert({ entrepreneur_id: entrepreneurData.id, user_id: session.user.id, changes, status: "auto_approved" } as any);
       }
 
-      toast({ title: "Alterações enviadas!", description: "Suas alterações serão analisadas pelo administrador." });
+      toast({ title: "Perfil atualizado!", description: "Suas alterações foram aplicadas com sucesso." });
       setNewProfileImage(null); setNewProfilePreview(null); setNewPortfolioFiles([]); setNewPortfolioPreviews([]);
       setEditing(false);
       loadProfile();
