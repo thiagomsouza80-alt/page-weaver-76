@@ -68,7 +68,7 @@ const AdminEventsPanel = () => {
       }
 
       const slug = generateSlug(title);
-      const payload = { title, slug, description, content, location, event_date: new Date(eventDate).toISOString(), image_url: imageUrl };
+      const payload = { title, slug, description, content, location, event_date: new Date(eventDate).toISOString(), image_url: imageUrl, image_position: imagePosition } as any;
 
       if (editing) {
         const { error } = await supabase.from("events").update(payload).eq("id", editing.id);
