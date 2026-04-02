@@ -29,6 +29,7 @@ const AdminNewsPanel = () => {
   const [summary, setSummary] = useState("");
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("geral");
+  const [imagePosition, setImagePosition] = useState("center");
 
   const fetchItems = async () => {
     const { data } = await supabase.from("news").select("*").order("created_at", { ascending: false });
