@@ -47,6 +47,7 @@ const AdminEventsPanel = () => {
     setContent(item.content);
     setLocation(item.location);
     setEventDate(item.event_date.slice(0, 16));
+    setImagePosition((item as any).image_position || "center");
     setShowForm(true);
   };
 
