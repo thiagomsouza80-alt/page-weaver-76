@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { compressImage } from "@/lib/imageCompression";
+import { uploadWithRetry } from "@/lib/uploadWithRetry";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -106,15 +106,8 @@ const CadastroArtistaForm = () => {
     setPortfolioPreviews(prev => prev.filter((_, i) => i !== index));
   };
 
-  const uploadFile = async (file: File, folder: string) => {
-    const compressed = await compressImage(file);
-    const ext = compressed.name.split(".").pop();
-    const path = `${folder}/${crypto.randomUUID()}.${ext}`;
-    const { error } = await supabase.storage.from("artists").upload(path, compressed);
-    if (error) throw error;
-    const { data } = supabase.storage.from("artists").getPublicUrl(path);
-    return data.publicUrl;
-  };
+  const uploadFile = (file: File, folder: string) =>
+    uploadWithRetry(file, "artists", folder);
 
   const onSubmit = async (data: FormData) => {
     setSubmitting(true);
