@@ -42,6 +42,7 @@ const AdminDashboard = () => {
     { key: "entrepreneurs" as Tab, label: "Empreendedores", icon: Store },
     { key: "pending" as Tab, label: "Atualizações", icon: ClipboardCheck },
     { key: "sponsors" as Tab, label: "Apoiadores", icon: Handshake },
+    { key: "orphans" as Tab, label: "E-mails Órfãos", icon: UserX },
   ];
 
   return (
