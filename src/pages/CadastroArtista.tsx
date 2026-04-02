@@ -145,11 +145,19 @@ const CadastroArtista = () => {
       const userId = authData.user.id;
       await supabase.auth.signOut();
 
-      // 3. Insert artist profile
+      // 3. Determine if minor
+      const birthDate = new Date(data.birth_date);
+      const age = Math.floor((Date.now() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+      const isMinorUser = age < 18;
+
+      // 4. Insert artist profile
       const { error } = await supabase.from("artists").insert({
         name: data.name,
         email: data.email,
         segment: data.segment,
+        birth_date: data.birth_date,
+        guardian_name: data.guardian_name || null,
+        guardian_phone: data.guardian_phone || null,
         bio: data.bio || null,
         city: data.city || null,
         instagram: data.instagram || null,
@@ -159,7 +167,7 @@ const CadastroArtista = () => {
         profile_image_url: profileUrl,
         portfolio_images: portfolioUrls,
         user_id: userId,
-        approved: true,
+        approved: !isMinorUser,
       });
 
       if (error) throw error;
