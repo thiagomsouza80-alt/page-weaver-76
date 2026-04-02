@@ -94,9 +94,10 @@ const AdminNewsPanel = () => {
     try {
       let imageUrl = editing?.image_url || null;
       if (imageFile) {
-        const ext = imageFile.name.split(".").pop();
+        const compressed = await compressImage(imageFile);
+        const ext = compressed.name.split(".").pop();
         const path = `${crypto.randomUUID()}.${ext}`;
-        const { error: uploadErr } = await supabase.storage.from("news").upload(path, imageFile);
+        const { error: uploadErr } = await supabase.storage.from("news").upload(path, compressed);
         if (uploadErr) throw uploadErr;
         imageUrl = supabase.storage.from("news").getPublicUrl(path).data.publicUrl;
       }
@@ -104,9 +105,10 @@ const AdminNewsPanel = () => {
       // Upload new gallery images
       const newGalleryUrls: string[] = [];
       for (const file of galleryFiles) {
-        const ext = file.name.split(".").pop();
+        const compressed = await compressImage(file);
+        const ext = compressed.name.split(".").pop();
         const path = `gallery/${crypto.randomUUID()}.${ext}`;
-        const { error: uploadErr } = await supabase.storage.from("news").upload(path, file);
+        const { error: uploadErr } = await supabase.storage.from("news").upload(path, compressed);
         if (uploadErr) throw uploadErr;
         newGalleryUrls.push(supabase.storage.from("news").getPublicUrl(path).data.publicUrl);
       }
