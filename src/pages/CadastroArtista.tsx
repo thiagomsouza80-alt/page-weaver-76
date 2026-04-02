@@ -190,8 +190,9 @@ const CadastroArtista = () => {
             <CheckCircle className="h-20 w-20 text-green-500 mx-auto mb-6" />
             <h1 className="text-3xl font-bold mb-4">Cadastro Concluído!</h1>
             <p className="text-muted-foreground text-lg mb-4">
-              Seu perfil já está ativo no portal Amazônia Pop.
-              Você pode acessar e editar seu perfil a qualquer momento.
+              {success === "pending"
+                ? "Como você é menor de 18 anos, seu cadastro será analisado e aprovado pelo administrador antes de ser publicado."
+                : "Seu perfil já está ativo no portal Amazônia Pop. Você pode acessar e editar seu perfil a qualquer momento."}
             </p>
             <div className="flex justify-center">
               <Button variant="outline" size="lg" onClick={() => window.location.href = "/"}>
