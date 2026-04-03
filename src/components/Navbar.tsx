@@ -48,18 +48,25 @@ const Navbar = () => {
       }
     };
 
+    const checkAdminAndProfile = async (userId: string) => {
+      fetchProfile(userId);
+      const { data } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
+      setIsAdmin(!!data);
+    };
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setIsLoggedIn(!!session);
       if (session?.user) {
-        fetchProfile(session.user.id);
+        checkAdminAndProfile(session.user.id);
       } else {
         setProfileImage(null);
         setProfileName("");
+        setIsAdmin(false);
       }
     });
     supabase.auth.getSession().then(({ data: { session } }) => {
       setIsLoggedIn(!!session);
-      if (session?.user) fetchProfile(session.user.id);
+      if (session?.user) checkAdminAndProfile(session.user.id);
     });
     return () => subscription.unsubscribe();
   }, []);
