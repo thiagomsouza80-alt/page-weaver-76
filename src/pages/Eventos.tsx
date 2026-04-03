@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { CalendarDays, MapPin, Clock, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import EuVouButton from "@/components/EuVouButton";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -74,7 +75,10 @@ const Eventos = () => {
                       <MapPin className="h-3.5 w-3.5 text-primary" />{event.location}
                     </span>
                   </div>
-                  <Button variant="hero" size="sm" className="w-fit mt-2">Saiba Mais</Button>
+                  <div className="flex items-center gap-3 mt-2">
+                    <Button variant="hero" size="sm" className="w-fit">Saiba Mais</Button>
+                    <EuVouButton eventId={event.id} size="sm" />
+                  </div>
                 </div>
               </Link>
             ))}

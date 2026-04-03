@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Loader2, ArrowLeft, CalendarDays, MapPin } from "lucide-react";
+import EuVouButton from "@/components/EuVouButton";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Event = Tables<"events">;
@@ -68,6 +69,10 @@ const EventoDetalhe = () => {
             <MapPin className="h-4 w-4 text-primary" />
             {item.location}
           </span>
+        </div>
+
+        <div className="mb-8">
+          <EuVouButton eventId={item.id} />
         </div>
 
         <p className="text-lg text-muted-foreground mb-8">{item.description}</p>

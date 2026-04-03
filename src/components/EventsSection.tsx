@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
+import EuVouButton from "@/components/EuVouButton";
 import event1 from "@/assets/event-1.jpg";
 import event2 from "@/assets/event-2.jpg";
 import event3 from "@/assets/event-3.jpg";
@@ -96,6 +97,7 @@ const EventsSection = () => {
                       <MapPin className="h-3.5 w-3.5 text-primary" />{ev.location}
                     </span>
                   </div>
+                  <EuVouButton eventId={ev.id} size="sm" />
                 </div>
               </article>
             </Link>
