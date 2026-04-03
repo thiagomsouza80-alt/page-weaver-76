@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { CalendarDays, MapPin, Clock, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import EuVouButton from "@/components/EuVouButton";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 
