@@ -164,7 +164,7 @@ const Navbar = () => {
               </Link>
             </>
           )}
-          <Link to="/admin/login" onClick={() => setMobileOpen(false)}>
+          <Link to={isAdmin ? "/admin" : "/admin/login"} onClick={() => setMobileOpen(false)}>
             <Button variant="ghost" size="sm" className="gap-1.5 w-fit text-muted-foreground hover:text-primary">
               <Shield className="h-4 w-4" />
               Admin
