@@ -19,6 +19,7 @@ const Navbar = () => {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [profileName, setProfileName] = useState<string>("");
 
