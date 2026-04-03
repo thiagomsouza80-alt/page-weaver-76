@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Loader2, ArrowLeft, CalendarDays, MapPin } from "lucide-react";
+import EuVouButton from "@/components/EuVouButton";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Event = Tables<"events">;
