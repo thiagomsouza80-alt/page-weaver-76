@@ -75,7 +75,10 @@ const Eventos = () => {
                       <MapPin className="h-3.5 w-3.5 text-primary" />{event.location}
                     </span>
                   </div>
-                  <Button variant="hero" size="sm" className="w-fit mt-2">Saiba Mais</Button>
+                  <div className="flex items-center gap-3 mt-2">
+                    <Button variant="hero" size="sm" className="w-fit">Saiba Mais</Button>
+                    <EuVouButton eventId={event.id} size="sm" />
+                  </div>
                 </div>
               </Link>
             ))}

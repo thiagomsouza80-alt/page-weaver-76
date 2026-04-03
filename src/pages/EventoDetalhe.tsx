@@ -71,6 +71,10 @@ const EventoDetalhe = () => {
           </span>
         </div>
 
+        <div className="mb-8">
+          <EuVouButton eventId={item.id} />
+        </div>
+
         <p className="text-lg text-muted-foreground mb-8">{item.description}</p>
 
         <div className="prose prose-invert max-w-none text-foreground/85 leading-relaxed whitespace-pre-wrap">

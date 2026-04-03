@@ -97,6 +97,7 @@ const EventsSection = () => {
                       <MapPin className="h-3.5 w-3.5 text-primary" />{ev.location}
                     </span>
                   </div>
+                  <EuVouButton eventId={ev.id} size="sm" />
                 </div>
               </article>
             </Link>
