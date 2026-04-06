@@ -11,6 +11,7 @@ import AdminEntrepreneursPanel from "@/components/admin/AdminEntrepreneursPanel"
 import AdminPendingUpdatesPanel from "@/components/admin/AdminPendingUpdatesPanel";
 import AdminSponsorsPanel from "@/components/admin/AdminSponsorsPanel";
 import AdminOrphanUsersPanel from "@/components/admin/AdminOrphanUsersPanel";
+import AdminFanRankingPanel from "@/components/admin/AdminFanRankingPanel";
 import logoOficial from "@/assets/logo-oficial.png";
 
 type Tab = "news" | "events" | "artists" | "entrepreneurs" | "pending" | "sponsors" | "orphans";
