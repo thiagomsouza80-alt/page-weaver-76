@@ -56,6 +56,7 @@ const AdminDashboard = () => {
     { key: "pending" as Tab, label: "Atualizações", icon: ClipboardCheck },
     { key: "sponsors" as Tab, label: "Apoiadores", icon: Handshake },
     { key: "orphans" as Tab, label: "E-mails Órfãos", icon: UserX },
+    { key: "ranking" as Tab, label: "Ranking de Fãs", icon: Trophy },
   ];
 
   return (
