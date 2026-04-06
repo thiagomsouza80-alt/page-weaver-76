@@ -14,7 +14,7 @@ import AdminOrphanUsersPanel from "@/components/admin/AdminOrphanUsersPanel";
 import AdminFanRankingPanel from "@/components/admin/AdminFanRankingPanel";
 import logoOficial from "@/assets/logo-oficial.png";
 
-type Tab = "news" | "events" | "artists" | "entrepreneurs" | "pending" | "sponsors" | "orphans";
+type Tab = "news" | "events" | "artists" | "entrepreneurs" | "pending" | "sponsors" | "orphans" | "ranking";
 
 const AdminDashboard = () => {
   const { loading, isAdmin } = useAdmin();
