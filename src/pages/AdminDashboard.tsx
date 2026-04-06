@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useAdmin } from "@/hooks/useAdmin";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Loader2, Newspaper, CalendarDays, Users, LogOut, ExternalLink, Store, ClipboardCheck, Handshake, UserX, Bell } from "lucide-react";
+import { Loader2, Newspaper, CalendarDays, Users, LogOut, ExternalLink, Store, ClipboardCheck, Handshake, UserX, Bell, Trophy } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import AdminNewsPanel from "@/components/admin/AdminNewsPanel";
 import AdminEventsPanel from "@/components/admin/AdminEventsPanel";
@@ -11,9 +11,10 @@ import AdminEntrepreneursPanel from "@/components/admin/AdminEntrepreneursPanel"
 import AdminPendingUpdatesPanel from "@/components/admin/AdminPendingUpdatesPanel";
 import AdminSponsorsPanel from "@/components/admin/AdminSponsorsPanel";
 import AdminOrphanUsersPanel from "@/components/admin/AdminOrphanUsersPanel";
+import AdminFanRankingPanel from "@/components/admin/AdminFanRankingPanel";
 import logoOficial from "@/assets/logo-oficial.png";
 
-type Tab = "news" | "events" | "artists" | "entrepreneurs" | "pending" | "sponsors" | "orphans";
+type Tab = "news" | "events" | "artists" | "entrepreneurs" | "pending" | "sponsors" | "orphans" | "ranking";
 
 const AdminDashboard = () => {
   const { loading, isAdmin } = useAdmin();
@@ -55,6 +56,7 @@ const AdminDashboard = () => {
     { key: "pending" as Tab, label: "Atualizações", icon: ClipboardCheck },
     { key: "sponsors" as Tab, label: "Apoiadores", icon: Handshake },
     { key: "orphans" as Tab, label: "E-mails Órfãos", icon: UserX },
+    { key: "ranking" as Tab, label: "Ranking de Fãs", icon: Trophy },
   ];
 
   return (
@@ -103,6 +105,7 @@ const AdminDashboard = () => {
         {tab === "pending" && <AdminPendingUpdatesPanel />}
         {tab === "sponsors" && <AdminSponsorsPanel />}
         {tab === "orphans" && <AdminOrphanUsersPanel />}
+        {tab === "ranking" && <AdminFanRankingPanel />}
       </main>
     </div>
   );
