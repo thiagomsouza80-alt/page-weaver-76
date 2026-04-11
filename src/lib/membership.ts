@@ -13,7 +13,7 @@ export const membershipDescriptions: Record<string, string> = {
 
 export const membershipPaymentInfo: Record<string, { label: string; price: string; qrCodeImage: string; pixCode?: string }> = {
   star: { label: "Membro Star", price: "R$ 20,00/mês", qrCodeImage: "/qrcode-star.png", pixCode: "00020126440014br.gov.bcb.pix0122contato3dlux@gmail.com27600016BR.COM.PAGSEGURO0136547301CD-C237-4E21-9A3F-4E96440EE79A520489995303986540520.005802BR5922THIAGO DE MORAES SOUZA6010Ananindeua62290525PAGS0000020002604111652196304CCB8" },
-  pro: { label: "Membro Pro", price: "R$ 50,00/mês", qrCodeImage: "/qrcode-pro.png" },
+  pro: { label: "Membro Pro", price: "R$ 50,00/mês", qrCodeImage: "/qrcode-pro.png", pixCode: "00020126440014br.gov.bcb.pix0122contato3dlux@gmail.com27600016BR.COM.PAGSEGURO01365A8F44AE-8B7F-49B7-A3B8-0AF89CD9E529520489995303986540550.005802BR5922THIAGO DE MORAES SOUZA6010Ananindeua62290525PAGS000005000260411165309630476E8" },
   hero: { label: "Membro Hero", price: "R$ 100,00/mês", qrCodeImage: "/qrcode-hero.png" },
 };
 
