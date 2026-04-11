@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useAdmin } from "@/hooks/useAdmin";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Loader2, Newspaper, CalendarDays, Users, LogOut, ExternalLink, Store, ClipboardCheck, Handshake, UserX, Bell, Trophy } from "lucide-react";
+import { Loader2, Newspaper, CalendarDays, Users, LogOut, ExternalLink, Store, ClipboardCheck, Handshake, UserX, Bell, Trophy, Crown } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import AdminNewsPanel from "@/components/admin/AdminNewsPanel";
 import AdminEventsPanel from "@/components/admin/AdminEventsPanel";
@@ -12,9 +12,10 @@ import AdminPendingUpdatesPanel from "@/components/admin/AdminPendingUpdatesPane
 import AdminSponsorsPanel from "@/components/admin/AdminSponsorsPanel";
 import AdminOrphanUsersPanel from "@/components/admin/AdminOrphanUsersPanel";
 import AdminFanRankingPanel from "@/components/admin/AdminFanRankingPanel";
+import AdminMembersPanel from "@/components/admin/AdminMembersPanel";
 import logoOficial from "@/assets/logo-oficial.png";
 
-type Tab = "news" | "events" | "artists" | "entrepreneurs" | "pending" | "sponsors" | "orphans" | "ranking";
+type Tab = "news" | "events" | "artists" | "entrepreneurs" | "pending" | "sponsors" | "orphans" | "ranking" | "members";
 
 const AdminDashboard = () => {
   const { loading, isAdmin } = useAdmin();
@@ -57,6 +58,7 @@ const AdminDashboard = () => {
     { key: "sponsors" as Tab, label: "Apoiadores", icon: Handshake },
     { key: "orphans" as Tab, label: "E-mails Órfãos", icon: UserX },
     { key: "ranking" as Tab, label: "Ranking de Fãs", icon: Trophy },
+    { key: "members" as Tab, label: "Membros Pagos", icon: Crown },
   ];
 
   return (
@@ -106,6 +108,7 @@ const AdminDashboard = () => {
         {tab === "sponsors" && <AdminSponsorsPanel />}
         {tab === "orphans" && <AdminOrphanUsersPanel />}
         {tab === "ranking" && <AdminFanRankingPanel />}
+        {tab === "members" && <AdminMembersPanel />}
       </main>
     </div>
   );
