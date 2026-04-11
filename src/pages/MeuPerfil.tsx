@@ -25,6 +25,8 @@ interface ArtistData {
   youtube_url: string | null;
   phone: string | null;
   membership_type: string;
+  membership_approved_at: string | null;
+  membership_expires_at: string | null;
   profile_image_url: string | null;
   portfolio_images: string[] | null;
   fan_count: number;
@@ -90,7 +92,7 @@ const MeuPerfil = () => {
 
     const { data: artist } = await supabase
       .from("artists")
-      .select("id, name, segment, bio, city, instagram, youtube_url, phone, membership_type, profile_image_url, portfolio_images, fan_count")
+      .select("id, name, segment, bio, city, instagram, youtube_url, phone, membership_type, membership_approved_at, membership_expires_at, profile_image_url, portfolio_images, fan_count")
       .eq("user_id", userId)
       .maybeSingle();
 
