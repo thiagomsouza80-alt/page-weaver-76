@@ -206,6 +206,12 @@ const MeuPerfil = () => {
         await supabase.from("entrepreneur_pending_updates" as any).insert({ entrepreneur_id: entrepreneurData.id, user_id: session.user.id, changes, status: "auto_approved" } as any);
       }
 
+      // Check if membership was upgraded to a paid plan
+      const newMembership = changes.membership_type;
+      if (newMembership && newMembership !== "free" && membershipPaymentInfo[newMembership]) {
+        setShowMembershipQR(newMembership);
+      }
+
       toast({ title: "Perfil atualizado!", description: "Suas alterações foram aplicadas com sucesso." });
       setNewProfileImage(null); setNewProfilePreview(null); setNewPortfolioFiles([]); setNewPortfolioPreviews([]);
       setEditing(false);
