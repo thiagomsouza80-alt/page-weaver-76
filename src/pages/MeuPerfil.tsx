@@ -82,6 +82,7 @@ const MeuPerfil = () => {
   const [newProfilePreview, setNewProfilePreview] = useState<string | null>(null);
   const [newPortfolioFiles, setNewPortfolioFiles] = useState<File[]>([]);
   const [newPortfolioPreviews, setNewPortfolioPreviews] = useState<string[]>([]);
+  const [showMembershipQR, setShowMembershipQR] = useState<string | null>(null);
 
   useEffect(() => { loadProfile(); }, []);
 
