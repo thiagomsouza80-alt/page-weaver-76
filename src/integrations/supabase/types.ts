@@ -68,6 +68,8 @@ export type Database = {
           guardian_phone: string | null
           id: string
           instagram: string | null
+          membership_approved_at: string | null
+          membership_expires_at: string | null
           membership_type: string
           name: string
           phone: string | null
@@ -90,6 +92,8 @@ export type Database = {
           guardian_phone?: string | null
           id?: string
           instagram?: string | null
+          membership_approved_at?: string | null
+          membership_expires_at?: string | null
           membership_type?: string
           name: string
           phone?: string | null
@@ -112,6 +116,8 @@ export type Database = {
           guardian_phone?: string | null
           id?: string
           instagram?: string | null
+          membership_approved_at?: string | null
+          membership_expires_at?: string | null
           membership_type?: string
           name?: string
           phone?: string | null

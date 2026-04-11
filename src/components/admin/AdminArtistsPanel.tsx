@@ -130,7 +130,8 @@ const ArtistEditModal = ({ artist, onClose, onSave }: { artist: Artist; onClose:
       return;
     }
     setSaving(true);
-    const { error } = await supabase.from("artists").update({
+
+    const updateData: Record<string, any> = {
       name: form.name.trim(),
       email: form.email.trim(),
       segment: form.segment,
@@ -140,7 +141,21 @@ const ArtistEditModal = ({ artist, onClose, onSave }: { artist: Artist; onClose:
       profile_image_url: form.profile_image_url.trim() || null,
       portfolio_images: form.portfolio_images.length > 0 ? form.portfolio_images : null,
       membership_type: form.membership_type,
-    }).eq("id", artist.id);
+    };
+
+    // If membership changed to a paid plan, set approval dates
+    const previousMembership = (artist as any).membership_type || "free";
+    if (form.membership_type !== previousMembership && form.membership_type !== "free") {
+      const now = new Date();
+      const expires = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+      updateData.membership_approved_at = now.toISOString();
+      updateData.membership_expires_at = expires.toISOString();
+    } else if (form.membership_type === "free") {
+      updateData.membership_approved_at = null;
+      updateData.membership_expires_at = null;
+    }
+
+    const { error } = await supabase.from("artists").update(updateData as any).eq("id", artist.id);
     setSaving(false);
 
     if (error) {
@@ -338,6 +353,18 @@ const AdminArtistsPanel = () => {
                   {segmentLabels[item.segment]} • {item.city || "Sem cidade"} • {item.email}
                   {item.phone && ` • 📱 ${item.phone}`}
                 </p>
+                {(item as any).membership_type && (item as any).membership_type !== "free" && (
+                  <p className="text-xs mt-0.5">
+                    <span className="font-medium text-primary">{membershipTypes.find(m => m.value === (item as any).membership_type)?.label}</span>
+                    {(item as any).membership_expires_at ? (
+                      new Date((item as any).membership_expires_at) > new Date()
+                        ? <span className="text-muted-foreground"> • Válido até {new Date((item as any).membership_expires_at).toLocaleDateString("pt-BR")}</span>
+                        : <span className="text-destructive font-medium"> • Expirado</span>
+                    ) : (
+                      <span className="text-yellow-600 dark:text-yellow-400"> • Aguardando aprovação</span>
+                    )}
+                  </p>
+                )}
                 {(item as any).birth_date && (
                   <p className="text-xs text-muted-foreground">🎂 {new Date((item as any).birth_date).toLocaleDateString("pt-BR")}</p>
                 )}

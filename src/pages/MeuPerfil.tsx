@@ -25,6 +25,8 @@ interface ArtistData {
   youtube_url: string | null;
   phone: string | null;
   membership_type: string;
+  membership_approved_at: string | null;
+  membership_expires_at: string | null;
   profile_image_url: string | null;
   portfolio_images: string[] | null;
   fan_count: number;
@@ -90,7 +92,7 @@ const MeuPerfil = () => {
 
     const { data: artist } = await supabase
       .from("artists")
-      .select("id, name, segment, bio, city, instagram, youtube_url, phone, membership_type, profile_image_url, portfolio_images, fan_count")
+      .select("id, name, segment, bio, city, instagram, youtube_url, phone, membership_type, membership_approved_at, membership_expires_at, profile_image_url, portfolio_images, fan_count")
       .eq("user_id", userId)
       .maybeSingle();
 
@@ -273,6 +275,22 @@ const MeuPerfil = () => {
                 </p>
                 {profileType === "artist" && artistData && artistData.fan_count > 0 && (
                   <p className="text-sm text-muted-foreground mt-1">❤️ {artistData.fan_count} {artistData.fan_count === 1 ? "fã" : "fãs"}</p>
+                )}
+                {profileType === "artist" && artistData && artistData.membership_type !== "free" && (
+                  <div className="mt-2 p-3 rounded-lg bg-primary/10 text-sm">
+                    <p className="font-semibold text-primary">
+                      {membershipTypes.find(m => m.value === artistData.membership_type)?.label || artistData.membership_type}
+                    </p>
+                    {artistData.membership_expires_at ? (
+                      <p className="text-muted-foreground text-xs mt-1">
+                        {new Date(artistData.membership_expires_at) > new Date()
+                          ? `Válido até ${new Date(artistData.membership_expires_at).toLocaleDateString("pt-BR")}`
+                          : "⚠️ Plano expirado"}
+                      </p>
+                    ) : (
+                      <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-1">⏳ Aguardando aprovação do administrador</p>
+                    )}
+                  </div>
                 )}
               </div>
             </div>
