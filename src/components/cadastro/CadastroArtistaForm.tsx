@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { Upload, X, Camera, CheckCircle, Loader2, AlertTriangle } from "lucide-react";
 import { PasswordInput } from "@/components/ui/password-input";
-import { membershipTypes, membershipDescriptions } from "@/lib/membership";
+import { membershipTypes, membershipDescriptions, membershipPaymentInfo } from "@/lib/membership";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const segments = [
@@ -54,6 +54,7 @@ const CadastroArtistaForm = () => {
   const [portfolioPreviews, setPortfolioPreviews] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState<false | "approved" | "pending">(false);
+  const [successMembership, setSuccessMembership] = useState<string>("free");
 
   const { register, handleSubmit, setValue, formState: { errors }, watch } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -163,6 +164,7 @@ const CadastroArtistaForm = () => {
 
       if (error) throw error;
 
+      setSuccessMembership(data.membership_type || "free");
       setSuccess(isMinorUser ? "pending" : "approved");
       toast({ title: "Cadastro concluído!", description: isMinorUser ? "Seu cadastro será analisado pelo administrador." : "Seu perfil já está ativo no portal." });
     } catch (err: any) {
@@ -173,6 +175,7 @@ const CadastroArtistaForm = () => {
   };
 
   if (success) {
+    const paymentInfo = membershipPaymentInfo[successMembership];
     return (
       <div className="text-center py-8">
         <CheckCircle className="h-20 w-20 text-green-500 mx-auto mb-6" />
@@ -182,6 +185,29 @@ const CadastroArtistaForm = () => {
             ? "Como você é menor de 18 anos, seu cadastro será analisado e aprovado pelo administrador antes de ser publicado."
             : "Seu perfil já está ativo no portal Amazônia Pop. Você pode acessar e editar seu perfil a qualquer momento."}
         </p>
+
+        {paymentInfo && (
+          <div className="mt-8 mb-8 p-6 rounded-2xl border bg-card max-w-md mx-auto">
+            <h3 className="text-xl font-bold mb-2 text-primary">{paymentInfo.label}</h3>
+            <p className="text-muted-foreground mb-4">
+              Para ativar seu plano, realize o pagamento de <strong>{paymentInfo.price}</strong> via PIX usando o QR Code abaixo:
+            </p>
+            <div className="bg-white rounded-xl p-4 inline-block mb-4">
+              <img
+                src={paymentInfo.qrCodeImage}
+                alt={`QR Code para pagamento ${paymentInfo.label}`}
+                className="w-56 h-56 object-contain mx-auto"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Após o pagamento, seu plano será ativado pelo administrador.
+            </p>
+          </div>
+        )}
+
         <Button variant="outline" size="lg" onClick={() => window.location.href = "/"}>
           Voltar ao Início
         </Button>
