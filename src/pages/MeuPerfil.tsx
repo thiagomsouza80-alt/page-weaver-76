@@ -237,9 +237,39 @@ const MeuPerfil = () => {
   const currentProfileImage = profileType === "artist" ? artistData?.profile_image_url : entrepreneurData?.hero_image_url;
   const currentName = profileType === "artist" ? artistData?.name : entrepreneurData?.name;
 
+  // QR Code modal for membership upgrade
+  const qrPaymentInfo = showMembershipQR ? membershipPaymentInfo[showMembershipQR] : null;
+
   // VIEW MODE
   if (!editing) {
     return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        {showMembershipQR && qrPaymentInfo && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+            <div className="bg-card rounded-2xl border border-border/50 p-8 max-w-md w-full text-center shadow-xl">
+              <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
+              <h3 className="text-2xl font-bold mb-2">Plano Alterado!</h3>
+              <p className="text-muted-foreground mb-6">
+                Para ativar o plano <strong>{qrPaymentInfo.label}</strong>, realize o pagamento de <strong>{qrPaymentInfo.price}</strong> via PIX usando o QR Code abaixo:
+              </p>
+              <div className="bg-white rounded-xl p-4 inline-block mb-4">
+                <img
+                  src={qrPaymentInfo.qrCodeImage}
+                  alt={`QR Code para pagamento ${qrPaymentInfo.label}`}
+                  className="w-56 h-56 object-contain mx-auto"
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                />
+              </div>
+              <p className="text-sm text-muted-foreground mb-6">
+                Após o pagamento, seu plano será ativado pelo administrador.
+              </p>
+              <Button variant="outline" size="lg" onClick={() => setShowMembershipQR(null)}>
+                Fechar
+              </Button>
+            </div>
+          </div>
+        )}
       <div className="min-h-screen bg-background">
         <Navbar />
         <div className="pt-24 pb-16 px-6 max-w-3xl mx-auto">
