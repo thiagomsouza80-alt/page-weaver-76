@@ -15,7 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Upload, X, Camera, CheckCircle, Loader2, AlertTriangle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { PasswordInput } from "@/components/ui/password-input";
-import { membershipTypes, membershipDescriptions } from "@/lib/membership";
+import { membershipTypes, membershipDescriptions, membershipPaymentInfo } from "@/lib/membership";
 
 const segments = [
   { value: "cosplayer", label: "Cosplayer" },
