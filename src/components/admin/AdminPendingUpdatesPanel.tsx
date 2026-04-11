@@ -46,7 +46,7 @@ const AdminPendingUpdatesPanel = () => {
     const { data: artistUpdates } = await supabase
       .from("artist_pending_updates")
       .select("*")
-      .in("status", ["pending", "auto_approved"])
+      .in("status", ["pending", "auto_approved", "approved"])
       .order("created_at", { ascending: true });
 
     if (artistUpdates && artistUpdates.length > 0) {
@@ -75,7 +75,7 @@ const AdminPendingUpdatesPanel = () => {
     const { data: entUpdates } = await supabase
       .from("entrepreneur_pending_updates" as any)
       .select("*")
-      .in("status", ["pending", "auto_approved"])
+      .in("status", ["pending", "auto_approved", "approved"])
       .order("created_at", { ascending: true });
 
     if (entUpdates && (entUpdates as any[]).length > 0) {
