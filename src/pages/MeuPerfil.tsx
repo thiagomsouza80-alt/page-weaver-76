@@ -261,6 +261,31 @@ const MeuPerfil = () => {
                   onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                 />
               </div>
+              {qrPaymentInfo.pixCode && (
+                <div className="mb-4 text-center">
+                  <p className="text-sm font-semibold mb-2">Pix copiar e colar</p>
+                  <div className="relative">
+                    <textarea
+                      readOnly
+                      value={qrPaymentInfo.pixCode}
+                      className="w-full text-xs bg-muted rounded-lg p-3 resize-none border border-border"
+                      rows={3}
+                      onClick={(e) => (e.target as HTMLTextAreaElement).select()}
+                    />
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="mt-2"
+                      onClick={() => {
+                        navigator.clipboard.writeText(qrPaymentInfo.pixCode!);
+                        toast({ title: "Código PIX copiado!" });
+                      }}
+                    >
+                      Copiar código
+                    </Button>
+                  </div>
+                </div>
+              )}
               <p className="text-sm text-muted-foreground mb-6">
                 Após o pagamento, seu plano será ativado pelo administrador.
               </p>
