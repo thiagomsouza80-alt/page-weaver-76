@@ -15,7 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Upload, X, Camera, CheckCircle, Loader2, AlertTriangle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { PasswordInput } from "@/components/ui/password-input";
-import { membershipTypes, membershipDescriptions } from "@/lib/membership";
+import { membershipTypes, membershipDescriptions, membershipPaymentInfo } from "@/lib/membership";
 
 const segments = [
   { value: "cosplayer", label: "Cosplayer" },
@@ -56,6 +56,7 @@ const CadastroArtista = () => {
   const [portfolioPreviews, setPortfolioPreviews] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState<false | "approved" | "pending">(false);
+  const [successMembershipType, setSuccessMembershipType] = useState<string>("free");
 
   const { register, handleSubmit, setValue, formState: { errors }, watch } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -165,6 +166,7 @@ const CadastroArtista = () => {
 
       if (error) throw error;
 
+      setSuccessMembershipType(data.membership_type || "free");
       setSuccess(isMinorUser ? "pending" : "approved");
       toast({ title: "Cadastro concluído!", description: isMinorUser ? "Seu cadastro será analisado pelo administrador." : "Seu perfil já está ativo no portal." });
     } catch (err: any) {
@@ -173,6 +175,8 @@ const CadastroArtista = () => {
       setSubmitting(false);
     }
   };
+
+  const successPaymentInfo = successMembershipType !== "free" ? membershipPaymentInfo[successMembershipType] : null;
 
   if (success) {
     return (
@@ -187,6 +191,26 @@ const CadastroArtista = () => {
                 ? "Como você é menor de 18 anos, seu cadastro será analisado e aprovado pelo administrador antes de ser publicado."
                 : "Seu perfil já está ativo no portal Amazônia Pop. Você pode acessar e editar seu perfil a qualquer momento."}
             </p>
+
+            {successPaymentInfo && (
+              <div className="my-8 p-6 bg-card rounded-2xl border border-border/50 inline-block text-center">
+                <h3 className="text-xl font-bold mb-2">Pagamento via PIX</h3>
+                <p className="text-muted-foreground mb-4">
+                  Para ativar o plano <strong>{successPaymentInfo.label}</strong>, realize o pagamento de <strong>{successPaymentInfo.price}</strong> via PIX:
+                </p>
+                <div className="bg-white rounded-xl p-4 inline-block mb-4">
+                  <img
+                    src={successPaymentInfo.qrCodeImage}
+                    alt={`QR Code ${successPaymentInfo.label}`}
+                    className="w-56 h-56 object-contain mx-auto"
+                  />
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Após o pagamento, seu plano será ativado pelo administrador.
+                </p>
+              </div>
+            )}
+
             <div className="flex justify-center">
               <Button variant="outline" size="lg" onClick={() => window.location.href = "/"}>
                 Voltar ao Início
