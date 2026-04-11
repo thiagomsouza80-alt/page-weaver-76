@@ -11,6 +11,12 @@ export const membershipDescriptions: Record<string, string> = {
   hero: "O Membro Hero tem direito a uma mistery box com brindes de nossos parceiros e entrada free nos eventos do portal. Valor: R$ 100,00/mês",
 };
 
+export const membershipPaymentInfo: Record<string, { label: string; price: string; qrCodeImage: string }> = {
+  star: { label: "Membro Star", price: "R$ 20,00/mês", qrCodeImage: "/qrcode-star.png" },
+  pro: { label: "Membro Pro", price: "R$ 50,00/mês", qrCodeImage: "/qrcode-pro.png" },
+  hero: { label: "Membro Hero", price: "R$ 100,00/mês", qrCodeImage: "/qrcode-hero.png" },
+};
+
 export const membershipBadges: Record<string, string> = {
   star: "membro ⭐",
   pro: "membro 🤩",
