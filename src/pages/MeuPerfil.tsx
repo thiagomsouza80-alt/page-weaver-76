@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, Save, LogOut, Camera, Upload, X, Clock, CheckCircle, XCircle, Pencil, Instagram, MapPin, Youtube, Phone, Home } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { membershipTypes, membershipDescriptions } from "@/lib/membership";
+import { membershipTypes, membershipDescriptions, membershipPaymentInfo } from "@/lib/membership";
 
 type ProfileType = "artist" | "entrepreneur" | null;
 
