@@ -111,18 +111,26 @@ const AdminPendingUpdatesPanel = () => {
     setProcessingId(update.id);
 
     try {
-      const pendingTable = update.entity_type === "artist"
-        ? "artist_pending_updates"
-        : "entrepreneur_pending_updates" as any;
+      const updateData = {
+        status: action,
+        admin_notes: notes[update.id] || null,
+        reviewed_at: new Date().toISOString(),
+      };
 
-      const { error } = await supabase
-        .from(pendingTable)
-        .update({
-          status: action,
-          admin_notes: notes[update.id] || null,
-          reviewed_at: new Date().toISOString(),
-        } as any)
-        .eq("id", update.id);
+      let error;
+      if (update.entity_type === "artist") {
+        const result = await supabase
+          .from("artist_pending_updates")
+          .update(updateData)
+          .eq("id", update.id);
+        error = result.error;
+      } else {
+        const result = await supabase
+          .from("entrepreneur_pending_updates")
+          .update(updateData)
+          .eq("id", update.id);
+        error = result.error;
+      }
 
       if (error) throw error;
 
