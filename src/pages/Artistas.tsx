@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import { Loader2, Instagram, Heart } from "lucide-react";
 import { getMembershipBadge } from "@/lib/membership";
 import { supabase } from "@/integrations/supabase/client";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Tables } from "@/integrations/supabase/types";
 import artistIlustrador from "@/assets/artist-ilustrador.jpg";
 import artistCosplayer from "@/assets/artist-cosplayer.jpg";
