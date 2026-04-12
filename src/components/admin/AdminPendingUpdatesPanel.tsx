@@ -135,7 +135,7 @@ const AdminPendingUpdatesPanel = () => {
       if (error) throw error;
 
       toast({
-        title: action === "reviewed" ? "Atualização marcada como revisada" : "Registro removido",
+        title: action === "approved" ? "Atualização marcada como revisada" : "Atualização rejeitada",
       });
 
       loadUpdates();
