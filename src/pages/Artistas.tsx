@@ -154,7 +154,7 @@ const Artistas = () => {
               </Link>
             ))}
 
-            {remainingFallbacks.map((artist) => (
+            {filteredFallbacks.map((artist) => (
               <Link
                 key={artist.slug}
                 to={`/artistas/${artist.slug}`}
