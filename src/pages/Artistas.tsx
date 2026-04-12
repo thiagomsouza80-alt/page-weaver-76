@@ -84,19 +84,32 @@ const Artistas = () => {
       <Navbar />
       <section className="pt-28 pb-20 px-6 md:px-12 max-w-7xl mx-auto">
         <h1 className="text-3xl md:text-4xl font-bold mb-2 animate-fade-up">Artistas</h1>
-        <p className="text-muted-foreground mb-10 animate-fade-up-delay-1">
-          Conheça os talentos da cena pop, geek e criativa da Amazônia.
-        </p>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-10">
+          <p className="text-muted-foreground animate-fade-up-delay-1">
+            Conheça os talentos da cena pop, geek e criativa da Amazônia.
+          </p>
+          <Select value={selectedSegment} onValueChange={setSelectedSegment}>
+            <SelectTrigger className="w-full sm:w-[220px] animate-fade-up-delay-1">
+              <SelectValue placeholder="Filtrar por segmento" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os segmentos</SelectItem>
+              {Object.entries(segmentLabels).map(([key, label]) => (
+                <SelectItem key={key} value={key}>{label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
         {loading ? (
           <div className="flex justify-center py-20">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
-        ) : artists.length === 0 && remainingFallbacks.length === 0 ? (
-          <p className="text-muted-foreground text-center py-20">Nenhum artista cadastrado ainda.</p>
+        ) : filteredArtists.length === 0 && filteredFallbacks.length === 0 ? (
+          <p className="text-muted-foreground text-center py-20">Nenhum artista encontrado para este segmento.</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {artists.map((artist) => (
+            {filteredArtists.map((artist) => (
               <Link
                 key={artist.id}
                 to={`/artistas/${getSlug(artist.name)}`}
