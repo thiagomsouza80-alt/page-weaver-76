@@ -73,20 +73,20 @@ const AdminPendingUpdatesPanel = () => {
 
     // Load entrepreneur pending updates
     const { data: entUpdates } = await supabase
-      .from("entrepreneur_pending_updates" as any)
+      .from("entrepreneur_pending_updates")
       .select("*")
       .in("status", ["pending", "auto_approved", "approved"])
       .order("created_at", { ascending: true });
 
-    if (entUpdates && (entUpdates as any[]).length > 0) {
-      const entIds = [...new Set((entUpdates as any[]).map((u: any) => u.entrepreneur_id))];
+    if (entUpdates && entUpdates.length > 0) {
+      const entIds = [...new Set(entUpdates.map((u) => u.entrepreneur_id))];
       const { data: entrepreneurs } = await supabase
         .from("entrepreneurs")
         .select("id, name")
         .in("id", entIds);
       const nameMap = new Map(entrepreneurs?.map(e => [e.id, e.name]) || []);
 
-      for (const u of entUpdates as any[]) {
+      for (const u of entUpdates) {
         allUpdates.push({
           id: u.id,
           entity_id: u.entrepreneur_id,
