@@ -50,6 +50,7 @@ const fallbackArtists = [
 const Artistas = () => {
   const [artists, setArtists] = useState<Artist[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedSegment, setSelectedSegment] = useState<string>("all");
 
   useEffect(() => {
     const fetchArtists = async () => {
