@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import { Loader2, Instagram, Heart } from "lucide-react";
 import { getMembershipBadge } from "@/lib/membership";
 import { supabase } from "@/integrations/supabase/client";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Tables } from "@/integrations/supabase/types";
 import artistIlustrador from "@/assets/artist-ilustrador.jpg";
 import artistCosplayer from "@/assets/artist-cosplayer.jpg";
@@ -49,6 +50,7 @@ const fallbackArtists = [
 const Artistas = () => {
   const [artists, setArtists] = useState<Artist[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedSegment, setSelectedSegment] = useState<string>("all");
 
   useEffect(() => {
     const fetchArtists = async () => {
@@ -69,24 +71,45 @@ const Artistas = () => {
   const usedNames = new Set(artists.map(a => a.name.toLowerCase()));
   const remainingFallbacks = fallbackArtists.filter(fb => !usedNames.has(fb.name.toLowerCase()));
 
+  const filteredArtists = selectedSegment === "all"
+    ? artists
+    : artists.filter(a => a.segment === selectedSegment);
+
+  const filteredFallbacks = selectedSegment === "all"
+    ? remainingFallbacks
+    : remainingFallbacks.filter(fb => fb.badge === selectedSegment);
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
       <section className="pt-28 pb-20 px-6 md:px-12 max-w-7xl mx-auto">
         <h1 className="text-3xl md:text-4xl font-bold mb-2 animate-fade-up">Artistas</h1>
-        <p className="text-muted-foreground mb-10 animate-fade-up-delay-1">
-          Conheça os talentos da cena pop, geek e criativa da Amazônia.
-        </p>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-10">
+          <p className="text-muted-foreground animate-fade-up-delay-1">
+            Conheça os talentos da cena pop, geek e criativa da Amazônia.
+          </p>
+          <Select value={selectedSegment} onValueChange={setSelectedSegment}>
+            <SelectTrigger className="w-full sm:w-[220px] animate-fade-up-delay-1">
+              <SelectValue placeholder="Filtrar por segmento" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os segmentos</SelectItem>
+              {Object.entries(segmentLabels).map(([key, label]) => (
+                <SelectItem key={key} value={key}>{label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
         {loading ? (
           <div className="flex justify-center py-20">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
-        ) : artists.length === 0 && remainingFallbacks.length === 0 ? (
-          <p className="text-muted-foreground text-center py-20">Nenhum artista cadastrado ainda.</p>
+        ) : filteredArtists.length === 0 && filteredFallbacks.length === 0 ? (
+          <p className="text-muted-foreground text-center py-20">Nenhum artista encontrado para este segmento.</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {artists.map((artist) => (
+            {filteredArtists.map((artist) => (
               <Link
                 key={artist.id}
                 to={`/artistas/${getSlug(artist.name)}`}
@@ -131,7 +154,7 @@ const Artistas = () => {
               </Link>
             ))}
 
-            {remainingFallbacks.map((artist) => (
+            {filteredFallbacks.map((artist) => (
               <Link
                 key={artist.slug}
                 to={`/artistas/${artist.slug}`}
