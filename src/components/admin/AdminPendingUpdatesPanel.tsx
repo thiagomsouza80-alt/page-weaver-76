@@ -232,7 +232,7 @@ const AdminPendingUpdatesPanel = () => {
 
               <div className="flex gap-3">
                 <Button
-                  onClick={() => handleAction(update, "reviewed")}
+                  onClick={() => handleAction(update, "approved")}
                   disabled={processingId === update.id}
                   className="bg-green-600 hover:bg-green-700 text-primary-foreground"
                 >
