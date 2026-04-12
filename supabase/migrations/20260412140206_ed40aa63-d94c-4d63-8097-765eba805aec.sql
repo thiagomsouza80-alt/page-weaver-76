@@ -1,0 +1,2 @@
+ALTER TABLE public.artist_pending_updates DROP CONSTRAINT artist_pending_updates_status_check;
+ALTER TABLE public.artist_pending_updates ADD CONSTRAINT artist_pending_updates_status_check CHECK (status IN ('pending', 'approved', 'rejected', 'reviewed', 'auto_approved'));

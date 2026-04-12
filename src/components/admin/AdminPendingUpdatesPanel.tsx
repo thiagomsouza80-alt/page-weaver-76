@@ -107,7 +107,7 @@ const AdminPendingUpdatesPanel = () => {
 
   useEffect(() => { loadUpdates(); }, []);
 
-  const handleAction = async (update: PendingUpdate, action: "approved" | "rejected") => {
+  const handleAction = async (update: PendingUpdate, action: "reviewed" | "rejected") => {
     setProcessingId(update.id);
 
     try {
@@ -135,7 +135,7 @@ const AdminPendingUpdatesPanel = () => {
       if (error) throw error;
 
       toast({
-        title: action === "approved" ? "Atualização marcada como revisada" : "Atualização rejeitada",
+        title: action === "reviewed" ? "Atualização marcada como revisada" : "Atualização rejeitada",
       });
 
       loadUpdates();
@@ -232,7 +232,7 @@ const AdminPendingUpdatesPanel = () => {
 
               <div className="flex gap-3">
                 <Button
-                  onClick={() => handleAction(update, "approved")}
+                  onClick={() => handleAction(update, "reviewed")}
                   disabled={processingId === update.id}
                   className="bg-green-600 hover:bg-green-700 text-primary-foreground"
                 >
