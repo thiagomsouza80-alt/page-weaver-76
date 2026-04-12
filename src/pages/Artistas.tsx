@@ -71,6 +71,14 @@ const Artistas = () => {
   const usedNames = new Set(artists.map(a => a.name.toLowerCase()));
   const remainingFallbacks = fallbackArtists.filter(fb => !usedNames.has(fb.name.toLowerCase()));
 
+  const filteredArtists = selectedSegment === "all"
+    ? artists
+    : artists.filter(a => a.segment === selectedSegment);
+
+  const filteredFallbacks = selectedSegment === "all"
+    ? remainingFallbacks
+    : remainingFallbacks.filter(fb => fb.badge === selectedSegment);
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
