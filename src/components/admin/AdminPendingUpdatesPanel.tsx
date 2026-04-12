@@ -107,7 +107,7 @@ const AdminPendingUpdatesPanel = () => {
 
   useEffect(() => { loadUpdates(); }, []);
 
-  const handleAction = async (update: PendingUpdate, action: "reviewed" | "rejected") => {
+  const handleAction = async (update: PendingUpdate, action: "approved" | "rejected") => {
     setProcessingId(update.id);
 
     try {
