@@ -27,7 +27,7 @@ const AdminDashboard = () => {
     const fetchPendingCount = async () => {
       const [{ count: artistCount }, { count: entCount }] = await Promise.all([
         supabase.from("artist_pending_updates").select("*", { count: "exact", head: true }).in("status", ["pending", "auto_approved", "approved"]),
-        supabase.from("entrepreneur_pending_updates" as any).select("*", { count: "exact", head: true }).in("status", ["pending", "auto_approved", "approved"]),
+        supabase.from("entrepreneur_pending_updates").select("*", { count: "exact", head: true }).in("status", ["pending", "auto_approved", "approved"]),
       ]);
       setPendingCount((artistCount || 0) + ((entCount as number) || 0));
     };
