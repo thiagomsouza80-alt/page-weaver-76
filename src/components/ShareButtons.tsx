@@ -1,10 +1,21 @@
 import { Share2 } from "lucide-react";
 import { toast } from "sonner";
 
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+
+const getShareUrl = () => {
+  const path = window.location.pathname;
+  // Only use OG proxy for detail pages
+  if (/^\/(artistas|noticias|eventos|empreendedores)\/[^/]+/.test(path)) {
+    return `${SUPABASE_URL}/functions/v1/og-preview?path=${encodeURIComponent(path)}`;
+  }
+  return window.location.href;
+};
 
 const ShareButtons = ({ artistName }: { artistName: string }) => {
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(window.location.href);
+    const shareUrl = getShareUrl();
+    navigator.clipboard.writeText(shareUrl);
     toast.success("Link copiado!");
   };
 
@@ -20,6 +31,5 @@ const ShareButtons = ({ artistName }: { artistName: string }) => {
     </div>
   );
 };
-
 
 export default ShareButtons;
