@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Loader2, ArrowLeft, CalendarDays, X, ChevronLeft, ChevronRight } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
+import ShareButtons from "@/components/ShareButtons";
 import convencaoImg1 from "@/assets/news-convencao-geek-1.jpg";
 import convencaoImg2 from "@/assets/news-convencao-geek-2.jpg";
 import convencaoImg3 from "@/assets/news-convencao-geek-3.jpg";

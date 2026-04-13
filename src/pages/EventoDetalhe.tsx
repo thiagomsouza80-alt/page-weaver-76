@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Loader2, ArrowLeft, CalendarDays, MapPin } from "lucide-react";
 import EuVouButton from "@/components/EuVouButton";
+import ShareButtons from "@/components/ShareButtons";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Event = Tables<"events">;
@@ -71,8 +72,9 @@ const EventoDetalhe = () => {
           </span>
         </div>
 
-        <div className="mb-8">
+        <div className="mb-8 flex flex-wrap items-center gap-4">
           <EuVouButton eventId={item.id} />
+          <ShareButtons label="Compartilhar evento" />
         </div>
 
         <p className="text-lg text-muted-foreground mb-8">{item.description}</p>
