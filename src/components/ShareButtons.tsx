@@ -2,11 +2,12 @@ import { Share2 } from "lucide-react";
 import { toast } from "sonner";
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SHARE_LINK_VERSION = "20260413";
 
 const getShareUrl = () => {
   const path = window.location.pathname;
   if (/^\/(artistas|noticias|eventos|empreendedores)\/[^/]+/.test(path)) {
-    return `${SUPABASE_URL}/functions/v1/og-preview?path=${encodeURIComponent(path)}`;
+    return `${SUPABASE_URL}/functions/v1/og-preview?path=${encodeURIComponent(path)}&v=${SHARE_LINK_VERSION}`;
   }
   return window.location.href;
 };
