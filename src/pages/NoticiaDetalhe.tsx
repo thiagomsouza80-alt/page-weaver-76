@@ -198,6 +198,7 @@ const NoticiaDetalhe = () => {
 
           <h1 className="text-3xl md:text-4xl font-bold mb-4 leading-tight">{fallback.title}</h1>
           <p className="text-lg text-muted-foreground mb-8">{fallback.summary}</p>
+          <ShareButtons label="Compartilhar notícia" />
 
           {slug === "grande-convencao-geek-agita-belem" && <ConvencaoGeekContent />}
         </article>
@@ -245,6 +246,7 @@ const NoticiaDetalhe = () => {
 
         <h1 className="text-3xl md:text-4xl font-bold mb-4 leading-tight">{item.title}</h1>
         <p className="text-lg text-muted-foreground mb-8">{item.summary}</p>
+        <ShareButtons label="Compartilhar notícia" />
 
         <div className="prose prose-invert max-w-none text-foreground/85 leading-relaxed whitespace-pre-wrap">
           {item.content}
