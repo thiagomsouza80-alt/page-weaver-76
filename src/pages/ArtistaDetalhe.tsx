@@ -196,7 +196,7 @@ const ArtistaDetalhe = () => {
                 <Instagram className="h-4 w-4" /> {staticArtist.social}
               </p>
               <p className="text-muted-foreground leading-relaxed">{staticArtist.bio}</p>
-              <ShareButtons artistName={staticArtist.name} />
+              <ShareButtons label="Compartilhar link do perfil" hint="Compartilhe seu perfil e ganhe mais fans!" />
             </div>
           </div>
           <section className="mb-12 animate-fade-up">
@@ -273,7 +273,7 @@ const ArtistaDetalhe = () => {
               <p className="text-sm text-muted-foreground mb-4">📍 {dbArtist.city}</p>
             )}
             <FanButton artistId={dbArtist.id} initialCount={(dbArtist as any).fan_count || 0} />
-            <ShareButtons artistName={dbArtist.name} />
+            <ShareButtons label="Compartilhar link do perfil" hint="Compartilhe seu perfil e ganhe mais fans!" />
           </div>
         </div>
 

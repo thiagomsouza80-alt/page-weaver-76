@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Loader2, ArrowLeft, CalendarDays, X, ChevronLeft, ChevronRight } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
+import ShareButtons from "@/components/ShareButtons";
 import convencaoImg1 from "@/assets/news-convencao-geek-1.jpg";
 import convencaoImg2 from "@/assets/news-convencao-geek-2.jpg";
 import convencaoImg3 from "@/assets/news-convencao-geek-3.jpg";
@@ -197,6 +198,7 @@ const NoticiaDetalhe = () => {
 
           <h1 className="text-3xl md:text-4xl font-bold mb-4 leading-tight">{fallback.title}</h1>
           <p className="text-lg text-muted-foreground mb-8">{fallback.summary}</p>
+          <ShareButtons label="Compartilhar notícia" />
 
           {slug === "grande-convencao-geek-agita-belem" && <ConvencaoGeekContent />}
         </article>
@@ -244,6 +246,7 @@ const NoticiaDetalhe = () => {
 
         <h1 className="text-3xl md:text-4xl font-bold mb-4 leading-tight">{item.title}</h1>
         <p className="text-lg text-muted-foreground mb-8">{item.summary}</p>
+        <ShareButtons label="Compartilhar notícia" />
 
         <div className="prose prose-invert max-w-none text-foreground/85 leading-relaxed whitespace-pre-wrap">
           {item.content}
