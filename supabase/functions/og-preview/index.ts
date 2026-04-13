@@ -5,8 +5,6 @@ const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const siteUrl = "https://page-weaver-76.lovable.app";
 const defaultImage = "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/a8aae7c1-a507-4192-8129-e1155a52b7d7/id-preview-0947290a--a8ba4cbc-267b-43f1-9456-25138bf85080.lovable.app-1774117748381.png";
 
-const crawlerPattern = /bot|crawl|spider|facebook|whatsapp|telegram|twitter|slack|discord|linkedin|pinterest|preview|fetch|curl|wget/i;
-
 interface OGData {
   title: string;
   description: string;
@@ -33,24 +31,20 @@ async function getOGData(path: string): Promise<OGData> {
       const { data } = await supabase
         .from("artists")
         .select("name, bio, profile_image_url, segment")
-        .eq("approved", true)
-        .then((res: any) => {
-          if (res.data) {
-            const match = res.data.find((a: any) => {
-              const s = a.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-              return s === slug;
-            });
-            return { data: match || null };
-          }
-          return { data: null };
-        });
+        .eq("approved", true);
       if (data) {
-        return {
-          title: `${data.name} - Amazônia Pop`,
-          description: data.bio || `Conheça ${data.name} no Amazônia Pop`,
-          image: data.profile_image_url || defaultImage,
-          url: `${siteUrl}${path}`,
-        };
+        const match = data.find((a: any) => {
+          const s = a.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+          return s === slug;
+        });
+        if (match) {
+          return {
+            title: `${match.name} - Amazônia Pop`,
+            description: match.bio || `Conheça ${match.name} no Amazônia Pop`,
+            image: match.profile_image_url || defaultImage,
+            url: `${siteUrl}${path}`,
+          };
+        }
       }
     } else if (section === "noticias") {
       const { data } = await supabase
@@ -123,9 +117,11 @@ function renderHTML(og: OGData): string {
   <meta name="twitter:title" content="${esc(og.title)}" />
   <meta name="twitter:description" content="${esc(og.description)}" />
   <meta name="twitter:image" content="${esc(og.image)}" />
+  <meta http-equiv="refresh" content="0;url=${esc(og.url)}" />
 </head>
 <body>
   <p>Redirecionando para <a href="${esc(og.url)}">${esc(og.title)}</a>...</p>
+  <script>window.location.replace("${og.url.replace(/"/g, '\\"')}");</script>
 </body>
 </html>`;
 }
@@ -143,20 +139,7 @@ Deno.serve(async (req) => {
 
   const url = new URL(req.url);
   const path = url.searchParams.get("path") || "/";
-  const targetUrl = `${siteUrl}${path}`;
 
-  const userAgent = req.headers.get("user-agent") || "";
-  const isCrawler = crawlerPattern.test(userAgent);
-
-  // For real browsers, redirect immediately
-  if (!isCrawler) {
-    return new Response(null, {
-      status: 302,
-      headers: { Location: targetUrl },
-    });
-  }
-
-  // For crawlers, serve OG meta tags
   const og = await getOGData(path);
 
   return new Response(renderHTML(og), {
