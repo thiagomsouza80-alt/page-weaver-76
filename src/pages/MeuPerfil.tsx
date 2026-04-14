@@ -342,10 +342,10 @@ const MeuPerfil = () => {
                   <p className="text-sm text-muted-foreground mt-1">❤️ {artistData.fan_count} {artistData.fan_count === 1 ? "fã" : "fãs"}</p>
                 )}
                 {profileType === "artist" && artistData && (
-                  <ShareButtons label="Compartilhar link do perfil" hint={`amazoniapop.com/artistas/${getSlug(artistData.name)}`} />
+                  <ShareButtons label="Compartilhar link do perfil" hint={`amazoniapop.com/artistas/${getSlug(artistData.name)}`} overridePath={`/artistas/${getSlug(artistData.name)}`} />
                 )}
                 {profileType === "entrepreneur" && entrepreneurData?.slug && (
-                  <ShareButtons label="Compartilhar link do perfil" hint={`amazoniapop.com/empreendedores/${entrepreneurData.slug}`} />
+                  <ShareButtons label="Compartilhar link do perfil" hint={`amazoniapop.com/empreendedores/${entrepreneurData.slug}`} overridePath={`/empreendedores/${entrepreneurData.slug}`} />
                 )}
                 {profileType === "artist" && artistData && artistData.membership_type !== "free" && (
                   <div className="mt-2 p-3 rounded-lg bg-primary/10 text-sm">
