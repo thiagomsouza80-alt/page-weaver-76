@@ -4,22 +4,23 @@ import { toast } from "sonner";
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SHARE_LINK_VERSION = "20260413";
 
-const getShareUrl = () => {
-  const path = window.location.pathname;
+const getShareUrl = (overridePath?: string) => {
+  const path = overridePath || window.location.pathname;
   if (/^\/(artistas|noticias|eventos|empreendedores)\/[^/]+/.test(path)) {
     return `${SUPABASE_URL}/functions/v1/og-preview?path=${encodeURIComponent(path)}&v=${SHARE_LINK_VERSION}`;
   }
-  return window.location.href;
+  return overridePath ? `${window.location.origin}${path}` : window.location.href;
 };
 
 interface ShareButtonsProps {
   label?: string;
   hint?: string;
+  overridePath?: string;
 }
 
-const ShareButtons = ({ label = "Compartilhar link", hint }: ShareButtonsProps) => {
+const ShareButtons = ({ label = "Compartilhar link", hint, overridePath }: ShareButtonsProps) => {
   const handleCopyLink = () => {
-    const shareUrl = getShareUrl();
+    const shareUrl = getShareUrl(overridePath);
     navigator.clipboard.writeText(shareUrl);
     toast.success("Link copiado!");
   };
