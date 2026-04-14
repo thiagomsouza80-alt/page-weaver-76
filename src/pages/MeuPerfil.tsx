@@ -12,12 +12,14 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Save, LogOut, Camera, Upload, X, Clock, CheckCircle, XCircle, Pencil, Instagram, MapPin, Youtube, Phone, Home } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { membershipTypes, membershipDescriptions, membershipPaymentInfo } from "@/lib/membership";
+import ShareButtons from "@/components/ShareButtons";
 
 type ProfileType = "artist" | "entrepreneur" | null;
 
 interface ArtistData {
   id: string;
   name: string;
+  slug?: string;
   segment: string;
   bio: string | null;
   city: string | null;
@@ -35,6 +37,7 @@ interface ArtistData {
 interface EntrepreneurData {
   id: string;
   name: string;
+  slug?: string;
   badge: string;
   description: string;
   full_description: string | null;
@@ -93,7 +96,7 @@ const MeuPerfil = () => {
 
     const { data: artist } = await supabase
       .from("artists")
-      .select("id, name, segment, bio, city, instagram, youtube_url, phone, membership_type, membership_approved_at, membership_expires_at, profile_image_url, portfolio_images, fan_count")
+      .select("id, name, slug, segment, bio, city, instagram, youtube_url, phone, membership_type, membership_approved_at, membership_expires_at, profile_image_url, portfolio_images, fan_count")
       .eq("user_id", userId)
       .maybeSingle();
 
@@ -109,7 +112,7 @@ const MeuPerfil = () => {
 
     const { data: entrepreneur } = await supabase
       .from("entrepreneurs")
-      .select("id, name, badge, description, full_description, address, phone, instagram, hero_image_url, portfolio_images")
+      .select("id, name, slug, badge, description, full_description, address, phone, instagram, hero_image_url, portfolio_images")
       .eq("user_id", userId)
       .maybeSingle();
 
@@ -335,6 +338,12 @@ const MeuPerfil = () => {
                 </p>
                 {profileType === "artist" && artistData && artistData.fan_count > 0 && (
                   <p className="text-sm text-muted-foreground mt-1">❤️ {artistData.fan_count} {artistData.fan_count === 1 ? "fã" : "fãs"}</p>
+                )}
+                {profileType === "artist" && artistData?.slug && (
+                  <ShareButtons label="Compartilhar link do perfil" hint={`amazoniapop.com/artistas/${artistData.slug}`} />
+                )}
+                {profileType === "entrepreneur" && entrepreneurData?.slug && (
+                  <ShareButtons label="Compartilhar link do perfil" hint={`amazoniapop.com/empreendedores/${entrepreneurData.slug}`} />
                 )}
                 {profileType === "artist" && artistData && artistData.membership_type !== "free" && (
                   <div className="mt-2 p-3 rounded-lg bg-primary/10 text-sm">
