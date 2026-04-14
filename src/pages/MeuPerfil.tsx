@@ -419,27 +419,6 @@ const MeuPerfil = () => {
               </div>
             )}
           </div>
-
-          {/* Pending updates */}
-          {pendingUpdates.length > 0 && (
-            <div className="mt-8 space-y-2">
-              <h2 className="text-sm font-semibold text-muted-foreground mb-3">Histórico de Atualizações</h2>
-              {pendingUpdates.map(u => (
-                <div key={u.id} className="flex items-center gap-3 p-3 rounded-lg bg-secondary/50 text-sm">
-                  {u.status === "pending" && <Clock className="h-4 w-4 text-yellow-500 shrink-0" />}
-                  {u.status === "approved" && <CheckCircle className="h-4 w-4 text-green-500 shrink-0" />}
-                  {u.status === "rejected" && <XCircle className="h-4 w-4 text-red-500 shrink-0" />}
-                  <div className="flex-1">
-                    <span className="font-medium">
-                      {u.status === "pending" ? "Pendente" : u.status === "approved" ? "Aprovada" : "Rejeitada"}
-                    </span>
-                    <span className="text-muted-foreground ml-2">{new Date(u.created_at).toLocaleDateString("pt-BR")}</span>
-                    {u.admin_notes && <p className="text-xs text-muted-foreground mt-1">Nota: {u.admin_notes}</p>}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
         <Footer />
       </div>
