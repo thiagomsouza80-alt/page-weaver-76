@@ -87,8 +87,8 @@ const CadastroArtistaForm = () => {
 
   const handlePortfolioImages = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    if (portfolioFiles.length + files.length > 6) {
-      toast({ title: "Máximo 6 imagens", description: "Remova algumas para adicionar novas", variant: "destructive" });
+    if (portfolioFiles.length + files.length > 20) {
+      toast({ title: "Máximo 20 imagens", description: "Remova algumas para adicionar novas", variant: "destructive" });
       return;
     }
     const valid = files.filter(f => {

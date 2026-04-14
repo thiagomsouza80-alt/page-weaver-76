@@ -141,7 +141,7 @@ const MeuPerfil = () => {
 
   const handleNewPortfolioImages = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    const max = profileType === "artist" ? 6 : 10;
+    const max = 20;
     const currentCount = (profileType === "artist" ? artistData?.portfolio_images?.length : entrepreneurData?.portfolio_images?.length) || 0;
     if (currentCount + newPortfolioFiles.length + files.length > max) { toast({ title: `Máximo ${max} imagens`, variant: "destructive" }); return; }
     const valid = files.filter(f => f.size <= 5 * 1024 * 1024);
