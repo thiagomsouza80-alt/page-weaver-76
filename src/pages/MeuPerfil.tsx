@@ -12,8 +12,12 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Save, LogOut, Camera, Upload, X, Clock, CheckCircle, XCircle, Pencil, Instagram, MapPin, Youtube, Phone, Home } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { membershipTypes, membershipDescriptions, membershipPaymentInfo } from "@/lib/membership";
+import ShareButtons from "@/components/ShareButtons";
 
 type ProfileType = "artist" | "entrepreneur" | null;
+
+const getSlug = (name: string) =>
+  name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
 interface ArtistData {
   id: string;
@@ -35,6 +39,7 @@ interface ArtistData {
 interface EntrepreneurData {
   id: string;
   name: string;
+  slug?: string;
   badge: string;
   description: string;
   full_description: string | null;
@@ -109,7 +114,7 @@ const MeuPerfil = () => {
 
     const { data: entrepreneur } = await supabase
       .from("entrepreneurs")
-      .select("id, name, badge, description, full_description, address, phone, instagram, hero_image_url, portfolio_images")
+      .select("id, name, slug, badge, description, full_description, address, phone, instagram, hero_image_url, portfolio_images")
       .eq("user_id", userId)
       .maybeSingle();
 
@@ -335,6 +340,12 @@ const MeuPerfil = () => {
                 </p>
                 {profileType === "artist" && artistData && artistData.fan_count > 0 && (
                   <p className="text-sm text-muted-foreground mt-1">❤️ {artistData.fan_count} {artistData.fan_count === 1 ? "fã" : "fãs"}</p>
+                )}
+                {profileType === "artist" && artistData && (
+                  <ShareButtons label="Compartilhar link do perfil" hint={`amazoniapop.com/artistas/${getSlug(artistData.name)}`} />
+                )}
+                {profileType === "entrepreneur" && entrepreneurData?.slug && (
+                  <ShareButtons label="Compartilhar link do perfil" hint={`amazoniapop.com/empreendedores/${entrepreneurData.slug}`} />
                 )}
                 {profileType === "artist" && artistData && artistData.membership_type !== "free" && (
                   <div className="mt-2 p-3 rounded-lg bg-primary/10 text-sm">
