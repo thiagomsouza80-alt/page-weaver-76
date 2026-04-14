@@ -16,10 +16,12 @@ import ShareButtons from "@/components/ShareButtons";
 
 type ProfileType = "artist" | "entrepreneur" | null;
 
+const getSlug = (name: string) =>
+  name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+
 interface ArtistData {
   id: string;
   name: string;
-  slug?: string;
   segment: string;
   bio: string | null;
   city: string | null;
@@ -96,7 +98,7 @@ const MeuPerfil = () => {
 
     const { data: artist } = await supabase
       .from("artists")
-      .select("id, name, slug, segment, bio, city, instagram, youtube_url, phone, membership_type, membership_approved_at, membership_expires_at, profile_image_url, portfolio_images, fan_count")
+      .select("id, name, segment, bio, city, instagram, youtube_url, phone, membership_type, membership_approved_at, membership_expires_at, profile_image_url, portfolio_images, fan_count")
       .eq("user_id", userId)
       .maybeSingle();
 
@@ -339,8 +341,8 @@ const MeuPerfil = () => {
                 {profileType === "artist" && artistData && artistData.fan_count > 0 && (
                   <p className="text-sm text-muted-foreground mt-1">❤️ {artistData.fan_count} {artistData.fan_count === 1 ? "fã" : "fãs"}</p>
                 )}
-                {profileType === "artist" && artistData?.slug && (
-                  <ShareButtons label="Compartilhar link do perfil" hint={`amazoniapop.com/artistas/${artistData.slug}`} />
+                {profileType === "artist" && artistData && (
+                  <ShareButtons label="Compartilhar link do perfil" hint={`amazoniapop.com/artistas/${getSlug(artistData.name)}`} />
                 )}
                 {profileType === "entrepreneur" && entrepreneurData?.slug && (
                   <ShareButtons label="Compartilhar link do perfil" hint={`amazoniapop.com/empreendedores/${entrepreneurData.slug}`} />
