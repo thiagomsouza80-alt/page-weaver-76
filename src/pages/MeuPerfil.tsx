@@ -596,11 +596,8 @@ const MeuPerfil = () => {
         <div className="mt-10">
           <Button onClick={handleSubmit} variant="hero" size="lg" disabled={saving} className="gap-2">
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-            Enviar Alterações para Aprovação
+            Atualizar Perfil
           </Button>
-          <p className="text-xs text-muted-foreground mt-2">
-            As alterações serão revisadas pelo administrador antes de serem publicadas.
-          </p>
         </div>
       </div>
       <Footer />
