@@ -202,10 +202,13 @@ const MeuPerfil = () => {
         if (form.phone !== (entrepreneurData.phone || "")) changes.phone = form.phone;
         if (form.instagram !== (entrepreneurData.instagram || "")) changes.instagram = form.instagram;
         if (newProfileImage) changes.hero_image_url = await uploadFile(newProfileImage, "entrepreneurs", "hero");
+        const remainingExistingE = (entrepreneurData.portfolio_images || []).filter(url => !removedPortfolioImages.includes(url));
+        const newUrlsE: string[] = [];
         if (newPortfolioFiles.length > 0) {
-          const urls: string[] = [];
-          for (const file of newPortfolioFiles) urls.push(await uploadFile(file, "entrepreneurs", "portfolio"));
-          changes.portfolio_images = [...(entrepreneurData.portfolio_images || []), ...urls];
+          for (const file of newPortfolioFiles) newUrlsE.push(await uploadFile(file, "entrepreneurs", "portfolio"));
+        }
+        if (newPortfolioFiles.length > 0 || removedPortfolioImages.length > 0) {
+          changes.portfolio_images = [...remainingExistingE, ...newUrlsE];
         }
         if (Object.keys(changes).length === 0) { toast({ title: "Nenhuma alteração detectada" }); setSaving(false); return; }
         // Apply changes directly to the profile
