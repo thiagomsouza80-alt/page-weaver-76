@@ -177,10 +177,13 @@ const MeuPerfil = () => {
         if (form.phone !== (artistData.phone || "")) changes.phone = form.phone;
         if (form.membership_type !== (artistData.membership_type || "free")) changes.membership_type = form.membership_type;
         if (newProfileImage) changes.profile_image_url = await uploadFile(newProfileImage, "artists", "profiles");
+        const remainingExisting = (artistData.portfolio_images || []).filter(url => !removedPortfolioImages.includes(url));
+        const newUrls: string[] = [];
         if (newPortfolioFiles.length > 0) {
-          const urls: string[] = [];
-          for (const file of newPortfolioFiles) urls.push(await uploadFile(file, "artists", "portfolio"));
-          changes.portfolio_images = [...(artistData.portfolio_images || []), ...urls];
+          for (const file of newPortfolioFiles) newUrls.push(await uploadFile(file, "artists", "portfolio"));
+        }
+        if (newPortfolioFiles.length > 0 || removedPortfolioImages.length > 0) {
+          changes.portfolio_images = [...remainingExisting, ...newUrls];
         }
         if (Object.keys(changes).length === 0) { toast({ title: "Nenhuma alteração detectada" }); setSaving(false); return; }
         // Apply changes directly to the profile
