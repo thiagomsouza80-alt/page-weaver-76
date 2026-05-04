@@ -111,6 +111,7 @@ const AdminDashboard = () => {
         {tab === "orphans" && <AdminOrphanUsersPanel />}
         {tab === "ranking" && <AdminFanRankingPanel />}
         {tab === "members" && <AdminMembersPanel />}
+        {tab === "raffle" && <AdminRafflePanel />}
       </main>
     </div>
   );
