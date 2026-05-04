@@ -13,9 +13,10 @@ import AdminSponsorsPanel from "@/components/admin/AdminSponsorsPanel";
 import AdminOrphanUsersPanel from "@/components/admin/AdminOrphanUsersPanel";
 import AdminFanRankingPanel from "@/components/admin/AdminFanRankingPanel";
 import AdminMembersPanel from "@/components/admin/AdminMembersPanel";
+import AdminRafflePanel from "@/components/admin/AdminRafflePanel";
 import logoOficial from "@/assets/logo-oficial.png";
 
-type Tab = "news" | "events" | "artists" | "entrepreneurs" | "pending" | "sponsors" | "orphans" | "ranking" | "members";
+type Tab = "news" | "events" | "artists" | "entrepreneurs" | "pending" | "sponsors" | "orphans" | "ranking" | "members" | "raffle";
 
 const AdminDashboard = () => {
   const { loading, isAdmin } = useAdmin();
