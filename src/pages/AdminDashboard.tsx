@@ -60,6 +60,7 @@ const AdminDashboard = () => {
     { key: "orphans" as Tab, label: "E-mails Órfãos", icon: UserX },
     { key: "ranking" as Tab, label: "Ranking de Fãs", icon: Trophy },
     { key: "members" as Tab, label: "Membros Pagos", icon: Crown },
+    { key: "raffle" as Tab, label: "Sorteio", icon: Gift },
   ];
 
   return (
