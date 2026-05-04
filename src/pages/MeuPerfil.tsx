@@ -225,7 +225,7 @@ const MeuPerfil = () => {
       }
 
       toast({ title: "Perfil atualizado!", description: "Suas alterações foram aplicadas com sucesso." });
-      setNewProfileImage(null); setNewProfilePreview(null); setNewPortfolioFiles([]); setNewPortfolioPreviews([]);
+      setNewProfileImage(null); setNewProfilePreview(null); setNewPortfolioFiles([]); setNewPortfolioPreviews([]); setRemovedPortfolioImages([]);
       setEditing(false);
       loadProfile();
     } catch (err: any) {
