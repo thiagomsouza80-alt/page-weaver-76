@@ -589,9 +589,19 @@ const MeuPerfil = () => {
         <div className="space-y-3 mt-8">
           <Label>Portfólio</Label>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {(profileType === "artist" ? artistData?.portfolio_images : entrepreneurData?.portfolio_images)?.map((src, i) => (
-              <div key={i} className="aspect-square rounded-xl overflow-hidden bg-secondary">
+            {(profileType === "artist" ? artistData?.portfolio_images : entrepreneurData?.portfolio_images)?.filter(src => !removedPortfolioImages.includes(src)).map((src, i) => (
+              <div key={src} className="relative aspect-square rounded-xl overflow-hidden bg-secondary group">
                 <img src={src} alt={`Portfolio ${i + 1}`} className="w-full h-full object-cover" />
+                {editing && (
+                  <button
+                    type="button"
+                    onClick={() => setRemovedPortfolioImages(prev => [...prev, src])}
+                    className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
+                    aria-label="Remover foto"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                )}
               </div>
             ))}
             {newPortfolioPreviews.map((src, i) => (
