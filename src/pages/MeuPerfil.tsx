@@ -87,6 +87,7 @@ const MeuPerfil = () => {
   const [newProfilePreview, setNewProfilePreview] = useState<string | null>(null);
   const [newPortfolioFiles, setNewPortfolioFiles] = useState<File[]>([]);
   const [newPortfolioPreviews, setNewPortfolioPreviews] = useState<string[]>([]);
+  const [removedPortfolioImages, setRemovedPortfolioImages] = useState<string[]>([]);
   const [showMembershipQR, setShowMembershipQR] = useState<string | null>(null);
 
   useEffect(() => { loadProfile(); }, []);
@@ -176,10 +177,13 @@ const MeuPerfil = () => {
         if (form.phone !== (artistData.phone || "")) changes.phone = form.phone;
         if (form.membership_type !== (artistData.membership_type || "free")) changes.membership_type = form.membership_type;
         if (newProfileImage) changes.profile_image_url = await uploadFile(newProfileImage, "artists", "profiles");
+        const remainingExisting = (artistData.portfolio_images || []).filter(url => !removedPortfolioImages.includes(url));
+        const newUrls: string[] = [];
         if (newPortfolioFiles.length > 0) {
-          const urls: string[] = [];
-          for (const file of newPortfolioFiles) urls.push(await uploadFile(file, "artists", "portfolio"));
-          changes.portfolio_images = [...(artistData.portfolio_images || []), ...urls];
+          for (const file of newPortfolioFiles) newUrls.push(await uploadFile(file, "artists", "portfolio"));
+        }
+        if (newPortfolioFiles.length > 0 || removedPortfolioImages.length > 0) {
+          changes.portfolio_images = [...remainingExisting, ...newUrls];
         }
         if (Object.keys(changes).length === 0) { toast({ title: "Nenhuma alteração detectada" }); setSaving(false); return; }
         // Apply changes directly to the profile
@@ -198,10 +202,13 @@ const MeuPerfil = () => {
         if (form.phone !== (entrepreneurData.phone || "")) changes.phone = form.phone;
         if (form.instagram !== (entrepreneurData.instagram || "")) changes.instagram = form.instagram;
         if (newProfileImage) changes.hero_image_url = await uploadFile(newProfileImage, "entrepreneurs", "hero");
+        const remainingExistingE = (entrepreneurData.portfolio_images || []).filter(url => !removedPortfolioImages.includes(url));
+        const newUrlsE: string[] = [];
         if (newPortfolioFiles.length > 0) {
-          const urls: string[] = [];
-          for (const file of newPortfolioFiles) urls.push(await uploadFile(file, "entrepreneurs", "portfolio"));
-          changes.portfolio_images = [...(entrepreneurData.portfolio_images || []), ...urls];
+          for (const file of newPortfolioFiles) newUrlsE.push(await uploadFile(file, "entrepreneurs", "portfolio"));
+        }
+        if (newPortfolioFiles.length > 0 || removedPortfolioImages.length > 0) {
+          changes.portfolio_images = [...remainingExistingE, ...newUrlsE];
         }
         if (Object.keys(changes).length === 0) { toast({ title: "Nenhuma alteração detectada" }); setSaving(false); return; }
         // Apply changes directly to the profile
@@ -218,7 +225,7 @@ const MeuPerfil = () => {
       }
 
       toast({ title: "Perfil atualizado!", description: "Suas alterações foram aplicadas com sucesso." });
-      setNewProfileImage(null); setNewProfilePreview(null); setNewPortfolioFiles([]); setNewPortfolioPreviews([]);
+      setNewProfileImage(null); setNewProfilePreview(null); setNewPortfolioFiles([]); setNewPortfolioPreviews([]); setRemovedPortfolioImages([]);
       setEditing(false);
       loadProfile();
     } catch (err: any) {
@@ -449,7 +456,7 @@ const MeuPerfil = () => {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" onClick={() => { setEditing(false); setNewProfileImage(null); setNewProfilePreview(null); setNewPortfolioFiles([]); setNewPortfolioPreviews([]); }} className="text-muted-foreground">
+            <Button variant="ghost" onClick={() => { setEditing(false); setNewProfileImage(null); setNewProfilePreview(null); setNewPortfolioFiles([]); setNewPortfolioPreviews([]); setRemovedPortfolioImages([]); }} className="text-muted-foreground">
               Cancelar
             </Button>
             <Button variant="ghost" onClick={handleLogout} className="gap-2 text-muted-foreground">
@@ -582,9 +589,19 @@ const MeuPerfil = () => {
         <div className="space-y-3 mt-8">
           <Label>Portfólio</Label>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {(profileType === "artist" ? artistData?.portfolio_images : entrepreneurData?.portfolio_images)?.map((src, i) => (
-              <div key={i} className="aspect-square rounded-xl overflow-hidden bg-secondary">
+            {(profileType === "artist" ? artistData?.portfolio_images : entrepreneurData?.portfolio_images)?.filter(src => !removedPortfolioImages.includes(src)).map((src, i) => (
+              <div key={src} className="relative aspect-square rounded-xl overflow-hidden bg-secondary group">
                 <img src={src} alt={`Portfolio ${i + 1}`} className="w-full h-full object-cover" />
+                {editing && (
+                  <button
+                    type="button"
+                    onClick={() => setRemovedPortfolioImages(prev => [...prev, src])}
+                    className="absolute top-1 right-1 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
+                    aria-label="Remover foto"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                )}
               </div>
             ))}
             {newPortfolioPreviews.map((src, i) => (
