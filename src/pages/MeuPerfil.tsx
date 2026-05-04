@@ -456,7 +456,7 @@ const MeuPerfil = () => {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" onClick={() => { setEditing(false); setNewProfileImage(null); setNewProfilePreview(null); setNewPortfolioFiles([]); setNewPortfolioPreviews([]); }} className="text-muted-foreground">
+            <Button variant="ghost" onClick={() => { setEditing(false); setNewProfileImage(null); setNewProfilePreview(null); setNewPortfolioFiles([]); setNewPortfolioPreviews([]); setRemovedPortfolioImages([]); }} className="text-muted-foreground">
               Cancelar
             </Button>
             <Button variant="ghost" onClick={handleLogout} className="gap-2 text-muted-foreground">
