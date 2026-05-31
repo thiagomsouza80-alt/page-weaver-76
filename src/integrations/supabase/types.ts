@@ -386,6 +386,198 @@ export type Database = {
         }
         Relationships: []
       }
+      social_comments: {
+        Row: {
+          author_avatar_url: string | null
+          author_name: string
+          content: string
+          created_at: string
+          hidden: boolean
+          id: string
+          parent_comment_id: string | null
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          author_avatar_url?: string | null
+          author_name: string
+          content: string
+          created_at?: string
+          hidden?: boolean
+          id?: string
+          parent_comment_id?: string | null
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          author_avatar_url?: string | null
+          author_name?: string
+          content?: string
+          created_at?: string
+          hidden?: boolean
+          id?: string
+          parent_comment_id?: string | null
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_comments_parent_comment_id_fkey"
+            columns: ["parent_comment_id"]
+            isOneToOne: false
+            referencedRelation: "social_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "social_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "social_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_likes: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_likes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "social_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_posts: {
+        Row: {
+          author_avatar_url: string | null
+          author_name: string
+          author_type: string
+          comments_count: number
+          content: string | null
+          created_at: string
+          deleted: boolean
+          hidden: boolean
+          id: string
+          likes_count: number
+          media_type: string
+          media_urls: string[] | null
+          shares_count: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          author_avatar_url?: string | null
+          author_name: string
+          author_type?: string
+          comments_count?: number
+          content?: string | null
+          created_at?: string
+          deleted?: boolean
+          hidden?: boolean
+          id?: string
+          likes_count?: number
+          media_type?: string
+          media_urls?: string[] | null
+          shares_count?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          author_avatar_url?: string | null
+          author_name?: string
+          author_type?: string
+          comments_count?: number
+          content?: string | null
+          created_at?: string
+          deleted?: boolean
+          hidden?: boolean
+          id?: string
+          likes_count?: number
+          media_type?: string
+          media_urls?: string[] | null
+          shares_count?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      social_saved_posts: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_saved_posts_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "social_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_shares: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_shares_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "social_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sponsors: {
         Row: {
           active: boolean
@@ -448,6 +640,10 @@ export type Database = {
         Returns: boolean
       }
       increment_fan_count: { Args: { _artist_id: string }; Returns: number }
+      social_decrement_likes: { Args: { _post_id: string }; Returns: number }
+      social_increment_comments: { Args: { _post_id: string }; Returns: number }
+      social_increment_likes: { Args: { _post_id: string }; Returns: number }
+      social_increment_shares: { Args: { _post_id: string }; Returns: number }
     }
     Enums: {
       app_role: "admin" | "user"
