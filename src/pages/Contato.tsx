@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Send } from "lucide-react";
+import { Send, Mail, MessageCircle } from "lucide-react";
 
 const Contato = () => {
   const { toast } = useToast();
