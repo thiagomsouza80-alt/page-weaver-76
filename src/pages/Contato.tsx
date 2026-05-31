@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Send } from "lucide-react";
+import { Send, Mail, MessageCircle } from "lucide-react";
 
 const Contato = () => {
   const { toast } = useToast();
@@ -60,7 +60,31 @@ const Contato = () => {
       <Navbar />
       <section className="pt-28 pb-20 px-6 md:px-12 max-w-2xl mx-auto">
         <h1 className="text-3xl md:text-4xl font-bold mb-2 animate-fade-up">Fale Conosco</h1>
-        <p className="text-muted-foreground mb-10 animate-fade-up-delay-1">Envie sua mensagem, dúvida ou sugestão para a equipe Amazônia Pop.</p>
+        <p className="text-muted-foreground mb-8 animate-fade-up-delay-1">Envie sua mensagem, dúvida ou sugestão para a equipe Amazônia Pop.</p>
+        <div className="grid sm:grid-cols-2 gap-3 mb-10 animate-fade-up-delay-1">
+          <a
+            href="https://wa.me/5591986439850"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 p-4 rounded-lg bg-card border border-border hover:border-primary hover:bg-primary/5 transition-all"
+          >
+            <MessageCircle className="h-5 w-5 text-primary shrink-0" />
+            <div>
+              <p className="text-xs text-muted-foreground">WhatsApp</p>
+              <p className="text-sm font-medium">(91) 98643-9850</p>
+            </div>
+          </a>
+          <a
+            href="mailto:contatoamazoniapop@gmail.com"
+            className="flex items-center gap-3 p-4 rounded-lg bg-card border border-border hover:border-primary hover:bg-primary/5 transition-all"
+          >
+            <Mail className="h-5 w-5 text-primary shrink-0" />
+            <div>
+              <p className="text-xs text-muted-foreground">E-mail</p>
+              <p className="text-sm font-medium break-all">contatoamazoniapop@gmail.com</p>
+            </div>
+          </a>
+        </div>
         <form onSubmit={handleSubmit} className="space-y-6 animate-fade-up-delay-2">
           <div className="space-y-2">
             <Label htmlFor="nome">Nome</Label>
