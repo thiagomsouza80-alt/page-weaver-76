@@ -15,7 +15,7 @@ const socialLinks = [
   { icon: Instagram, href: "https://www.instagram.com/amazoniapopoficial?igsh=eGc1ZDBnZTdxM3Ji", label: "Instagram" },
   { icon: Youtube, href: "#", label: "YouTube" },
   { icon: Twitter, href: "#", label: "Twitter" },
-  { icon: Facebook, href: "#", label: "Facebook" },
+  { icon: Facebook, href: "https://www.facebook.com/share/1EKn9ag317/", label: "Facebook" },
 ];
 
 const Footer = () => {
