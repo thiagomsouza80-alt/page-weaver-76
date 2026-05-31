@@ -44,12 +44,14 @@ const Footer = () => {
             <div className="flex gap-3">
               {socialLinks.map((social) => (
                 <a key={social.label} href={social.href} aria-label={social.label}
+                  target={social.href.startsWith("http") ? "_blank" : undefined}
+                  rel={social.href.startsWith("http") ? "noopener noreferrer" : undefined}
                   className="flex items-center justify-center w-10 h-10 rounded-lg bg-secondary text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all active:scale-95">
                   <social.icon className="h-5 w-5" />
                 </a>
               ))}
             </div>
-            <p className="text-muted-foreground text-xs mt-6">contato@amazoniapop.com.br</p>
+            <p className="text-muted-foreground text-xs mt-6">contatoamazoniapop@gmail.com</p>
           </div>
         </div>
         <div className="border-t border-border mt-10 pt-6 text-center">
