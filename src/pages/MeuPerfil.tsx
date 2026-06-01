@@ -618,8 +618,14 @@ const MeuPerfil = () => {
               <span className="text-xs text-muted-foreground">Adicionar</span>
               <input type="file" accept="image/*" multiple onChange={handleNewPortfolioImages} className="hidden" />
             </label>
-          </div>
         </div>
+
+        {profileType === "entrepreneur" && entrepreneurData?.id && session?.user?.id && (
+          <div className="mt-12 pt-8 border-t border-border">
+            <MyProductsSection userId={session.user.id} entrepreneurId={entrepreneurData.id} />
+          </div>
+        )}
+
 
         <div className="mt-10">
           <Button onClick={handleSubmit} variant="hero" size="lg" disabled={saving} className="gap-2">
