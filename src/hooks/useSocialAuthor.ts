@@ -8,6 +8,7 @@ export interface SocialAuthor {
   name: string;
   avatarUrl: string | null;
   type: AuthorType;
+  entityId: string | null;
 }
 
 export const useSocialAuthor = () => {
@@ -18,25 +19,25 @@ export const useSocialAuthor = () => {
     const load = async (userId: string, email?: string | null) => {
       const { data: artist } = await supabase
         .from("artists")
-        .select("name, profile_image_url")
+        .select("id, name, profile_image_url")
         .eq("user_id", userId)
         .maybeSingle();
       if (artist) {
-        setAuthor({ userId, name: artist.name, avatarUrl: artist.profile_image_url, type: "artist" });
+        setAuthor({ userId, name: artist.name, avatarUrl: artist.profile_image_url, type: "artist", entityId: artist.id });
         setLoading(false);
         return;
       }
       const { data: ent } = await supabase
         .from("entrepreneurs")
-        .select("name, image_url")
+        .select("id, name, image_url")
         .eq("user_id", userId)
         .maybeSingle();
       if (ent) {
-        setAuthor({ userId, name: ent.name, avatarUrl: ent.image_url, type: "entrepreneur" });
+        setAuthor({ userId, name: ent.name, avatarUrl: ent.image_url, type: "entrepreneur", entityId: ent.id });
         setLoading(false);
         return;
       }
-      setAuthor({ userId, name: email?.split("@")[0] ?? "Fã", avatarUrl: null, type: "fan" });
+      setAuthor({ userId, name: email?.split("@")[0] ?? "Fã", avatarUrl: null, type: "fan", entityId: null });
       setLoading(false);
     };
 

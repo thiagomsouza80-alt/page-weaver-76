@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ArrowLeft, Instagram, Loader2 } from "lucide-react";
 import FanButton from "@/components/FanButton";
+import FollowButton from "@/components/social/FollowButton";
 import ShareButtons from "@/components/ShareButtons";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
@@ -272,7 +273,10 @@ const ArtistaDetalhe = () => {
             {dbArtist.city && (
               <p className="text-sm text-muted-foreground mb-4">📍 {dbArtist.city}</p>
             )}
-            <FanButton artistId={dbArtist.id} initialCount={(dbArtist as any).fan_count || 0} />
+            <div className="flex flex-wrap items-center gap-2 mb-2">
+              <FanButton artistId={dbArtist.id} initialCount={(dbArtist as any).fan_count || 0} />
+              <FollowButton targetType="artist" targetId={dbArtist.id} initialCount={(dbArtist as any).followers_count || 0} />
+            </div>
             <ShareButtons label="Compartilhar link do perfil" hint="Compartilhe seu perfil e ganhe mais fans!" />
           </div>
         </div>

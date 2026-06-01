@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { MapPin, Phone, Instagram } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
+import FollowButton from "@/components/social/FollowButton";
 
 type Entrepreneur = {
   id: string;
@@ -102,6 +103,9 @@ const EmpreendedorDetalhe = () => {
                 {item.name}
               </h1>
               <p className="text-foreground/70 mt-2 max-w-lg">{item.description}</p>
+              <div className="mt-4">
+                <FollowButton targetType="entrepreneur" targetId={item.id} initialCount={(item as any).followers_count || 0} />
+              </div>
             </div>
           </div>
         </div>
