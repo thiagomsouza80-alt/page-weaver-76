@@ -13,6 +13,7 @@ import { Loader2, Save, LogOut, Camera, Upload, X, Clock, CheckCircle, XCircle, 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { membershipTypes, membershipDescriptions, membershipPaymentInfo } from "@/lib/membership";
 import ShareButtons from "@/components/ShareButtons";
+import MyProductsSection from "@/components/social/MyProductsSection";
 
 type ProfileType = "artist" | "entrepreneur" | null;
 
@@ -89,6 +90,7 @@ const MeuPerfil = () => {
   const [newPortfolioPreviews, setNewPortfolioPreviews] = useState<string[]>([]);
   const [removedPortfolioImages, setRemovedPortfolioImages] = useState<string[]>([]);
   const [showMembershipQR, setShowMembershipQR] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => { loadProfile(); }, []);
 
@@ -96,6 +98,7 @@ const MeuPerfil = () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) { navigate("/login"); return; }
     const userId = session.user.id;
+    setUserId(userId);
 
     const { data: artist } = await supabase
       .from("artists")
@@ -623,9 +626,9 @@ const MeuPerfil = () => {
 
 
 
-        {profileType === "entrepreneur" && entrepreneurData?.id && session?.user?.id && (
+        {profileType === "entrepreneur" && entrepreneurData?.id && userId && (
           <div className="mt-12 pt-8 border-t border-border">
-            <MyProductsSection userId={session.user.id} entrepreneurId={entrepreneurData.id} />
+            <MyProductsSection userId={userId} entrepreneurId={entrepreneurData.id} />
           </div>
         )}
 
