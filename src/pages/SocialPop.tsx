@@ -5,18 +5,21 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSocialAuthor } from "@/hooks/useSocialAuthor";
 import PostComposer from "@/components/social/PostComposer";
 import PostCard, { type SocialPost } from "@/components/social/PostCard";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Loader2, MessageSquare } from "lucide-react";
+import VitrineTab from "@/components/social/VitrineTab";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Loader2, MessageSquare, ShoppingBag } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
 type SortKey = "recent" | "popular" | "trending";
+type MainTab = "feed" | "vitrine";
 
 const SocialPop = () => {
   const { author, loading: authorLoading } = useSocialAuthor();
   const [posts, setPosts] = useState<SocialPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [sort, setSort] = useState<SortKey>("recent");
+  const [mainTab, setMainTab] = useState<MainTab>("feed");
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
@@ -44,7 +47,7 @@ const SocialPop = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <main className="max-w-2xl mx-auto px-4 pt-24 pb-16">
+      <main className="max-w-3xl mx-auto px-4 pt-24 pb-16">
         <header className="mb-6">
           <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
             <MessageSquare className="h-7 w-7 text-primary" />
@@ -53,37 +56,50 @@ const SocialPop = () => {
           <p className="text-sm text-muted-foreground mt-1">A comunidade da cultura pop paraense.</p>
         </header>
 
-        {authorLoading ? null : author ? (
-          <PostComposer author={author} onPosted={load} />
-        ) : (
-          <div className="bg-card border border-border rounded-xl p-6 text-center">
-            <p className="text-sm text-muted-foreground mb-3">Entre para publicar, curtir e comentar.</p>
-            <div className="flex gap-2 justify-center">
-              <Link to="/login"><Button size="sm">Entrar</Button></Link>
-              <Link to="/cadastro"><Button size="sm" variant="outline">Cadastrar</Button></Link>
-            </div>
-          </div>
-        )}
-
-        <Tabs value={sort} onValueChange={v => setSort(v as SortKey)} className="mt-6">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="recent">Recentes</TabsTrigger>
-            <TabsTrigger value="popular">Populares</TabsTrigger>
-            <TabsTrigger value="trending">Em alta</TabsTrigger>
+        <Tabs value={mainTab} onValueChange={v => setMainTab(v as MainTab)}>
+          <TabsList className="grid w-full grid-cols-2 mb-4">
+            <TabsTrigger value="feed" className="gap-2"><MessageSquare className="h-4 w-4" />Feed</TabsTrigger>
+            <TabsTrigger value="vitrine" className="gap-2"><ShoppingBag className="h-4 w-4" />Vitrine</TabsTrigger>
           </TabsList>
-        </Tabs>
 
-        <section className="mt-4 space-y-4">
-          {loading ? (
-            <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
-          ) : posts.length === 0 ? (
-            <p className="text-center text-muted-foreground py-12">Nenhuma publicação ainda. Seja o primeiro!</p>
-          ) : (
-            posts.map(p => (
-              <PostCard key={p.id} post={p} currentUserId={author?.userId ?? null} isAdmin={isAdmin} onChanged={load} />
-            ))
-          )}
-        </section>
+          <TabsContent value="feed" className="space-y-4">
+            {authorLoading ? null : author ? (
+              <PostComposer author={author} onPosted={load} />
+            ) : (
+              <div className="bg-card border border-border rounded-xl p-6 text-center">
+                <p className="text-sm text-muted-foreground mb-3">Entre para publicar, curtir e comentar.</p>
+                <div className="flex gap-2 justify-center">
+                  <Link to="/login"><Button size="sm">Entrar</Button></Link>
+                  <Link to="/cadastro"><Button size="sm" variant="outline">Cadastrar</Button></Link>
+                </div>
+              </div>
+            )}
+
+            <Tabs value={sort} onValueChange={v => setSort(v as SortKey)}>
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="recent">Recentes</TabsTrigger>
+                <TabsTrigger value="popular">Populares</TabsTrigger>
+                <TabsTrigger value="trending">Em alta</TabsTrigger>
+              </TabsList>
+            </Tabs>
+
+            <section className="space-y-4">
+              {loading ? (
+                <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+              ) : posts.length === 0 ? (
+                <p className="text-center text-muted-foreground py-12">Nenhuma publicação ainda. Seja o primeiro!</p>
+              ) : (
+                posts.map(p => (
+                  <PostCard key={p.id} post={p} currentUserId={author?.userId ?? null} isAdmin={isAdmin} onChanged={load} />
+                ))
+              )}
+            </section>
+          </TabsContent>
+
+          <TabsContent value="vitrine">
+            <VitrineTab />
+          </TabsContent>
+        </Tabs>
       </main>
       <Footer />
     </div>
