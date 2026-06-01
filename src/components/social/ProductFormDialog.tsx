@@ -6,7 +6,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Loader2, Upload, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { compressImage } from "@/lib/imageCompression";
 import { uploadWithRetry } from "@/lib/uploadWithRetry";
 import { toast } from "sonner";
 
@@ -51,10 +50,7 @@ const ProductFormDialog = ({ open, onOpenChange, userId, entrepreneurId, product
     try {
       const uploaded: string[] = [];
       for (const file of newFiles) {
-        const compressed = await compressImage(file);
-        const ext = (compressed.name.split(".").pop() || "jpg").toLowerCase();
-        const path = `${userId}/${crypto.randomUUID()}.${ext}`;
-        const url = await uploadWithRetry("social-media", path, compressed);
+        const url = await uploadWithRetry(file, "social-media", `products/${userId}`);
         uploaded.push(url);
       }
       const payload: any = {
