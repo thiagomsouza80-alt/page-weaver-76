@@ -64,6 +64,7 @@ export type Database = {
           created_at: string
           email: string
           fan_count: number
+          followers_count: number
           guardian_name: string | null
           guardian_phone: string | null
           id: string
@@ -74,6 +75,7 @@ export type Database = {
           name: string
           phone: string | null
           portfolio_images: string[] | null
+          posts_count: number
           profile_image_url: string | null
           segment: Database["public"]["Enums"]["artist_segment"]
           updated_at: string
@@ -88,6 +90,7 @@ export type Database = {
           created_at?: string
           email: string
           fan_count?: number
+          followers_count?: number
           guardian_name?: string | null
           guardian_phone?: string | null
           id?: string
@@ -98,6 +101,7 @@ export type Database = {
           name: string
           phone?: string | null
           portfolio_images?: string[] | null
+          posts_count?: number
           profile_image_url?: string | null
           segment: Database["public"]["Enums"]["artist_segment"]
           updated_at?: string
@@ -112,6 +116,7 @@ export type Database = {
           created_at?: string
           email?: string
           fan_count?: number
+          followers_count?: number
           guardian_name?: string | null
           guardian_phone?: string | null
           id?: string
@@ -122,6 +127,7 @@ export type Database = {
           name?: string
           phone?: string | null
           portfolio_images?: string[] | null
+          posts_count?: number
           profile_image_url?: string | null
           segment?: Database["public"]["Enums"]["artist_segment"]
           updated_at?: string
@@ -179,6 +185,7 @@ export type Database = {
           created_at: string
           description: string
           email: string | null
+          followers_count: number
           full_description: string | null
           guardian_name: string | null
           guardian_phone: string | null
@@ -189,6 +196,7 @@ export type Database = {
           name: string
           phone: string | null
           portfolio_images: string[] | null
+          posts_count: number
           published: boolean
           slug: string
           updated_at: string
@@ -201,6 +209,7 @@ export type Database = {
           created_at?: string
           description: string
           email?: string | null
+          followers_count?: number
           full_description?: string | null
           guardian_name?: string | null
           guardian_phone?: string | null
@@ -211,6 +220,7 @@ export type Database = {
           name: string
           phone?: string | null
           portfolio_images?: string[] | null
+          posts_count?: number
           published?: boolean
           slug: string
           updated_at?: string
@@ -223,6 +233,7 @@ export type Database = {
           created_at?: string
           description?: string
           email?: string | null
+          followers_count?: number
           full_description?: string | null
           guardian_name?: string | null
           guardian_phone?: string | null
@@ -233,6 +244,7 @@ export type Database = {
           name?: string
           phone?: string | null
           portfolio_images?: string[] | null
+          posts_count?: number
           published?: boolean
           slug?: string
           updated_at?: string
@@ -437,6 +449,30 @@ export type Database = {
           },
         ]
       }
+      social_follows: {
+        Row: {
+          created_at: string
+          follower_user_id: string
+          id: string
+          target_id: string
+          target_type: string
+        }
+        Insert: {
+          created_at?: string
+          follower_user_id: string
+          id?: string
+          target_id: string
+          target_type: string
+        }
+        Update: {
+          created_at?: string
+          follower_user_id?: string
+          id?: string
+          target_id?: string
+          target_type?: string
+        }
+        Relationships: []
+      }
       social_likes: {
         Row: {
           created_at: string
@@ -517,6 +553,54 @@ export type Database = {
           shares_count?: number
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      social_products: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string | null
+          entrepreneur_id: string | null
+          external_url: string | null
+          hidden: boolean
+          id: string
+          images: string[] | null
+          name: string
+          price: number | null
+          updated_at: string
+          user_id: string
+          whatsapp: string | null
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          entrepreneur_id?: string | null
+          external_url?: string | null
+          hidden?: boolean
+          id?: string
+          images?: string[] | null
+          name: string
+          price?: number | null
+          updated_at?: string
+          user_id: string
+          whatsapp?: string | null
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          entrepreneur_id?: string | null
+          external_url?: string | null
+          hidden?: boolean
+          id?: string
+          images?: string[] | null
+          name?: string
+          price?: number | null
+          updated_at?: string
+          user_id?: string
+          whatsapp?: string | null
         }
         Relationships: []
       }
@@ -640,8 +724,16 @@ export type Database = {
         Returns: boolean
       }
       increment_fan_count: { Args: { _artist_id: string }; Returns: number }
+      social_decrement_followers: {
+        Args: { _target_id: string; _target_type: string }
+        Returns: number
+      }
       social_decrement_likes: { Args: { _post_id: string }; Returns: number }
       social_increment_comments: { Args: { _post_id: string }; Returns: number }
+      social_increment_followers: {
+        Args: { _target_id: string; _target_type: string }
+        Returns: number
+      }
       social_increment_likes: { Args: { _post_id: string }; Returns: number }
       social_increment_shares: { Args: { _post_id: string }; Returns: number }
     }
