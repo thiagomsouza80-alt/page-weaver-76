@@ -618,7 +618,10 @@ const MeuPerfil = () => {
               <span className="text-xs text-muted-foreground">Adicionar</span>
               <input type="file" accept="image/*" multiple onChange={handleNewPortfolioImages} className="hidden" />
             </label>
+          </div>
         </div>
+
+
 
         {profileType === "entrepreneur" && entrepreneurData?.id && session?.user?.id && (
           <div className="mt-12 pt-8 border-t border-border">
