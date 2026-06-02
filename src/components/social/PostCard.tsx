@@ -10,7 +10,6 @@ import { ptBR } from "date-fns/locale";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import CommentsDialog from "./CommentsDialog";
 import ReportDialog from "./ReportDialog";
-import { Flag } from "lucide-react";
 
 export interface SocialPost {
   id: string;
