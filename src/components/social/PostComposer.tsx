@@ -99,6 +99,22 @@ const PostComposer = ({ author, onPosted }: Props) => {
     }
   };
 
+  if (blocked) {
+    return (
+      <div className="bg-card border border-destructive/40 rounded-xl p-4 flex items-start gap-3">
+        <Ban className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+        <div>
+          <p className="text-sm font-semibold text-foreground">
+            {blocked.status === "banned" ? "Sua conta foi banida do Social Pop." : "Sua conta está suspensa."}
+          </p>
+          {blocked.until && (
+            <p className="text-xs text-muted-foreground mt-1">Até {new Date(blocked.until).toLocaleDateString("pt-BR")}</p>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-card border border-border rounded-xl p-4 space-y-3">
       <div className="flex gap-3">
