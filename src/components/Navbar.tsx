@@ -101,6 +101,7 @@ const Navbar = () => {
         ))}
       </div>
       <div className="flex items-center gap-3">
+        {isLoggedIn && <NotificationsBell />}
         {isLoggedIn ? (
           <Link to="/meu-perfil" className="hidden md:flex items-center gap-2 hover:opacity-80 transition-opacity">
             <ProfileAvatar />
