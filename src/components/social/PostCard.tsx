@@ -122,17 +122,21 @@ const PostCard = ({ post, currentUserId, isAdmin, onChanged }: Props) => {
             <span className="text-xs text-muted-foreground">{time}</span>
           </div>
         </div>
-        {canManage && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8"><MoreHorizontal className="h-4 w-4" /></Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {isAdmin && <DropdownMenuItem onClick={hide}><EyeOff className="h-4 w-4 mr-2" /> Ocultar</DropdownMenuItem>}
-              <DropdownMenuItem onClick={remove} className="text-destructive"><Trash2 className="h-4 w-4 mr-2" /> Excluir</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8"><MoreHorizontal className="h-4 w-4" /></Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {currentUserId && currentUserId !== post.user_id && (
+              <DropdownMenuItem onSelect={(e) => e.preventDefault()} asChild>
+                <div><ReportDialog targetType="post" targetId={post.id} variant="menuitem" /></div>
+              </DropdownMenuItem>
+            )}
+            {canManage && (currentUserId && currentUserId !== post.user_id) && <DropdownMenuSeparator />}
+            {isAdmin && <DropdownMenuItem onClick={hide}><EyeOff className="h-4 w-4 mr-2" /> Ocultar</DropdownMenuItem>}
+            {canManage && <DropdownMenuItem onClick={remove} className="text-destructive"><Trash2 className="h-4 w-4 mr-2" /> Excluir</DropdownMenuItem>}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </header>
 
       {post.content && <p className="px-4 pb-3 text-sm text-foreground whitespace-pre-wrap">{post.content}</p>}
