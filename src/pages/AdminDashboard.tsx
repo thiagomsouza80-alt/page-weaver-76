@@ -65,6 +65,7 @@ const AdminDashboard = () => {
     { key: "ranking" as Tab, label: "Ranking de Fãs", icon: Trophy },
     { key: "members" as Tab, label: "Membros Pagos", icon: Crown },
     { key: "raffle" as Tab, label: "Sorteio", icon: Gift },
+    { key: "moderation" as Tab, label: "Moderação Social", icon: Shield },
   ];
 
   return (
