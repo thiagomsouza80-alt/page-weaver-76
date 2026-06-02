@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ShoppingBag, MessageCircle, Pencil, Trash2 } from "lucide-react";
+import ReportDialog from "./ReportDialog";
 
 export type ProductCardData = {
   id: string;
