@@ -17,7 +17,7 @@ import AdminRafflePanel from "@/components/admin/AdminRafflePanel";
 import AdminModerationPanel from "@/components/admin/AdminModerationPanel";
 import logoOficial from "@/assets/logo-oficial.png";
 
-type Tab = "news" | "events" | "artists" | "entrepreneurs" | "pending" | "sponsors" | "orphans" | "ranking" | "members" | "raffle";
+type Tab = "news" | "events" | "artists" | "entrepreneurs" | "pending" | "sponsors" | "orphans" | "ranking" | "members" | "raffle" | "moderation";
 
 const AdminDashboard = () => {
   const { loading, isAdmin } = useAdmin();
