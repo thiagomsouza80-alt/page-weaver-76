@@ -1,8 +1,8 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Image as ImageIcon, Video, X, Loader2, Send } from "lucide-react";
+import { Image as ImageIcon, Video, X, Loader2, Send, Ban } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { uploadWithRetry } from "@/lib/uploadWithRetry";
