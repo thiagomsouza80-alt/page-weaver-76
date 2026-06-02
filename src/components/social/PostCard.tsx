@@ -128,11 +128,11 @@ const PostCard = ({ post, currentUserId, isAdmin, onChanged }: Props) => {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             {currentUserId && currentUserId !== post.user_id && (
-              <DropdownMenuItem onSelect={(e) => e.preventDefault()} asChild>
-                <div><ReportDialog targetType="post" targetId={post.id} variant="menuitem" /></div>
-              </DropdownMenuItem>
+              <div className="px-2 py-1.5 text-sm cursor-pointer hover:bg-accent rounded-sm">
+                <ReportDialog targetType="post" targetId={post.id} variant="menuitem" />
+              </div>
             )}
-            {canManage && (currentUserId && currentUserId !== post.user_id) && <DropdownMenuSeparator />}
+            {(isAdmin || canManage) && currentUserId && currentUserId !== post.user_id && <DropdownMenuSeparator />}
             {isAdmin && <DropdownMenuItem onClick={hide}><EyeOff className="h-4 w-4 mr-2" /> Ocultar</DropdownMenuItem>}
             {canManage && <DropdownMenuItem onClick={remove} className="text-destructive"><Trash2 className="h-4 w-4 mr-2" /> Excluir</DropdownMenuItem>}
           </DropdownMenuContent>
