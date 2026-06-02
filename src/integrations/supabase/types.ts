@@ -502,6 +502,51 @@ export type Database = {
           },
         ]
       }
+      social_notifications: {
+        Row: {
+          actor_avatar_url: string | null
+          actor_name: string | null
+          actor_user_id: string | null
+          created_at: string
+          id: string
+          post_id: string | null
+          preview: string | null
+          read: boolean
+          target_id: string | null
+          target_type: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          actor_avatar_url?: string | null
+          actor_name?: string | null
+          actor_user_id?: string | null
+          created_at?: string
+          id?: string
+          post_id?: string | null
+          preview?: string | null
+          read?: boolean
+          target_id?: string | null
+          target_type?: string | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          actor_avatar_url?: string | null
+          actor_name?: string | null
+          actor_user_id?: string | null
+          created_at?: string
+          id?: string
+          post_id?: string | null
+          preview?: string | null
+          read?: boolean
+          target_id?: string | null
+          target_type?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       social_posts: {
         Row: {
           author_avatar_url: string | null
@@ -604,6 +649,48 @@ export type Database = {
         }
         Relationships: []
       }
+      social_reports: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          details: string | null
+          id: string
+          reason: string
+          reporter_user_id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          target_id: string
+          target_type: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          details?: string | null
+          id?: string
+          reason: string
+          reporter_user_id: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          target_id: string
+          target_type: string
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          details?: string | null
+          id?: string
+          reason?: string
+          reporter_user_id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          target_id?: string
+          target_type?: string
+        }
+        Relationships: []
+      }
       social_saved_posts: {
         Row: {
           created_at: string
@@ -661,6 +748,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      social_user_status: {
+        Row: {
+          created_at: string
+          reason: string | null
+          status: string
+          suspended_until: string | null
+          updated_at: string
+          updated_by: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          reason?: string | null
+          status?: string
+          suspended_until?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          reason?: string | null
+          status?: string
+          suspended_until?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       sponsors: {
         Row: {
@@ -724,6 +841,7 @@ export type Database = {
         Returns: boolean
       }
       increment_fan_count: { Args: { _artist_id: string }; Returns: number }
+      is_user_blocked: { Args: { _user_id: string }; Returns: boolean }
       social_decrement_followers: {
         Args: { _target_id: string; _target_type: string }
         Returns: number
