@@ -23,17 +23,20 @@ const AdminDashboard = () => {
   const { loading, isAdmin } = useAdmin();
   const [tab, setTab] = useState<Tab>("news");
   const [pendingCount, setPendingCount] = useState(0);
+  const [reportsCount, setReportsCount] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchPendingCount = async () => {
-      const [{ count: artistCount }, { count: entCount }] = await Promise.all([
+    const fetchCounts = async () => {
+      const [{ count: artistCount }, { count: entCount }, { count: rpCount }] = await Promise.all([
         supabase.from("artist_pending_updates").select("*", { count: "exact", head: true }).in("status", ["pending", "auto_approved", "approved"]),
         supabase.from("entrepreneur_pending_updates").select("*", { count: "exact", head: true }).in("status", ["pending", "auto_approved", "approved"]),
+        supabase.from("social_reports" as any).select("*", { count: "exact", head: true }).eq("status", "pending"),
       ]);
       setPendingCount((artistCount || 0) + ((entCount as number) || 0));
+      setReportsCount((rpCount as number) || 0);
     };
-    fetchPendingCount();
+    fetchCounts();
   }, [tab]);
 
   const handleLogout = async () => {
