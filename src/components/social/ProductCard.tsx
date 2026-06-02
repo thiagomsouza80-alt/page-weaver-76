@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ShoppingBag, MessageCircle, Pencil, Trash2 } from "lucide-react";
+import ReportDialog from "./ReportDialog";
 
 export type ProductCardData = {
   id: string;
@@ -38,6 +39,11 @@ const ProductCard = ({ product, canManage, onEdit, onDelete }: Props) => {
         )}
         {!product.active && (
           <span className="absolute top-2 left-2 bg-muted text-muted-foreground text-[10px] px-2 py-0.5 rounded">Inativo</span>
+        )}
+        {!canManage && (
+          <div className="absolute top-2 right-2 bg-background/80 backdrop-blur rounded-full p-1.5">
+            <ReportDialog targetType="product" targetId={product.id} variant="icon" />
+          </div>
         )}
       </div>
       <div className="p-3 flex-1 flex flex-col">

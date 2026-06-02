@@ -1,8 +1,8 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Image as ImageIcon, Video, X, Loader2, Send } from "lucide-react";
+import { Image as ImageIcon, Video, X, Loader2, Send, Ban } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { uploadWithRetry } from "@/lib/uploadWithRetry";
@@ -20,8 +20,18 @@ const PostComposer = ({ author, onPosted }: Props) => {
   const [images, setImages] = useState<File[]>([]);
   const [video, setVideo] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [blocked, setBlocked] = useState<null | { status: string; until: string | null }>(null);
   const imgInput = useRef<HTMLInputElement>(null);
   const vidInput = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    supabase.from("social_user_status" as any).select("status,suspended_until").eq("user_id", author.userId).maybeSingle()
+      .then(({ data }: any) => {
+        if (data && (data.status === "banned" || (data.status === "suspended" && (!data.suspended_until || new Date(data.suspended_until) > new Date())))) {
+          setBlocked({ status: data.status, until: data.suspended_until });
+        }
+      });
+  }, [author.userId]);
 
   const initials = author.name.split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase();
 
@@ -88,6 +98,22 @@ const PostComposer = ({ author, onPosted }: Props) => {
       setSubmitting(false);
     }
   };
+
+  if (blocked) {
+    return (
+      <div className="bg-card border border-destructive/40 rounded-xl p-4 flex items-start gap-3">
+        <Ban className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+        <div>
+          <p className="text-sm font-semibold text-foreground">
+            {blocked.status === "banned" ? "Sua conta foi banida do Social Pop." : "Sua conta está suspensa."}
+          </p>
+          {blocked.until && (
+            <p className="text-xs text-muted-foreground mt-1">Até {new Date(blocked.until).toLocaleDateString("pt-BR")}</p>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-card border border-border rounded-xl p-4 space-y-3">

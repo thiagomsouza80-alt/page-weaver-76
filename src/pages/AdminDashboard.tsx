@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useAdmin } from "@/hooks/useAdmin";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Loader2, Newspaper, CalendarDays, Users, LogOut, ExternalLink, Store, ClipboardCheck, Handshake, UserX, Bell, Trophy, Crown, Gift } from "lucide-react";
+import { Loader2, Newspaper, CalendarDays, Users, LogOut, ExternalLink, Store, ClipboardCheck, Handshake, UserX, Bell, Trophy, Crown, Gift, Shield } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import AdminNewsPanel from "@/components/admin/AdminNewsPanel";
 import AdminEventsPanel from "@/components/admin/AdminEventsPanel";
@@ -14,25 +14,29 @@ import AdminOrphanUsersPanel from "@/components/admin/AdminOrphanUsersPanel";
 import AdminFanRankingPanel from "@/components/admin/AdminFanRankingPanel";
 import AdminMembersPanel from "@/components/admin/AdminMembersPanel";
 import AdminRafflePanel from "@/components/admin/AdminRafflePanel";
+import AdminModerationPanel from "@/components/admin/AdminModerationPanel";
 import logoOficial from "@/assets/logo-oficial.png";
 
-type Tab = "news" | "events" | "artists" | "entrepreneurs" | "pending" | "sponsors" | "orphans" | "ranking" | "members" | "raffle";
+type Tab = "news" | "events" | "artists" | "entrepreneurs" | "pending" | "sponsors" | "orphans" | "ranking" | "members" | "raffle" | "moderation";
 
 const AdminDashboard = () => {
   const { loading, isAdmin } = useAdmin();
   const [tab, setTab] = useState<Tab>("news");
   const [pendingCount, setPendingCount] = useState(0);
+  const [reportsCount, setReportsCount] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchPendingCount = async () => {
-      const [{ count: artistCount }, { count: entCount }] = await Promise.all([
+    const fetchCounts = async () => {
+      const [{ count: artistCount }, { count: entCount }, { count: rpCount }] = await Promise.all([
         supabase.from("artist_pending_updates").select("*", { count: "exact", head: true }).in("status", ["pending", "auto_approved", "approved"]),
         supabase.from("entrepreneur_pending_updates").select("*", { count: "exact", head: true }).in("status", ["pending", "auto_approved", "approved"]),
+        supabase.from("social_reports" as any).select("*", { count: "exact", head: true }).eq("status", "pending"),
       ]);
       setPendingCount((artistCount || 0) + ((entCount as number) || 0));
+      setReportsCount((rpCount as number) || 0);
     };
-    fetchPendingCount();
+    fetchCounts();
   }, [tab]);
 
   const handleLogout = async () => {
@@ -61,6 +65,7 @@ const AdminDashboard = () => {
     { key: "ranking" as Tab, label: "Ranking de Fãs", icon: Trophy },
     { key: "members" as Tab, label: "Membros Pagos", icon: Crown },
     { key: "raffle" as Tab, label: "Sorteio", icon: Gift },
+    { key: "moderation" as Tab, label: "Moderação Social", icon: Shield },
   ];
 
   return (
@@ -83,6 +88,12 @@ const AdminDashboard = () => {
                 <span className="ml-auto flex items-center gap-1 bg-destructive text-destructive-foreground text-xs font-bold rounded-full px-2 py-0.5">
                   <Bell className="h-3 w-3" />
                   {pendingCount}
+                </span>
+              )}
+              {t.key === "moderation" && reportsCount > 0 && (
+                <span className="ml-auto flex items-center gap-1 bg-destructive text-destructive-foreground text-xs font-bold rounded-full px-2 py-0.5">
+                  <Bell className="h-3 w-3" />
+                  {reportsCount}
                 </span>
               )}
             </button>
@@ -112,6 +123,7 @@ const AdminDashboard = () => {
         {tab === "ranking" && <AdminFanRankingPanel />}
         {tab === "members" && <AdminMembersPanel />}
         {tab === "raffle" && <AdminRafflePanel />}
+        {tab === "moderation" && <AdminModerationPanel />}
       </main>
     </div>
   );

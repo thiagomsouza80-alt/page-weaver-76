@@ -4,6 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import NotificationsBell from "@/components/social/NotificationsBell";
 
 const navLinks = [
   { label: "Início", to: "/" },
@@ -100,6 +101,7 @@ const Navbar = () => {
         ))}
       </div>
       <div className="flex items-center gap-3">
+        {isLoggedIn && <NotificationsBell />}
         {isLoggedIn ? (
           <Link to="/meu-perfil" className="hidden md:flex items-center gap-2 hover:opacity-80 transition-opacity">
             <ProfileAvatar />

@@ -7,8 +7,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import CommentsDialog from "./CommentsDialog";
+import ReportDialog from "./ReportDialog";
 
 export interface SocialPost {
   id: string;
@@ -120,17 +121,21 @@ const PostCard = ({ post, currentUserId, isAdmin, onChanged }: Props) => {
             <span className="text-xs text-muted-foreground">{time}</span>
           </div>
         </div>
-        {canManage && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8"><MoreHorizontal className="h-4 w-4" /></Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {isAdmin && <DropdownMenuItem onClick={hide}><EyeOff className="h-4 w-4 mr-2" /> Ocultar</DropdownMenuItem>}
-              <DropdownMenuItem onClick={remove} className="text-destructive"><Trash2 className="h-4 w-4 mr-2" /> Excluir</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8"><MoreHorizontal className="h-4 w-4" /></Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {currentUserId && currentUserId !== post.user_id && (
+              <div className="px-2 py-1.5 text-sm cursor-pointer hover:bg-accent rounded-sm">
+                <ReportDialog targetType="post" targetId={post.id} variant="menuitem" />
+              </div>
+            )}
+            {(isAdmin || canManage) && currentUserId && currentUserId !== post.user_id && <DropdownMenuSeparator />}
+            {isAdmin && <DropdownMenuItem onClick={hide}><EyeOff className="h-4 w-4 mr-2" /> Ocultar</DropdownMenuItem>}
+            {canManage && <DropdownMenuItem onClick={remove} className="text-destructive"><Trash2 className="h-4 w-4 mr-2" /> Excluir</DropdownMenuItem>}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </header>
 
       {post.content && <p className="px-4 pb-3 text-sm text-foreground whitespace-pre-wrap">{post.content}</p>}
