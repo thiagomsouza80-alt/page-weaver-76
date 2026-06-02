@@ -123,6 +123,7 @@ const AdminDashboard = () => {
         {tab === "ranking" && <AdminFanRankingPanel />}
         {tab === "members" && <AdminMembersPanel />}
         {tab === "raffle" && <AdminRafflePanel />}
+        {tab === "moderation" && <AdminModerationPanel />}
       </main>
     </div>
   );
