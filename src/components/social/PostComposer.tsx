@@ -20,8 +20,18 @@ const PostComposer = ({ author, onPosted }: Props) => {
   const [images, setImages] = useState<File[]>([]);
   const [video, setVideo] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [blocked, setBlocked] = useState<null | { status: string; until: string | null }>(null);
   const imgInput = useRef<HTMLInputElement>(null);
   const vidInput = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    supabase.from("social_user_status" as any).select("status,suspended_until").eq("user_id", author.userId).maybeSingle()
+      .then(({ data }: any) => {
+        if (data && (data.status === "banned" || (data.status === "suspended" && (!data.suspended_until || new Date(data.suspended_until) > new Date())))) {
+          setBlocked({ status: data.status, until: data.suspended_until });
+        }
+      });
+  }, [author.userId]);
 
   const initials = author.name.split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase();
 
