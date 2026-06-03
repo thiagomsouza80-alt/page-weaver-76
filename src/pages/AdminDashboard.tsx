@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useAdmin } from "@/hooks/useAdmin";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Loader2, Newspaper, CalendarDays, Users, LogOut, ExternalLink, Store, ClipboardCheck, Handshake, UserX, Bell, Trophy, Crown, Gift, Shield } from "lucide-react";
+import { Loader2, Newspaper, CalendarDays, Users, LogOut, ExternalLink, Store, ClipboardCheck, Handshake, UserX, Bell, Trophy, Crown, Gift, Shield, Images } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import AdminNewsPanel from "@/components/admin/AdminNewsPanel";
 import AdminEventsPanel from "@/components/admin/AdminEventsPanel";
@@ -15,9 +15,10 @@ import AdminFanRankingPanel from "@/components/admin/AdminFanRankingPanel";
 import AdminMembersPanel from "@/components/admin/AdminMembersPanel";
 import AdminRafflePanel from "@/components/admin/AdminRafflePanel";
 import AdminModerationPanel from "@/components/admin/AdminModerationPanel";
+import AdminBannersPanel from "@/components/admin/AdminBannersPanel";
 import logoOficial from "@/assets/logo-oficial.png";
 
-type Tab = "news" | "events" | "artists" | "entrepreneurs" | "pending" | "sponsors" | "orphans" | "ranking" | "members" | "raffle" | "moderation";
+type Tab = "news" | "events" | "artists" | "entrepreneurs" | "pending" | "sponsors" | "orphans" | "ranking" | "members" | "raffle" | "moderation" | "banners";
 
 const AdminDashboard = () => {
   const { loading, isAdmin } = useAdmin();
@@ -66,6 +67,7 @@ const AdminDashboard = () => {
     { key: "members" as Tab, label: "Membros Pagos", icon: Crown },
     { key: "raffle" as Tab, label: "Sorteio", icon: Gift },
     { key: "moderation" as Tab, label: "Moderação Social", icon: Shield },
+    { key: "banners" as Tab, label: "Banners da Home", icon: Images },
   ];
 
   return (
@@ -124,6 +126,7 @@ const AdminDashboard = () => {
         {tab === "members" && <AdminMembersPanel />}
         {tab === "raffle" && <AdminRafflePanel />}
         {tab === "moderation" && <AdminModerationPanel />}
+        {tab === "banners" && <AdminBannersPanel />}
       </main>
     </div>
   );

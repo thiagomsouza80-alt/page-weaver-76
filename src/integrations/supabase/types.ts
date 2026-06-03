@@ -350,6 +350,60 @@ export type Database = {
         }
         Relationships: []
       }
+      homepage_banners: {
+        Row: {
+          active: boolean
+          button_text: string | null
+          clicks: number
+          created_at: string
+          display_order: number
+          end_date: string | null
+          id: string
+          image_url: string | null
+          link_url: string | null
+          start_date: string | null
+          subtitle: string | null
+          title: string | null
+          updated_at: string
+          video_url: string | null
+          views: number
+        }
+        Insert: {
+          active?: boolean
+          button_text?: string | null
+          clicks?: number
+          created_at?: string
+          display_order?: number
+          end_date?: string | null
+          id?: string
+          image_url?: string | null
+          link_url?: string | null
+          start_date?: string | null
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string
+          video_url?: string | null
+          views?: number
+        }
+        Update: {
+          active?: boolean
+          button_text?: string | null
+          clicks?: number
+          created_at?: string
+          display_order?: number
+          end_date?: string | null
+          id?: string
+          image_url?: string | null
+          link_url?: string | null
+          start_date?: string | null
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string
+          video_url?: string | null
+          views?: number
+        }
+        Relationships: []
+      }
       news: {
         Row: {
           author_id: string | null
@@ -832,6 +886,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      banner_increment_click: { Args: { _id: string }; Returns: undefined }
+      banner_increment_view: { Args: { _id: string }; Returns: undefined }
       decrement_fan_count: { Args: { _artist_id: string }; Returns: number }
       has_role: {
         Args: {
