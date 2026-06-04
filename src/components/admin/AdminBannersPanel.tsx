@@ -18,7 +18,6 @@ interface Banner {
   image_url: string | null;
   video_url: string | null;
   link_url: string | null;
-  button_text: string | null;
   active: boolean;
   start_date: string | null;
   end_date: string | null;
@@ -33,7 +32,6 @@ const empty = {
   image_url: "",
   video_url: "",
   link_url: "",
-  button_text: "",
   active: true,
   start_date: "",
   end_date: "",
@@ -85,7 +83,6 @@ const AdminBannersPanel = () => {
       image_url: b.image_url || "",
       video_url: b.video_url || "",
       link_url: b.link_url || "",
-      button_text: b.button_text || "",
       active: b.active,
       start_date: b.start_date ? b.start_date.slice(0, 16) : "",
       end_date: b.end_date ? b.end_date.slice(0, 16) : "",
@@ -110,7 +107,6 @@ const AdminBannersPanel = () => {
         image_url,
         video_url,
         link_url: form.link_url || null,
-        button_text: form.button_text || null,
         active: form.active,
         start_date: form.start_date ? new Date(form.start_date).toISOString() : null,
         end_date: form.end_date ? new Date(form.end_date).toISOString() : null,
@@ -226,19 +222,9 @@ const AdminBannersPanel = () => {
           </DialogHeader>
 
           <div className="space-y-4">
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Título</Label>
-                <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
-              </div>
-              <div className="space-y-2">
-                <Label>Texto do botão (CTA)</Label>
-                <Input
-                  value={form.button_text}
-                  onChange={(e) => setForm({ ...form, button_text: e.target.value })}
-                  placeholder="Ex: Saiba Mais, Comprar Agora..."
-                />
-              </div>
+            <div className="space-y-2">
+              <Label>Título</Label>
+              <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
             </div>
 
             <div className="space-y-2">
