@@ -129,6 +129,7 @@ const AdminDashboard = () => {
         {tab === "raffle" && <AdminRafflePanel />}
         {tab === "moderation" && <AdminModerationPanel />}
         {tab === "banners" && <AdminBannersPanel />}
+        {tab === "database" && <AdminDatabasePanel />}
       </main>
     </div>
   );
