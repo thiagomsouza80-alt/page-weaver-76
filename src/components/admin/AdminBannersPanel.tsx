@@ -18,7 +18,6 @@ interface Banner {
   image_url: string | null;
   video_url: string | null;
   link_url: string | null;
-  button_text: string | null;
   active: boolean;
   start_date: string | null;
   end_date: string | null;

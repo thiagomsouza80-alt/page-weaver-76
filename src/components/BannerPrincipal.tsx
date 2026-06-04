@@ -88,10 +88,10 @@ const BannerPrincipal = () => {
                     loading="lazy"
                   />
                 ) : null}
-                {(b.title || b.subtitle || b.button_text) && (
+                {(b.title || b.subtitle) && (
                   <div className="absolute inset-0 bg-gradient-to-r from-background/85 via-background/50 to-transparent" />
                 )}
-                {(b.title || b.subtitle || b.button_text) && (
+                {(b.title || b.subtitle) && (
                   <div className="absolute inset-0 flex items-center">
                     <div className="px-6 md:px-16 max-w-2xl space-y-4 animate-fade-in">
                       {b.title && (
@@ -103,11 +103,6 @@ const BannerPrincipal = () => {
                         <p className="text-base md:text-lg text-foreground/85 drop-shadow">
                           {b.subtitle}
                         </p>
-                      )}
-                      {b.button_text && b.link_url && (
-                        <Button variant="hero" size="lg" className="mt-2">
-                          {b.button_text}
-                        </Button>
                       )}
                     </div>
                   </div>
