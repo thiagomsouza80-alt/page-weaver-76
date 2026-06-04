@@ -32,7 +32,6 @@ const empty = {
   image_url: "",
   video_url: "",
   link_url: "",
-  button_text: "",
   active: true,
   start_date: "",
   end_date: "",
