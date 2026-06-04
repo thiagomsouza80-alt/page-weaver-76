@@ -16,9 +16,11 @@ import AdminMembersPanel from "@/components/admin/AdminMembersPanel";
 import AdminRafflePanel from "@/components/admin/AdminRafflePanel";
 import AdminModerationPanel from "@/components/admin/AdminModerationPanel";
 import AdminBannersPanel from "@/components/admin/AdminBannersPanel";
+import AdminDatabasePanel from "@/components/admin/AdminDatabasePanel";
 import logoOficial from "@/assets/logo-oficial.png";
+import { Database } from "lucide-react";
 
-type Tab = "news" | "events" | "artists" | "entrepreneurs" | "pending" | "sponsors" | "orphans" | "ranking" | "members" | "raffle" | "moderation" | "banners";
+type Tab = "news" | "events" | "artists" | "entrepreneurs" | "pending" | "sponsors" | "orphans" | "ranking" | "members" | "raffle" | "moderation" | "banners" | "database";
 
 const AdminDashboard = () => {
   const { loading, isAdmin } = useAdmin();
