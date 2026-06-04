@@ -69,6 +69,7 @@ const AdminDashboard = () => {
     { key: "raffle" as Tab, label: "Sorteio", icon: Gift },
     { key: "moderation" as Tab, label: "Moderação Social", icon: Shield },
     { key: "banners" as Tab, label: "Banners da Home", icon: Images },
+    { key: "database" as Tab, label: "Banco de Dados", icon: Database },
   ];
 
   return (
