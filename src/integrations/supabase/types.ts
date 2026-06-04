@@ -889,6 +889,7 @@ export type Database = {
       banner_increment_click: { Args: { _id: string }; Returns: undefined }
       banner_increment_view: { Args: { _id: string }; Returns: undefined }
       decrement_fan_count: { Args: { _artist_id: string }; Returns: number }
+      event_attendees_count: { Args: { _event_id: string }; Returns: number }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
