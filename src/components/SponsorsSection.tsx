@@ -35,11 +35,11 @@ const SponsorsSection = () => {
       <p className="text-muted-foreground mb-8 max-w-2xl">
         Empresas e parceiros que apoiam a cultura pop na Amazônia.
       </p>
-      <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
         {hasSponsors ? (
           sponsors.map((sponsor) => {
             const content = (
-              <div className="w-[10.5rem] h-[10.5rem] md:w-[13.5rem] md:h-[13.5rem] rounded-xl bg-card border border-border/50 flex items-center justify-center p-4 transition-all hover:border-primary/30 hover:shadow-md">
+              <div className="aspect-square w-full rounded-2xl bg-card border border-border/60 flex items-center justify-center p-5 shadow-sm transition-all duration-300 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-0.5">
                 <img
                   src={sponsor.logo_url}
                   alt={sponsor.name}
@@ -69,13 +69,14 @@ const SponsorsSection = () => {
           Array.from({ length: 5 }).map((_, i) => (
             <div
               key={i}
-              className="w-[10.5rem] h-[10.5rem] md:w-[13.5rem] md:h-[13.5rem] rounded-xl bg-card border border-border/50 flex items-center justify-center transition-all hover:border-primary/30 hover:shadow-md"
+              className="aspect-square w-full rounded-2xl bg-card border border-border/60 flex items-center justify-center shadow-sm transition-all duration-300 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10"
             >
               <span className="text-xs text-muted-foreground text-center px-2">Apoiador {i + 1}</span>
             </div>
           ))
         )}
       </div>
+
     </section>
   );
 };
