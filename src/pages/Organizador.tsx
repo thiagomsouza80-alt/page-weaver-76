@@ -13,7 +13,8 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import AdminTicketValidationPanel from "@/components/admin/AdminTicketValidationPanel";
-import { Plus, Pencil, Trash2, Loader2, Ticket, Clock, CheckCircle2, XCircle, QrCode } from "lucide-react";
+import OrganizerDashboard from "@/components/organizer/OrganizerDashboard";
+import { Plus, Pencil, Trash2, Loader2, Ticket, Clock, CheckCircle2, XCircle, QrCode, LayoutDashboard } from "lucide-react";
 
 
 const slugify = (t: string) =>
@@ -42,6 +43,7 @@ const OrganizadorPage = () => {
   const [location, setLocation] = useState("");
   const [eventDate, setEventDate] = useState("");
   const [ticketsEnabled, setTicketsEnabled] = useState(false);
+  const [ticketsTotal, setTicketsTotal] = useState<string>("");
 
   const load = async () => {
     setLoading(true);
@@ -60,7 +62,7 @@ const OrganizadorPage = () => {
 
   const resetForm = () => {
     setTitle(""); setDescription(""); setContent(""); setLocation(""); setEventDate("");
-    setTicketsEnabled(false); setImageFile(null); setEditing(null); setShowForm(false);
+    setTicketsEnabled(false); setTicketsTotal(""); setImageFile(null); setEditing(null); setShowForm(false);
   };
 
   const openEdit = (e: any) => {
@@ -68,8 +70,10 @@ const OrganizadorPage = () => {
     setTitle(e.title); setDescription(e.description); setContent(e.content);
     setLocation(e.location); setEventDate(e.event_date.slice(0, 16));
     setTicketsEnabled(!!e.tickets_enabled);
+    setTicketsTotal(e.tickets_total ? String(e.tickets_total) : "");
     setShowForm(true);
   };
+
 
   const handleSubmit = async (ev: React.FormEvent) => {
     ev.preventDefault();
@@ -95,6 +99,7 @@ const OrganizadorPage = () => {
         event_date: new Date(eventDate).toISOString(),
         image_url: imageUrl,
         tickets_enabled: ticketsEnabled,
+        tickets_total: ticketsEnabled && ticketsTotal ? parseInt(ticketsTotal, 10) : null,
         organizer_id: organizer.id,
       };
 
@@ -180,11 +185,16 @@ const OrganizadorPage = () => {
         )}
 
         {organizer.approval_status === "approved" && (
-          <Tabs defaultValue="eventos" className="mt-6">
+          <Tabs defaultValue="dashboard" className="mt-6">
             <TabsList>
+              <TabsTrigger value="dashboard" className="gap-2"><LayoutDashboard className="h-4 w-4" />Dashboard</TabsTrigger>
               <TabsTrigger value="eventos" className="gap-2"><Ticket className="h-4 w-4" />Meus Eventos</TabsTrigger>
               <TabsTrigger value="validar" className="gap-2"><QrCode className="h-4 w-4" />Validar Ingressos</TabsTrigger>
             </TabsList>
+
+            <TabsContent value="dashboard" className="mt-6">
+              <OrganizerDashboard organizerId={organizer.id} />
+            </TabsContent>
 
             <TabsContent value="eventos" className="mt-6">
               {showForm && (
@@ -200,12 +210,19 @@ const OrganizadorPage = () => {
                   <div className="space-y-2"><Label>Imagem de capa</Label><Input type="file" accept="image/*" onChange={e => setImageFile(e.target.files?.[0] || null)} /></div>
                   <div className="flex items-start gap-3 p-4 rounded-lg border border-border bg-secondary/30">
                     <Ticket className="h-5 w-5 text-primary mt-0.5" />
-                    <div className="flex-1">
+                    <div className="flex-1 space-y-3">
                       <div className="flex items-center justify-between">
                         <Label htmlFor="te" className="cursor-pointer font-semibold">🎟️ Adquirir Ingresso</Label>
                         <Switch id="te" checked={ticketsEnabled} onCheckedChange={setTicketsEnabled} />
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1">Permite que usuários autenticados resgatem ingresso gratuito.</p>
+                      <p className="text-xs text-muted-foreground">Permite que usuários autenticados resgatem ingresso gratuito.</p>
+                      {ticketsEnabled && (
+                        <div className="space-y-1.5 pt-2">
+                          <Label htmlFor="tt" className="text-sm">Quantidade Total de Ingressos *</Label>
+                          <Input id="tt" type="number" min={1} step={1} value={ticketsTotal} onChange={e => setTicketsTotal(e.target.value)} placeholder="Ex: 500" required />
+                          <p className="text-xs text-muted-foreground">Quando atingir esse limite, o evento será marcado como esgotado automaticamente.</p>
+                        </div>
+                      )}
                     </div>
                   </div>
                   <p className="text-xs text-muted-foreground">⚠️ Após salvar, o evento será enviado para aprovação do administrador antes de aparecer publicamente.</p>

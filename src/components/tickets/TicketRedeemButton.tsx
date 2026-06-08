@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -35,6 +35,27 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
   const [submitting, setSubmitting] = useState(false);
   const [issued, setIssued] = useState<any | null>(null);
   const [alreadyHas, setAlreadyHas] = useState(false);
+  const [soldOut, setSoldOut] = useState(false);
+
+  useEffect(() => {
+    const check = async () => {
+      const { data: ev } = await supabase.from("events").select("tickets_total").eq("id", eventId).maybeSingle();
+      const total = (ev as any)?.tickets_total as number | null;
+      if (!total) { setSoldOut(false); return; }
+      const { count } = await supabase
+        .from("tickets" as any)
+        .select("id", { count: "exact", head: true })
+        .eq("event_id", eventId)
+        .neq("status", "cancelled");
+      setSoldOut((count || 0) >= total);
+    };
+    check();
+    const ch = supabase
+      .channel(`evt-${eventId}-sold`)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "tickets", filter: `event_id=eq.${eventId}` }, () => check())
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [eventId]);
 
 
   const openDialog = async () => {
@@ -147,10 +168,17 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
 
   return (
     <>
-      <Button onClick={openDialog} size="lg" className="gap-2">
-        <Ticket className="h-5 w-5" />
-        {label}
-      </Button>
+      {soldOut ? (
+        <Button size="lg" disabled variant="outline" className="gap-2">
+          <Ticket className="h-5 w-5" />
+          Esgotado
+        </Button>
+      ) : (
+        <Button onClick={openDialog} size="lg" className="gap-2">
+          <Ticket className="h-5 w-5" />
+          {label}
+        </Button>
+      )}
 
       <Dialog open={open} onOpenChange={(v) => !v && close()}>
         <DialogContent>

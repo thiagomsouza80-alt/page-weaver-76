@@ -24,6 +24,7 @@ import EmpreendedorDetalhe from "./pages/EmpreendedorDetalhe.tsx";
 import Empreendedores from "./pages/Empreendedores.tsx";
 import SocialPop from "./pages/SocialPop.tsx";
 import Organizador from "./pages/Organizador.tsx";
+import OrganizadorEvento from "./pages/OrganizadorEvento.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -59,6 +60,7 @@ const App = () => (
           <Route path="/social" element={<SocialPop />} />
           <Route path="/cadastro-organizador" element={<Cadastro />} />
           <Route path="/organizador" element={<Organizador />} />
+          <Route path="/organizador/eventos/:id" element={<OrganizadorEvento />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
