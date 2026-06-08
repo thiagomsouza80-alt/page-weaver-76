@@ -43,6 +43,7 @@ const OrganizadorPage = () => {
   const [location, setLocation] = useState("");
   const [eventDate, setEventDate] = useState("");
   const [ticketsEnabled, setTicketsEnabled] = useState(false);
+  const [ticketsTotal, setTicketsTotal] = useState<string>("");
 
   const load = async () => {
     setLoading(true);
