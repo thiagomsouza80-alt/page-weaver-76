@@ -21,18 +21,21 @@ import { downloadTicketPdf } from "@/lib/ticketPdf";
 interface Props {
   eventId: string;
   eventTitle?: string;
+  eventDate?: string;
+  eventLocation?: string;
   label?: string;
 }
 
-const TicketRedeemButton = ({ eventId, eventTitle, label = "Adquirir Ingresso" }: Props) => {
+const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, label = "Adquirir Ingresso" }: Props) => {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [form, setForm] = useState({ name: "", email: "", phone: "" });
   const [submitting, setSubmitting] = useState(false);
-  const [issued, setIssued] = useState<{ code: string } | null>(null);
+  const [issued, setIssued] = useState<any | null>(null);
   const [alreadyHas, setAlreadyHas] = useState(false);
+
 
   const openDialog = async () => {
     setOpen(true);
