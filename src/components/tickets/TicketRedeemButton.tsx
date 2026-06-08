@@ -35,6 +35,27 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
   const [submitting, setSubmitting] = useState(false);
   const [issued, setIssued] = useState<any | null>(null);
   const [alreadyHas, setAlreadyHas] = useState(false);
+  const [soldOut, setSoldOut] = useState(false);
+
+  useEffect(() => {
+    const check = async () => {
+      const { data: ev } = await supabase.from("events").select("tickets_total").eq("id", eventId).maybeSingle();
+      const total = (ev as any)?.tickets_total as number | null;
+      if (!total) { setSoldOut(false); return; }
+      const { count } = await supabase
+        .from("tickets" as any)
+        .select("id", { count: "exact", head: true })
+        .eq("event_id", eventId)
+        .neq("status", "cancelled");
+      setSoldOut((count || 0) >= total);
+    };
+    check();
+    const ch = supabase
+      .channel(`evt-${eventId}-sold`)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "tickets", filter: `event_id=eq.${eventId}` }, () => check())
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [eventId]);
 
 
   const openDialog = async () => {
