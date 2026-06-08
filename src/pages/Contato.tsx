@@ -63,7 +63,7 @@ const Contato = () => {
         <p className="text-muted-foreground mb-8 animate-fade-up-delay-1">Envie sua mensagem, dúvida ou sugestão para a equipe Amazônia Pop.</p>
         <div className="grid sm:grid-cols-2 gap-3 mb-10 animate-fade-up-delay-1">
           <a
-            href="https://wa.me/5591986439850"
+            href="https://wa.me/5591993554881"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-3 p-4 rounded-lg bg-card border border-border hover:border-primary hover:bg-primary/5 transition-all"
@@ -71,7 +71,7 @@ const Contato = () => {
             <MessageCircle className="h-5 w-5 text-primary shrink-0" />
             <div>
               <p className="text-xs text-muted-foreground">WhatsApp</p>
-              <p className="text-sm font-medium">(91) 98643-9850</p>
+              <p className="text-sm font-medium">(91) 9355-4881</p>
             </div>
           </a>
           <a
