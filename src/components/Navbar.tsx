@@ -164,10 +164,18 @@ const Navbar = () => {
             </Link>
           ))}
           {isLoggedIn ? (
-            <Link to="/meu-perfil" onClick={() => setMobileOpen(false)} className="flex items-center gap-3">
-              <ProfileAvatar size="md" />
-              <span className="text-sm font-medium text-primary">{profileName}</span>
-            </Link>
+            <>
+              {isOrganizer && (
+                <Link to="/organizador" onClick={() => setMobileOpen(false)} className="flex items-center gap-3">
+                  <CalendarDays className="h-5 w-5 text-primary" />
+                  <span className="text-sm font-medium text-primary">Painel do Organizador</span>
+                </Link>
+              )}
+              <Link to="/meu-perfil" onClick={() => setMobileOpen(false)} className="flex items-center gap-3">
+                <ProfileAvatar size="md" />
+                <span className="text-sm font-medium text-primary">{profileName}</span>
+              </Link>
+            </>
           ) : (
             <>
               <Link to="/cadastro" onClick={() => setMobileOpen(false)}>
