@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { membershipTypes, membershipDescriptions, membershipPaymentInfo } from "@/lib/membership";
 import ShareButtons from "@/components/ShareButtons";
 import MyProductsSection from "@/components/social/MyProductsSection";
+import MeusIngressosSection from "@/components/tickets/MeusIngressosSection";
 
 type ProfileType = "artist" | "entrepreneur" | null;
 
@@ -439,6 +440,10 @@ const MeuPerfil = () => {
                 </div>
               </div>
             )}
+          </div>
+
+          <div className="mt-8">
+            <MeusIngressosSection />
           </div>
         </div>
         <Footer />

@@ -294,6 +294,7 @@ export type Database = {
           location: string
           published: boolean
           slug: string
+          tickets_enabled: boolean
           title: string
           updated_at: string
         }
@@ -309,6 +310,7 @@ export type Database = {
           location: string
           published?: boolean
           slug: string
+          tickets_enabled?: boolean
           title: string
           updated_at?: string
         }
@@ -324,6 +326,7 @@ export type Database = {
           location?: string
           published?: boolean
           slug?: string
+          tickets_enabled?: boolean
           title?: string
           updated_at?: string
         }
@@ -415,8 +418,10 @@ export type Database = {
           image_position: string
           image_url: string | null
           published: boolean
+          related_event_id: string | null
           slug: string
           summary: string
+          tickets_enabled: boolean
           title: string
           updated_at: string
         }
@@ -430,8 +435,10 @@ export type Database = {
           image_position?: string
           image_url?: string | null
           published?: boolean
+          related_event_id?: string | null
           slug: string
           summary: string
+          tickets_enabled?: boolean
           title: string
           updated_at?: string
         }
@@ -445,12 +452,22 @@ export type Database = {
           image_position?: string
           image_url?: string | null
           published?: boolean
+          related_event_id?: string | null
           slug?: string
           summary?: string
+          tickets_enabled?: boolean
           title?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "news_related_event_id_fkey"
+            columns: ["related_event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       social_comments: {
         Row: {
@@ -863,6 +880,83 @@ export type Database = {
         }
         Relationships: []
       }
+      tickets: {
+        Row: {
+          batch_id: string | null
+          code: string
+          created_at: string
+          event_id: string
+          holder_email: string
+          holder_name: string
+          holder_phone: string
+          id: string
+          issued_at: string
+          payment_method: string | null
+          payment_reference: string | null
+          payment_status: string
+          platform_fee_cents: number
+          price_cents: number
+          qr_token: string
+          status: string
+          updated_at: string
+          used_at: string | null
+          used_by: string | null
+          user_id: string
+        }
+        Insert: {
+          batch_id?: string | null
+          code?: string
+          created_at?: string
+          event_id: string
+          holder_email: string
+          holder_name: string
+          holder_phone: string
+          id?: string
+          issued_at?: string
+          payment_method?: string | null
+          payment_reference?: string | null
+          payment_status?: string
+          platform_fee_cents?: number
+          price_cents?: number
+          qr_token?: string
+          status?: string
+          updated_at?: string
+          used_at?: string | null
+          used_by?: string | null
+          user_id: string
+        }
+        Update: {
+          batch_id?: string | null
+          code?: string
+          created_at?: string
+          event_id?: string
+          holder_email?: string
+          holder_name?: string
+          holder_phone?: string
+          id?: string
+          issued_at?: string
+          payment_method?: string | null
+          payment_reference?: string | null
+          payment_status?: string
+          platform_fee_cents?: number
+          price_cents?: number
+          qr_token?: string
+          status?: string
+          updated_at?: string
+          used_at?: string | null
+          used_by?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tickets_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
@@ -890,6 +984,7 @@ export type Database = {
       banner_increment_view: { Args: { _id: string }; Returns: undefined }
       decrement_fan_count: { Args: { _artist_id: string }; Returns: number }
       event_attendees_count: { Args: { _event_id: string }; Returns: number }
+      generate_ticket_code: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

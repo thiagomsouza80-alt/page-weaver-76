@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import { Loader2, ArrowLeft, CalendarDays, MapPin } from "lucide-react";
 import EuVouButton from "@/components/EuVouButton";
 import ShareButtons from "@/components/ShareButtons";
+import TicketRedeemButton from "@/components/tickets/TicketRedeemButton";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Event = Tables<"events">;
@@ -74,6 +75,9 @@ const EventoDetalhe = () => {
 
         <div className="mb-8 flex flex-wrap items-center gap-4">
           <EuVouButton eventId={item.id} />
+          {(item as any).tickets_enabled && (
+            <TicketRedeemButton eventId={item.id} eventTitle={item.title} />
+          )}
           <ShareButtons label="Compartilhar evento" />
         </div>
 
