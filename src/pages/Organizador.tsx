@@ -205,12 +205,19 @@ const OrganizadorPage = () => {
                   <div className="space-y-2"><Label>Imagem de capa</Label><Input type="file" accept="image/*" onChange={e => setImageFile(e.target.files?.[0] || null)} /></div>
                   <div className="flex items-start gap-3 p-4 rounded-lg border border-border bg-secondary/30">
                     <Ticket className="h-5 w-5 text-primary mt-0.5" />
-                    <div className="flex-1">
+                    <div className="flex-1 space-y-3">
                       <div className="flex items-center justify-between">
                         <Label htmlFor="te" className="cursor-pointer font-semibold">🎟️ Adquirir Ingresso</Label>
                         <Switch id="te" checked={ticketsEnabled} onCheckedChange={setTicketsEnabled} />
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1">Permite que usuários autenticados resgatem ingresso gratuito.</p>
+                      <p className="text-xs text-muted-foreground">Permite que usuários autenticados resgatem ingresso gratuito.</p>
+                      {ticketsEnabled && (
+                        <div className="space-y-1.5 pt-2">
+                          <Label htmlFor="tt" className="text-sm">Quantidade Total de Ingressos *</Label>
+                          <Input id="tt" type="number" min={1} step={1} value={ticketsTotal} onChange={e => setTicketsTotal(e.target.value)} placeholder="Ex: 500" required />
+                          <p className="text-xs text-muted-foreground">Quando atingir esse limite, o evento será marcado como esgotado automaticamente.</p>
+                        </div>
+                      )}
                     </div>
                   </div>
                   <p className="text-xs text-muted-foreground">⚠️ Após salvar, o evento será enviado para aprovação do administrador antes de aparecer publicamente.</p>
