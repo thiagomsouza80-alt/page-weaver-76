@@ -155,7 +155,7 @@ const NoticiaDetalhe = () => {
   const [item, setItem] = useState<News | null>(null);
   const [loading, setLoading] = useState(true);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
-  const [relatedEvent, setRelatedEvent] = useState<{ id: string; title: string } | null>(null);
+  const [relatedEvent, setRelatedEvent] = useState<{ id: string; title: string; event_date?: string; location?: string } | null>(null);
 
   const fallback = slug ? fallbackNews[slug] : undefined;
 
