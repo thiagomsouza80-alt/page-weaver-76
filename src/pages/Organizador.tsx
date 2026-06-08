@@ -179,64 +179,83 @@ const OrganizadorPage = () => {
           </div>
         )}
 
-        {showForm && organizer.approval_status === "approved" && (
-          <form onSubmit={handleSubmit} className="bg-card rounded-xl border border-border p-6 mb-8 space-y-5">
-            <h3 className="font-semibold text-lg">{editing ? "Editar Evento" : "Novo Evento"}</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              <div className="space-y-2"><Label>Título *</Label><Input value={title} onChange={e => setTitle(e.target.value)} required /></div>
-              <div className="space-y-2"><Label>Data e Hora *</Label><Input type="datetime-local" value={eventDate} onChange={e => setEventDate(e.target.value)} required /></div>
-            </div>
-            <div className="space-y-2"><Label>Local *</Label><Input value={location} onChange={e => setLocation(e.target.value)} required /></div>
-            <div className="space-y-2"><Label>Descrição curta *</Label><Textarea value={description} onChange={e => setDescription(e.target.value)} rows={2} required /></div>
-            <div className="space-y-2"><Label>Conteúdo completo *</Label><Textarea value={content} onChange={e => setContent(e.target.value)} rows={8} required /></div>
-            <div className="space-y-2"><Label>Imagem de capa</Label><Input type="file" accept="image/*" onChange={e => setImageFile(e.target.files?.[0] || null)} /></div>
-            <div className="flex items-start gap-3 p-4 rounded-lg border border-border bg-secondary/30">
-              <Ticket className="h-5 w-5 text-primary mt-0.5" />
-              <div className="flex-1">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="te" className="cursor-pointer font-semibold">🎟️ Adquirir Ingresso</Label>
-                  <Switch id="te" checked={ticketsEnabled} onCheckedChange={setTicketsEnabled} />
+        {organizer.approval_status === "approved" && (
+          <Tabs defaultValue="eventos" className="mt-6">
+            <TabsList>
+              <TabsTrigger value="eventos" className="gap-2"><Ticket className="h-4 w-4" />Meus Eventos</TabsTrigger>
+              <TabsTrigger value="validar" className="gap-2"><QrCode className="h-4 w-4" />Validar Ingressos</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="eventos" className="mt-6">
+              {showForm && (
+                <form onSubmit={handleSubmit} className="bg-card rounded-xl border border-border p-6 mb-8 space-y-5">
+                  <h3 className="font-semibold text-lg">{editing ? "Editar Evento" : "Novo Evento"}</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div className="space-y-2"><Label>Título *</Label><Input value={title} onChange={e => setTitle(e.target.value)} required /></div>
+                    <div className="space-y-2"><Label>Data e Hora *</Label><Input type="datetime-local" value={eventDate} onChange={e => setEventDate(e.target.value)} required /></div>
+                  </div>
+                  <div className="space-y-2"><Label>Local *</Label><Input value={location} onChange={e => setLocation(e.target.value)} required /></div>
+                  <div className="space-y-2"><Label>Descrição curta *</Label><Textarea value={description} onChange={e => setDescription(e.target.value)} rows={2} required /></div>
+                  <div className="space-y-2"><Label>Conteúdo completo *</Label><Textarea value={content} onChange={e => setContent(e.target.value)} rows={8} required /></div>
+                  <div className="space-y-2"><Label>Imagem de capa</Label><Input type="file" accept="image/*" onChange={e => setImageFile(e.target.files?.[0] || null)} /></div>
+                  <div className="flex items-start gap-3 p-4 rounded-lg border border-border bg-secondary/30">
+                    <Ticket className="h-5 w-5 text-primary mt-0.5" />
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="te" className="cursor-pointer font-semibold">🎟️ Adquirir Ingresso</Label>
+                        <Switch id="te" checked={ticketsEnabled} onCheckedChange={setTicketsEnabled} />
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">Permite que usuários autenticados resgatem ingresso gratuito.</p>
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground">⚠️ Após salvar, o evento será enviado para aprovação do administrador antes de aparecer publicamente.</p>
+                  <div className="flex gap-3">
+                    <Button type="submit" disabled={submitting}>{submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : (editing ? "Salvar" : "Enviar para aprovação")}</Button>
+                    <Button type="button" variant="ghost" onClick={resetForm}>Cancelar</Button>
+                  </div>
+                </form>
+              )}
+
+              <h2 className="text-xl font-semibold mb-4">Meus Eventos</h2>
+              {events.length === 0 ? (
+                <p className="text-muted-foreground text-center py-12">Você ainda não criou nenhum evento.</p>
+              ) : (
+                <div className="space-y-3">
+                  {events.map(item => (
+                    <div key={item.id} className="bg-card rounded-xl border border-border p-4 flex items-center gap-4">
+                      {item.image_url && <img src={item.image_url} alt="" className="w-16 h-16 rounded-lg object-cover shrink-0" />}
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-semibold text-sm truncate">{item.title}</h4>
+                        <p className="text-xs text-muted-foreground">{new Date(item.event_date).toLocaleDateString("pt-BR")} • {item.location}</p>
+                        <div className="flex gap-2 mt-2 items-center">
+                          <StatusBadge status={item.approval_status} />
+                          {item.published && item.approval_status === "approved" && (
+                            <Badge variant="outline" className="text-xs">Publicado</Badge>
+                          )}
+                          {item.tickets_enabled && (
+                            <Badge variant="outline" className="text-xs gap-1"><Ticket className="h-3 w-3" />Ingressos</Badge>
+                          )}
+                        </div>
+                        {item.approval_status === "rejected" && item.rejection_reason && (
+                          <p className="text-xs text-destructive mt-1">Motivo: {item.rejection_reason}</p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <Button variant="ghost" size="icon" onClick={() => openEdit(item)}><Pencil className="h-4 w-4" /></Button>
+                        <Button variant="ghost" size="icon" onClick={() => deleteEvent(item.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">Permite que usuários autenticados resgatem ingresso gratuito.</p>
-              </div>
-            </div>
-            <p className="text-xs text-muted-foreground">⚠️ Após salvar, o evento será enviado para aprovação do administrador antes de aparecer publicamente.</p>
-            <div className="flex gap-3">
-              <Button type="submit" disabled={submitting}>{submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : (editing ? "Salvar" : "Enviar para aprovação")}</Button>
-              <Button type="button" variant="ghost" onClick={resetForm}>Cancelar</Button>
-            </div>
-          </form>
+              )}
+            </TabsContent>
+
+            <TabsContent value="validar" className="mt-6">
+              <AdminTicketValidationPanel />
+            </TabsContent>
+          </Tabs>
         )}
 
-        <h2 className="text-xl font-semibold mb-4">Meus Eventos</h2>
-        {events.length === 0 ? (
-          <p className="text-muted-foreground text-center py-12">Você ainda não criou nenhum evento.</p>
-        ) : (
-          <div className="space-y-3">
-            {events.map(item => (
-              <div key={item.id} className="bg-card rounded-xl border border-border p-4 flex items-center gap-4">
-                {item.image_url && <img src={item.image_url} alt="" className="w-16 h-16 rounded-lg object-cover shrink-0" />}
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-semibold text-sm truncate">{item.title}</h4>
-                  <p className="text-xs text-muted-foreground">{new Date(item.event_date).toLocaleDateString("pt-BR")} • {item.location}</p>
-                  <div className="flex gap-2 mt-2 items-center">
-                    <StatusBadge status={item.approval_status} />
-                    {item.published && item.approval_status === "approved" && (
-                      <Badge variant="outline" className="text-xs">Publicado</Badge>
-                    )}
-                  </div>
-                  {item.approval_status === "rejected" && item.rejection_reason && (
-                    <p className="text-xs text-destructive mt-1">Motivo: {item.rejection_reason}</p>
-                  )}
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <Button variant="ghost" size="icon" onClick={() => openEdit(item)}><Pencil className="h-4 w-4" /></Button>
-                  <Button variant="ghost" size="icon" onClick={() => deleteEvent(item.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
       <Footer />
     </div>
