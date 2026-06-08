@@ -1,4 +1,4 @@
-import { User, Menu, X, Shield, LogIn } from "lucide-react";
+import { User, Menu, X, Shield, LogIn, CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -22,6 +22,7 @@ const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isOrganizer, setIsOrganizer] = useState(false);
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [profileName, setProfileName] = useState<string>("");
 
@@ -52,8 +53,15 @@ const Navbar = () => {
 
     const checkAdminAndProfile = async (userId: string) => {
       fetchProfile(userId);
-      const { data } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
-      setIsAdmin(!!data);
+      const { data: adminData } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
+      setIsAdmin(!!adminData);
+      const { data: orgData } = await supabase
+        .from("organizers")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("approval_status", "approved")
+        .maybeSingle();
+      setIsOrganizer(!!orgData);
     };
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -64,6 +72,7 @@ const Navbar = () => {
         setProfileImage(null);
         setProfileName("");
         setIsAdmin(false);
+        setIsOrganizer(false);
       }
     });
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -103,10 +112,18 @@ const Navbar = () => {
       <div className="flex items-center gap-3">
         {isLoggedIn && <NotificationsBell />}
         {isLoggedIn ? (
-          <Link to="/meu-perfil" className="hidden md:flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <ProfileAvatar />
-            <span className="text-sm font-medium text-primary">{profileName.split(" ")[0]}</span>
-          </Link>
+          <>
+            {isOrganizer && (
+              <Link to="/organizador" className="hidden md:flex items-center gap-2 hover:opacity-80 transition-opacity">
+                <CalendarDays className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium text-primary">Painel do Organizador</span>
+              </Link>
+            )}
+            <Link to="/meu-perfil" className="hidden md:flex items-center gap-2 hover:opacity-80 transition-opacity">
+              <ProfileAvatar />
+              <span className="text-sm font-medium text-primary">{profileName.split(" ")[0]}</span>
+            </Link>
+          </>
         ) : (
           <>
             <Link to="/cadastro">
@@ -147,10 +164,18 @@ const Navbar = () => {
             </Link>
           ))}
           {isLoggedIn ? (
-            <Link to="/meu-perfil" onClick={() => setMobileOpen(false)} className="flex items-center gap-3">
-              <ProfileAvatar size="md" />
-              <span className="text-sm font-medium text-primary">{profileName}</span>
-            </Link>
+            <>
+              {isOrganizer && (
+                <Link to="/organizador" onClick={() => setMobileOpen(false)} className="flex items-center gap-3">
+                  <CalendarDays className="h-5 w-5 text-primary" />
+                  <span className="text-sm font-medium text-primary">Painel do Organizador</span>
+                </Link>
+              )}
+              <Link to="/meu-perfil" onClick={() => setMobileOpen(false)} className="flex items-center gap-3">
+                <ProfileAvatar size="md" />
+                <span className="text-sm font-medium text-primary">{profileName}</span>
+              </Link>
+            </>
           ) : (
             <>
               <Link to="/cadastro" onClick={() => setMobileOpen(false)}>
