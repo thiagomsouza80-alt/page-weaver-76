@@ -283,6 +283,7 @@ export type Database = {
       }
       events: {
         Row: {
+          approval_status: string
           author_id: string | null
           content: string
           created_at: string
@@ -292,13 +293,16 @@ export type Database = {
           image_position: string
           image_url: string | null
           location: string
+          organizer_id: string | null
           published: boolean
+          rejection_reason: string | null
           slug: string
           tickets_enabled: boolean
           title: string
           updated_at: string
         }
         Insert: {
+          approval_status?: string
           author_id?: string | null
           content: string
           created_at?: string
@@ -308,13 +312,16 @@ export type Database = {
           image_position?: string
           image_url?: string | null
           location: string
+          organizer_id?: string | null
           published?: boolean
+          rejection_reason?: string | null
           slug: string
           tickets_enabled?: boolean
           title: string
           updated_at?: string
         }
         Update: {
+          approval_status?: string
           author_id?: string | null
           content?: string
           created_at?: string
@@ -324,13 +331,23 @@ export type Database = {
           image_position?: string
           image_url?: string | null
           location?: string
+          organizer_id?: string | null
           published?: boolean
+          rejection_reason?: string | null
           slug?: string
           tickets_enabled?: boolean
           title?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "events_organizer_id_fkey"
+            columns: ["organizer_id"]
+            isOneToOne: false
+            referencedRelation: "organizers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       fan_clicks: {
         Row: {
@@ -468,6 +485,63 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      organizers: {
+        Row: {
+          approval_status: string
+          approved_at: string | null
+          bio: string | null
+          created_at: string
+          document: string | null
+          email: string
+          id: string
+          instagram: string | null
+          logo_url: string | null
+          name: string
+          organization_name: string
+          phone: string
+          rejection_reason: string | null
+          updated_at: string
+          user_id: string
+          website: string | null
+        }
+        Insert: {
+          approval_status?: string
+          approved_at?: string | null
+          bio?: string | null
+          created_at?: string
+          document?: string | null
+          email: string
+          id?: string
+          instagram?: string | null
+          logo_url?: string | null
+          name: string
+          organization_name: string
+          phone: string
+          rejection_reason?: string | null
+          updated_at?: string
+          user_id: string
+          website?: string | null
+        }
+        Update: {
+          approval_status?: string
+          approved_at?: string | null
+          bio?: string | null
+          created_at?: string
+          document?: string | null
+          email?: string
+          id?: string
+          instagram?: string | null
+          logo_url?: string | null
+          name?: string
+          organization_name?: string
+          phone?: string
+          rejection_reason?: string | null
+          updated_at?: string
+          user_id?: string
+          website?: string | null
+        }
+        Relationships: []
       }
       social_comments: {
         Row: {
@@ -1008,7 +1082,7 @@ export type Database = {
       social_increment_shares: { Args: { _post_id: string }; Returns: number }
     }
     Enums: {
-      app_role: "admin" | "user"
+      app_role: "admin" | "user" | "organizer"
       artist_segment:
         | "cosplayer"
         | "cosmaker"
@@ -1147,7 +1221,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user"],
+      app_role: ["admin", "user", "organizer"],
       artist_segment: [
         "cosplayer",
         "cosmaker",
