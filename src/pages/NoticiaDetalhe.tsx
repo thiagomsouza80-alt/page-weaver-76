@@ -165,7 +165,7 @@ const NoticiaDetalhe = () => {
       setItem(data);
       const relId = (data as any)?.related_event_id;
       if (data && (data as any).tickets_enabled && relId) {
-        const { data: ev } = await supabase.from("events").select("id, title").eq("id", relId).maybeSingle();
+        const { data: ev } = await supabase.from("events").select("id, title, event_date, location").eq("id", relId).maybeSingle();
         if (ev) setRelatedEvent(ev as any);
       }
       setLoading(false);
