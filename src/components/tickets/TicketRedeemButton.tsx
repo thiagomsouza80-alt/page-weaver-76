@@ -168,10 +168,17 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
 
   return (
     <>
-      <Button onClick={openDialog} size="lg" className="gap-2">
-        <Ticket className="h-5 w-5" />
-        {label}
-      </Button>
+      {soldOut ? (
+        <Button size="lg" disabled variant="outline" className="gap-2">
+          <Ticket className="h-5 w-5" />
+          Esgotado
+        </Button>
+      ) : (
+        <Button onClick={openDialog} size="lg" className="gap-2">
+          <Ticket className="h-5 w-5" />
+          {label}
+        </Button>
+      )}
 
       <Dialog open={open} onOpenChange={(v) => !v && close()}>
         <DialogContent>
