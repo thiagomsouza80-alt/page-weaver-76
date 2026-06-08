@@ -11,7 +11,10 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, Loader2, Ticket, Clock, CheckCircle2, XCircle } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import AdminTicketValidationPanel from "@/components/admin/AdminTicketValidationPanel";
+import { Plus, Pencil, Trash2, Loader2, Ticket, Clock, CheckCircle2, XCircle, QrCode } from "lucide-react";
+
 
 const slugify = (t: string) =>
   t.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
