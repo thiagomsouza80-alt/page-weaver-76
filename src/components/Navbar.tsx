@@ -72,6 +72,7 @@ const Navbar = () => {
         setProfileImage(null);
         setProfileName("");
         setIsAdmin(false);
+        setIsOrganizer(false);
       }
     });
     supabase.auth.getSession().then(({ data: { session } }) => {
