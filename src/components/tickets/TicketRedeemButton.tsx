@@ -54,17 +54,18 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
     // Já possui ingresso ativo?
     const { data: existing } = await supabase
       .from("tickets" as any)
-      .select("code")
+      .select("id, code, qr_token, status, holder_name, issued_at")
       .eq("event_id", eventId)
       .eq("user_id", session.user.id)
       .eq("status", "active")
       .maybeSingle();
     if (existing) {
       setAlreadyHas(true);
-      setIssued({ code: (existing as any).code });
+      setIssued(existing);
       setAuthChecked(true);
       return;
     }
+
 
     // Pré-preencher
     let name = "";
