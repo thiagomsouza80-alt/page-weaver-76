@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { QRCodeSVG } from "qrcode.react";
-import { Loader2, Ticket, CalendarDays, MapPin } from "lucide-react";
+import { Loader2, Ticket } from "lucide-react";
+import TicketCard from "./TicketCard";
 
 interface TicketItem {
   id: string;
@@ -10,14 +10,9 @@ interface TicketItem {
   status: string;
   event_id: string;
   issued_at: string;
+  holder_name?: string;
   events?: { title: string; event_date: string; location: string; slug: string } | null;
 }
-
-const statusLabel: Record<string, { label: string; cls: string }> = {
-  active: { label: "Ativo", cls: "bg-green-500/10 text-green-600 dark:text-green-400" },
-  used: { label: "Utilizado", cls: "bg-muted text-muted-foreground" },
-  cancelled: { label: "Cancelado", cls: "bg-destructive/10 text-destructive" },
-};
 
 const MeusIngressosSection = () => {
   const [items, setItems] = useState<TicketItem[]>([]);
@@ -27,7 +22,7 @@ const MeusIngressosSection = () => {
     (async () => {
       const { data } = await supabase
         .from("tickets" as any)
-        .select("id, code, qr_token, status, event_id, issued_at, events:event_id(title, event_date, location, slug)")
+        .select("id, code, qr_token, status, event_id, issued_at, holder_name, events:event_id(title, event_date, location, slug)")
         .order("issued_at", { ascending: false });
       setItems(((data as any) || []) as TicketItem[]);
       setLoading(false);
@@ -52,37 +47,19 @@ const MeusIngressosSection = () => {
         </div>
       ) : (
         <div className="space-y-4">
-          {items.map((t) => {
-            const s = statusLabel[t.status] || statusLabel.active;
-            return (
-              <div key={t.id} className="bg-background border border-border/50 rounded-xl p-5 flex flex-col sm:flex-row gap-5 items-center">
-                <div className="bg-white p-3 rounded-lg shrink-0">
-                  <QRCodeSVG value={t.qr_token} size={120} level="M" />
-                </div>
-                <div className="flex-1 text-center sm:text-left min-w-0">
-                  <h4 className="font-bold truncate">{t.events?.title || "Evento"}</h4>
-                  {t.events?.event_date && (
-                    <p className="text-xs text-muted-foreground flex items-center gap-1.5 justify-center sm:justify-start mt-1">
-                      <CalendarDays className="h-3.5 w-3.5" />
-                      {new Date(t.events.event_date).toLocaleString("pt-BR", {
-                        day: "2-digit", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit",
-                      })}
-                    </p>
-                  )}
-                  {t.events?.location && (
-                    <p className="text-xs text-muted-foreground flex items-center gap-1.5 justify-center sm:justify-start">
-                      <MapPin className="h-3.5 w-3.5" />
-                      {t.events.location}
-                    </p>
-                  )}
-                  <p className="text-lg font-bold tracking-widest mt-2">{t.code}</p>
-                  <span className={`inline-block mt-1 text-xs font-semibold px-2 py-0.5 rounded-full ${s.cls}`}>
-                    {s.label}
-                  </span>
-                </div>
-              </div>
-            );
-          })}
+          {items.map((t) => (
+            <TicketCard
+              key={t.id}
+              code={t.code}
+              qrToken={t.qr_token}
+              status={t.status}
+              holderName={t.holder_name}
+              eventTitle={t.events?.title}
+              eventDate={t.events?.event_date}
+              eventLocation={t.events?.location}
+              issuedAt={t.issued_at}
+            />
+          ))}
         </div>
       )}
     </div>
