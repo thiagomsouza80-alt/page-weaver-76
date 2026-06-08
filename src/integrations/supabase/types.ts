@@ -298,6 +298,7 @@ export type Database = {
           rejection_reason: string | null
           slug: string
           tickets_enabled: boolean
+          tickets_total: number | null
           title: string
           updated_at: string
         }
@@ -317,6 +318,7 @@ export type Database = {
           rejection_reason?: string | null
           slug: string
           tickets_enabled?: boolean
+          tickets_total?: number | null
           title: string
           updated_at?: string
         }
@@ -336,6 +338,7 @@ export type Database = {
           rejection_reason?: string | null
           slug?: string
           tickets_enabled?: boolean
+          tickets_total?: number | null
           title?: string
           updated_at?: string
         }
@@ -1058,6 +1061,7 @@ export type Database = {
       banner_increment_view: { Args: { _id: string }; Returns: undefined }
       decrement_fan_count: { Args: { _artist_id: string }; Returns: number }
       event_attendees_count: { Args: { _event_id: string }; Returns: number }
+      event_tickets_count: { Args: { _event_id: string }; Returns: number }
       generate_ticket_code: { Args: never; Returns: string }
       has_role: {
         Args: {
