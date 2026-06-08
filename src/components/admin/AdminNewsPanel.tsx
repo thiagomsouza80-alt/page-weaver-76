@@ -252,6 +252,35 @@ const AdminNewsPanel = () => {
             )}
           </div>
 
+          {/* Tickets toggle */}
+          <div className="flex items-start gap-3 p-4 rounded-lg border border-border bg-secondary/30">
+            <Ticket className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+            <div className="flex-1 space-y-3">
+              <div className="flex items-center justify-between gap-3">
+                <Label htmlFor="news_tickets_enabled" className="cursor-pointer font-semibold">🎟️ Adquirir Ingresso</Label>
+                <Switch id="news_tickets_enabled" checked={ticketsEnabled} onCheckedChange={setTicketsEnabled} />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Ative quando a notícia for relacionada a um evento e quiser exibir o botão de resgate de ingresso.
+              </p>
+              {ticketsEnabled && (
+                <div className="space-y-2">
+                  <Label className="text-xs">Evento relacionado *</Label>
+                  <Select value={relatedEventId} onValueChange={setRelatedEventId}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o evento vinculado" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {eventOptions.map((ev) => (
+                        <SelectItem key={ev.id} value={ev.id}>{ev.title}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </div>
+          </div>
+
           <div className="flex gap-3">
             <Button type="submit" disabled={submitting}>
               {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : editing ? "Salvar" : "Publicar"}
