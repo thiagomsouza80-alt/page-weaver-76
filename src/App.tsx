@@ -59,6 +59,7 @@ const App = () => (
           <Route path="/social" element={<SocialPop />} />
           <Route path="/cadastro-organizador" element={<Cadastro />} />
           <Route path="/organizador" element={<Organizador />} />
+          <Route path="/organizador/eventos/:id" element={<OrganizadorEvento />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
