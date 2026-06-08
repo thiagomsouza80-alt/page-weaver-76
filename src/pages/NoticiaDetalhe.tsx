@@ -155,7 +155,7 @@ const NoticiaDetalhe = () => {
   const [item, setItem] = useState<News | null>(null);
   const [loading, setLoading] = useState(true);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
-  const [relatedEvent, setRelatedEvent] = useState<{ id: string; title: string } | null>(null);
+  const [relatedEvent, setRelatedEvent] = useState<{ id: string; title: string; event_date?: string; location?: string } | null>(null);
 
   const fallback = slug ? fallbackNews[slug] : undefined;
 
@@ -165,7 +165,7 @@ const NoticiaDetalhe = () => {
       setItem(data);
       const relId = (data as any)?.related_event_id;
       if (data && (data as any).tickets_enabled && relId) {
-        const { data: ev } = await supabase.from("events").select("id, title").eq("id", relId).maybeSingle();
+        const { data: ev } = await supabase.from("events").select("id, title, event_date, location").eq("id", relId).maybeSingle();
         if (ev) setRelatedEvent(ev as any);
       }
       setLoading(false);
@@ -255,7 +255,7 @@ const NoticiaDetalhe = () => {
         <p className="text-lg text-muted-foreground mb-6">{item.summary}</p>
         <div className="mb-8 flex flex-wrap items-center gap-4">
           {(item as any).tickets_enabled && relatedEvent && (
-            <TicketRedeemButton eventId={relatedEvent.id} eventTitle={relatedEvent.title} label="Resgatar Ingresso" />
+            <TicketRedeemButton eventId={relatedEvent.id} eventTitle={relatedEvent.title} eventDate={relatedEvent.event_date} eventLocation={relatedEvent.location} label="Resgatar Ingresso" />
           )}
           <ShareButtons label="Compartilhar notícia" />
         </div>

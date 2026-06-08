@@ -14,22 +14,28 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Ticket, Loader2, CheckCircle, LogIn, UserPlus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import TicketCard from "./TicketCard";
+import { downloadTicketPdf } from "@/lib/ticketPdf";
+
 
 interface Props {
   eventId: string;
   eventTitle?: string;
+  eventDate?: string;
+  eventLocation?: string;
   label?: string;
 }
 
-const TicketRedeemButton = ({ eventId, eventTitle, label = "Adquirir Ingresso" }: Props) => {
+const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, label = "Adquirir Ingresso" }: Props) => {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [form, setForm] = useState({ name: "", email: "", phone: "" });
   const [submitting, setSubmitting] = useState(false);
-  const [issued, setIssued] = useState<{ code: string } | null>(null);
+  const [issued, setIssued] = useState<any | null>(null);
   const [alreadyHas, setAlreadyHas] = useState(false);
+
 
   const openDialog = async () => {
     setOpen(true);
@@ -48,17 +54,18 @@ const TicketRedeemButton = ({ eventId, eventTitle, label = "Adquirir Ingresso" }
     // Já possui ingresso ativo?
     const { data: existing } = await supabase
       .from("tickets" as any)
-      .select("code")
+      .select("id, code, qr_token, status, holder_name, issued_at")
       .eq("event_id", eventId)
       .eq("user_id", session.user.id)
       .eq("status", "active")
       .maybeSingle();
     if (existing) {
       setAlreadyHas(true);
-      setIssued({ code: (existing as any).code });
+      setIssued(existing);
       setAuthChecked(true);
       return;
     }
+
 
     // Pré-preencher
     let name = "";
@@ -107,11 +114,24 @@ const TicketRedeemButton = ({ eventId, eventTitle, label = "Adquirir Ingresso" }
           holder_email: email,
           holder_phone: phone,
         } as any)
-        .select("code")
+        .select("id, code, qr_token, status, holder_name, issued_at")
         .single();
       if (error) throw error;
-      setIssued({ code: (data as any).code });
+      setIssued(data);
       toast({ title: "Ingresso gerado!", description: `Código ${(data as any).code}` });
+      // Download PDF automaticamente
+      try {
+        await downloadTicketPdf({
+          code: (data as any).code,
+          qrToken: (data as any).qr_token,
+          holderName: name,
+          eventTitle,
+          eventDate,
+          eventLocation,
+          issuedAt: (data as any).issued_at,
+        });
+      } catch {}
+
     } catch (e: any) {
       toast({ title: "Erro ao gerar ingresso", description: e.message, variant: "destructive" });
     } finally {
@@ -164,17 +184,25 @@ const TicketRedeemButton = ({ eventId, eventTitle, label = "Adquirir Ingresso" }
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
                   <CheckCircle className="h-5 w-5 text-green-500" />
-                  {alreadyHas ? "Você já possui um ingresso" : "Ingresso gerado!"}
+                  {alreadyHas ? "Você já possui um ingresso" : "Ingresso gerado com sucesso!"}
                 </DialogTitle>
                 <DialogDescription>
                   {alreadyHas
-                    ? "Você já resgatou um ingresso para este evento. Veja em 'Meus Ingressos'."
-                    : 'Guarde o código abaixo. O ingresso completo está em "Meus Ingressos".'}
+                    ? "Veja abaixo seu ingresso completo. Você também pode baixá-lo em PDF."
+                    : "Seu ingresso está pronto. O PDF foi baixado automaticamente — você pode baixá-lo novamente abaixo."}
                 </DialogDescription>
               </DialogHeader>
-              <div className="my-4 p-6 rounded-xl bg-secondary text-center">
-                <p className="text-xs text-muted-foreground uppercase tracking-wider">Código do Ingresso</p>
-                <p className="text-3xl font-bold tracking-widest mt-2">{issued.code}</p>
+              <div className="my-4">
+                <TicketCard
+                  code={issued.code}
+                  qrToken={issued.qr_token}
+                  status={issued.status}
+                  holderName={issued.holder_name}
+                  eventTitle={eventTitle}
+                  eventDate={eventDate}
+                  eventLocation={eventLocation}
+                  issuedAt={issued.issued_at}
+                />
               </div>
               <DialogFooter className="gap-2 sm:gap-2">
                 <Link to="/meu-perfil">
@@ -184,6 +212,7 @@ const TicketRedeemButton = ({ eventId, eventTitle, label = "Adquirir Ingresso" }
               </DialogFooter>
             </>
           ) : (
+
             <>
               <DialogHeader>
                 <DialogTitle>Resgatar Ingresso</DialogTitle>

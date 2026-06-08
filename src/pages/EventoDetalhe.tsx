@@ -76,7 +76,7 @@ const EventoDetalhe = () => {
         <div className="mb-8 flex flex-wrap items-center gap-4">
           <EuVouButton eventId={item.id} />
           {(item as any).tickets_enabled && (
-            <TicketRedeemButton eventId={item.id} eventTitle={item.title} />
+            <TicketRedeemButton eventId={item.id} eventTitle={item.title} eventDate={item.event_date} eventLocation={item.location} />
           )}
           <ShareButtons label="Compartilhar evento" />
         </div>
