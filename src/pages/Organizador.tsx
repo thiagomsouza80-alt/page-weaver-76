@@ -13,7 +13,8 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import AdminTicketValidationPanel from "@/components/admin/AdminTicketValidationPanel";
-import { Plus, Pencil, Trash2, Loader2, Ticket, Clock, CheckCircle2, XCircle, QrCode } from "lucide-react";
+import OrganizerDashboard from "@/components/organizer/OrganizerDashboard";
+import { Plus, Pencil, Trash2, Loader2, Ticket, Clock, CheckCircle2, XCircle, QrCode, LayoutDashboard } from "lucide-react";
 
 
 const slugify = (t: string) =>
