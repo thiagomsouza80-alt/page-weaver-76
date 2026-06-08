@@ -5,8 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, Loader2, Eye, EyeOff, X, Image } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, Eye, EyeOff, X, Image, Ticket } from "lucide-react";
 import ImagePositionSelector from "@/components/admin/ImagePositionSelector";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -31,6 +33,9 @@ const AdminNewsPanel = () => {
   const [content, setContent] = useState("");
   const [category, setCategory] = useState("geral");
   const [imagePosition, setImagePosition] = useState("center");
+  const [ticketsEnabled, setTicketsEnabled] = useState(false);
+  const [relatedEventId, setRelatedEventId] = useState<string>("");
+  const [eventOptions, setEventOptions] = useState<{ id: string; title: string }[]>([]);
 
   const fetchItems = async () => {
     const { data } = await supabase.from("news").select("*").order("created_at", { ascending: false });
@@ -38,12 +43,18 @@ const AdminNewsPanel = () => {
     setLoading(false);
   };
 
-  useEffect(() => { fetchItems(); }, []);
+  const fetchEvents = async () => {
+    const { data } = await supabase.from("events").select("id, title").order("event_date", { ascending: false });
+    setEventOptions((data as any) || []);
+  };
+
+  useEffect(() => { fetchItems(); fetchEvents(); }, []);
 
   const resetForm = () => {
     setTitle(""); setSummary(""); setContent(""); setCategory("geral"); setImagePosition("center");
     setImageFile(null); setEditing(null); setShowForm(false);
     setGalleryFiles([]); setGalleryPreviews([]); setExistingGallery([]);
+    setTicketsEnabled(false); setRelatedEventId("");
   };
 
   const openEdit = (item: News) => {
@@ -53,8 +64,11 @@ const AdminNewsPanel = () => {
     setContent(item.content);
     setCategory(item.category);
     setImagePosition((item as any).image_position || "center");
+    setTicketsEnabled(Boolean((item as any).tickets_enabled));
+    setRelatedEventId((item as any).related_event_id || "");
     setGalleryFiles([]);
     setGalleryPreviews([]);
+    setExistingGallery(((item as any).gallery_images as string[]) || []);
     setShowForm(true);
   };
 
