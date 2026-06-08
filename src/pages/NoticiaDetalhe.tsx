@@ -255,7 +255,7 @@ const NoticiaDetalhe = () => {
         <p className="text-lg text-muted-foreground mb-6">{item.summary}</p>
         <div className="mb-8 flex flex-wrap items-center gap-4">
           {(item as any).tickets_enabled && relatedEvent && (
-            <TicketRedeemButton eventId={relatedEvent.id} eventTitle={relatedEvent.title} label="Resgatar Ingresso" />
+            <TicketRedeemButton eventId={relatedEvent.id} eventTitle={relatedEvent.title} eventDate={relatedEvent.event_date} eventLocation={relatedEvent.location} label="Resgatar Ingresso" />
           )}
           <ShareButtons label="Compartilhar notícia" />
         </div>
