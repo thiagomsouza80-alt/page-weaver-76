@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useAdmin } from "@/hooks/useAdmin";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Loader2, Newspaper, CalendarDays, Users, LogOut, ExternalLink, Store, ClipboardCheck, Handshake, UserX, Bell, Trophy, Crown, Gift, Shield, Images, Database } from "lucide-react";
+import { Loader2, Newspaper, CalendarDays, Users, LogOut, ExternalLink, Store, ClipboardCheck, Handshake, UserX, Bell, Trophy, Crown, Gift, Shield, Images, Database, Ticket } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import AdminNewsPanel from "@/components/admin/AdminNewsPanel";
 import AdminEventsPanel from "@/components/admin/AdminEventsPanel";
@@ -17,9 +17,10 @@ import AdminRafflePanel from "@/components/admin/AdminRafflePanel";
 import AdminModerationPanel from "@/components/admin/AdminModerationPanel";
 import AdminBannersPanel from "@/components/admin/AdminBannersPanel";
 import AdminDatabasePanel from "@/components/admin/AdminDatabasePanel";
+import AdminTicketValidationPanel from "@/components/admin/AdminTicketValidationPanel";
 import logoOficial from "@/assets/logo-oficial.png";
 
-type Tab = "news" | "events" | "artists" | "entrepreneurs" | "pending" | "sponsors" | "orphans" | "ranking" | "members" | "raffle" | "moderation" | "banners" | "database";
+type Tab = "news" | "events" | "artists" | "entrepreneurs" | "pending" | "sponsors" | "orphans" | "ranking" | "members" | "raffle" | "moderation" | "banners" | "database" | "tickets";
 
 const AdminDashboard = () => {
   const { loading, isAdmin } = useAdmin();
@@ -70,6 +71,7 @@ const AdminDashboard = () => {
     { key: "moderation" as Tab, label: "Moderação Social", icon: Shield },
     { key: "banners" as Tab, label: "Banners da Home", icon: Images },
     { key: "database" as Tab, label: "Banco de Dados", icon: Database },
+    { key: "tickets" as Tab, label: "Validar Ingressos", icon: Ticket },
   ];
 
   return (
@@ -130,6 +132,7 @@ const AdminDashboard = () => {
         {tab === "moderation" && <AdminModerationPanel />}
         {tab === "banners" && <AdminBannersPanel />}
         {tab === "database" && <AdminDatabasePanel />}
+        {tab === "tickets" && <AdminTicketValidationPanel />}
       </main>
     </div>
   );
