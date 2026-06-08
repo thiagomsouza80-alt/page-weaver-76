@@ -112,10 +112,18 @@ const Navbar = () => {
       <div className="flex items-center gap-3">
         {isLoggedIn && <NotificationsBell />}
         {isLoggedIn ? (
-          <Link to="/meu-perfil" className="hidden md:flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <ProfileAvatar />
-            <span className="text-sm font-medium text-primary">{profileName.split(" ")[0]}</span>
-          </Link>
+          <>
+            {isOrganizer && (
+              <Link to="/organizador" className="hidden md:flex items-center gap-2 hover:opacity-80 transition-opacity">
+                <CalendarDays className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium text-primary">Painel do Organizador</span>
+              </Link>
+            )}
+            <Link to="/meu-perfil" className="hidden md:flex items-center gap-2 hover:opacity-80 transition-opacity">
+              <ProfileAvatar />
+              <span className="text-sm font-medium text-primary">{profileName.split(" ")[0]}</span>
+            </Link>
+          </>
         ) : (
           <>
             <Link to="/cadastro">
