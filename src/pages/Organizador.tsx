@@ -74,13 +74,6 @@ const OrganizadorPage = () => {
     setShowForm(true);
   };
 
-  const openEdit = (e: any) => {
-    setEditing(e);
-    setTitle(e.title); setDescription(e.description); setContent(e.content);
-    setLocation(e.location); setEventDate(e.event_date.slice(0, 16));
-    setTicketsEnabled(!!e.tickets_enabled);
-    setShowForm(true);
-  };
 
   const handleSubmit = async (ev: React.FormEvent) => {
     ev.preventDefault();
