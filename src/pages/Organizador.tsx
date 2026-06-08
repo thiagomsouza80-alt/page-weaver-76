@@ -185,11 +185,16 @@ const OrganizadorPage = () => {
         )}
 
         {organizer.approval_status === "approved" && (
-          <Tabs defaultValue="eventos" className="mt-6">
+          <Tabs defaultValue="dashboard" className="mt-6">
             <TabsList>
+              <TabsTrigger value="dashboard" className="gap-2"><LayoutDashboard className="h-4 w-4" />Dashboard</TabsTrigger>
               <TabsTrigger value="eventos" className="gap-2"><Ticket className="h-4 w-4" />Meus Eventos</TabsTrigger>
               <TabsTrigger value="validar" className="gap-2"><QrCode className="h-4 w-4" />Validar Ingressos</TabsTrigger>
             </TabsList>
+
+            <TabsContent value="dashboard" className="mt-6">
+              <OrganizerDashboard organizerId={organizer.id} />
+            </TabsContent>
 
             <TabsContent value="eventos" className="mt-6">
               {showForm && (
