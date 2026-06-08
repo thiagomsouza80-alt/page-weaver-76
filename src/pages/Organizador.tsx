@@ -99,6 +99,7 @@ const OrganizadorPage = () => {
         event_date: new Date(eventDate).toISOString(),
         image_url: imageUrl,
         tickets_enabled: ticketsEnabled,
+        tickets_total: ticketsEnabled && ticketsTotal ? parseInt(ticketsTotal, 10) : null,
         organizer_id: organizer.id,
       };
 
