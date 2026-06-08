@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import { Loader2, ArrowLeft, CalendarDays, X, ChevronLeft, ChevronRight } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 import ShareButtons from "@/components/ShareButtons";
+import TicketRedeemButton from "@/components/tickets/TicketRedeemButton";
 import convencaoImg1 from "@/assets/news-convencao-geek-1.jpg";
 import convencaoImg2 from "@/assets/news-convencao-geek-2.jpg";
 import convencaoImg3 from "@/assets/news-convencao-geek-3.jpg";
@@ -154,6 +155,7 @@ const NoticiaDetalhe = () => {
   const [item, setItem] = useState<News | null>(null);
   const [loading, setLoading] = useState(true);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [relatedEvent, setRelatedEvent] = useState<{ id: string; title: string } | null>(null);
 
   const fallback = slug ? fallbackNews[slug] : undefined;
 
@@ -161,6 +163,11 @@ const NoticiaDetalhe = () => {
     const fetchNews = async () => {
       const { data } = await supabase.from("news").select("*").eq("slug", slug).single();
       setItem(data);
+      const relId = (data as any)?.related_event_id;
+      if (data && (data as any).tickets_enabled && relId) {
+        const { data: ev } = await supabase.from("events").select("id, title").eq("id", relId).maybeSingle();
+        if (ev) setRelatedEvent(ev as any);
+      }
       setLoading(false);
     };
     fetchNews();
@@ -245,8 +252,13 @@ const NoticiaDetalhe = () => {
         </div>
 
         <h1 className="text-3xl md:text-4xl font-bold mb-4 leading-tight">{item.title}</h1>
-        <p className="text-lg text-muted-foreground mb-8">{item.summary}</p>
-        <ShareButtons label="Compartilhar notícia" />
+        <p className="text-lg text-muted-foreground mb-6">{item.summary}</p>
+        <div className="mb-8 flex flex-wrap items-center gap-4">
+          {(item as any).tickets_enabled && relatedEvent && (
+            <TicketRedeemButton eventId={relatedEvent.id} eventTitle={relatedEvent.title} label="Resgatar Ingresso" />
+          )}
+          <ShareButtons label="Compartilhar notícia" />
+        </div>
 
         <div className="prose prose-invert max-w-none text-foreground/85 leading-relaxed whitespace-pre-wrap">
           {item.content}
