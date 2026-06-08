@@ -114,11 +114,24 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
           holder_email: email,
           holder_phone: phone,
         } as any)
-        .select("code")
+        .select("id, code, qr_token, status, holder_name, issued_at")
         .single();
       if (error) throw error;
-      setIssued({ code: (data as any).code });
+      setIssued(data);
       toast({ title: "Ingresso gerado!", description: `Código ${(data as any).code}` });
+      // Download PDF automaticamente
+      try {
+        await downloadTicketPdf({
+          code: (data as any).code,
+          qrToken: (data as any).qr_token,
+          holderName: name,
+          eventTitle,
+          eventDate,
+          eventLocation,
+          issuedAt: (data as any).issued_at,
+        });
+      } catch {}
+
     } catch (e: any) {
       toast({ title: "Erro ao gerar ingresso", description: e.message, variant: "destructive" });
     } finally {
