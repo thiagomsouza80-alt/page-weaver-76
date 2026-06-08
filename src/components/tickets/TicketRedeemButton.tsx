@@ -184,17 +184,25 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
               <DialogHeader>
                 <DialogTitle className="flex items-center gap-2">
                   <CheckCircle className="h-5 w-5 text-green-500" />
-                  {alreadyHas ? "Você já possui um ingresso" : "Ingresso gerado!"}
+                  {alreadyHas ? "Você já possui um ingresso" : "Ingresso gerado com sucesso!"}
                 </DialogTitle>
                 <DialogDescription>
                   {alreadyHas
-                    ? "Você já resgatou um ingresso para este evento. Veja em 'Meus Ingressos'."
-                    : 'Guarde o código abaixo. O ingresso completo está em "Meus Ingressos".'}
+                    ? "Veja abaixo seu ingresso completo. Você também pode baixá-lo em PDF."
+                    : "Seu ingresso está pronto. O PDF foi baixado automaticamente — você pode baixá-lo novamente abaixo."}
                 </DialogDescription>
               </DialogHeader>
-              <div className="my-4 p-6 rounded-xl bg-secondary text-center">
-                <p className="text-xs text-muted-foreground uppercase tracking-wider">Código do Ingresso</p>
-                <p className="text-3xl font-bold tracking-widest mt-2">{issued.code}</p>
+              <div className="my-4">
+                <TicketCard
+                  code={issued.code}
+                  qrToken={issued.qr_token}
+                  status={issued.status}
+                  holderName={issued.holder_name}
+                  eventTitle={eventTitle}
+                  eventDate={eventDate}
+                  eventLocation={eventLocation}
+                  issuedAt={issued.issued_at}
+                />
               </div>
               <DialogFooter className="gap-2 sm:gap-2">
                 <Link to="/meu-perfil">
@@ -204,6 +212,7 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
               </DialogFooter>
             </>
           ) : (
+
             <>
               <DialogHeader>
                 <DialogTitle>Resgatar Ingresso</DialogTitle>
