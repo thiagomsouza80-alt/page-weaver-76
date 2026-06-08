@@ -5,8 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, Loader2, Eye, EyeOff } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, Eye, EyeOff, Ticket } from "lucide-react";
 import ImagePositionSelector from "@/components/admin/ImagePositionSelector";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -27,6 +28,7 @@ const AdminEventsPanel = () => {
   const [location, setLocation] = useState("");
   const [eventDate, setEventDate] = useState("");
   const [imagePosition, setImagePosition] = useState("center");
+  const [ticketsEnabled, setTicketsEnabled] = useState(false);
 
   const fetchItems = async () => {
     const { data } = await supabase.from("events").select("*").order("event_date", { ascending: true });
@@ -39,6 +41,7 @@ const AdminEventsPanel = () => {
   const resetForm = () => {
     setTitle(""); setDescription(""); setContent(""); setLocation(""); setEventDate(""); setImagePosition("center");
     setImageFile(null); setEditing(null); setShowForm(false);
+    setTicketsEnabled(false);
   };
 
   const openEdit = (item: Event) => {
@@ -49,6 +52,7 @@ const AdminEventsPanel = () => {
     setLocation(item.location);
     setEventDate(item.event_date.slice(0, 16));
     setImagePosition((item as any).image_position || "center");
+    setTicketsEnabled(Boolean((item as any).tickets_enabled));
     setShowForm(true);
   };
 
@@ -70,7 +74,7 @@ const AdminEventsPanel = () => {
       }
 
       const slug = generateSlug(title);
-      const payload = { title, slug, description, content, location, event_date: new Date(eventDate).toISOString(), image_url: imageUrl, image_position: imagePosition } as any;
+      const payload = { title, slug, description, content, location, event_date: new Date(eventDate).toISOString(), image_url: imageUrl, image_position: imagePosition, tickets_enabled: ticketsEnabled } as any;
 
       if (editing) {
         const { error } = await supabase.from("events").update(payload).eq("id", editing.id);
@@ -145,6 +149,18 @@ const AdminEventsPanel = () => {
             onChange={setImagePosition}
             imageUrl={imageFile ? URL.createObjectURL(imageFile) : editing?.image_url}
           />
+          <div className="flex items-start gap-3 p-4 rounded-lg border border-border bg-secondary/30">
+            <Ticket className="h-5 w-5 text-primary mt-0.5 shrink-0" />
+            <div className="flex-1">
+              <div className="flex items-center justify-between gap-3">
+                <Label htmlFor="tickets_enabled" className="cursor-pointer font-semibold">🎟️ Adquirir Ingresso</Label>
+                <Switch id="tickets_enabled" checked={ticketsEnabled} onCheckedChange={setTicketsEnabled} />
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Quando ativado, o botão "Adquirir Ingresso" aparece na página do evento e usuários autenticados podem resgatar um ingresso gratuito.
+              </p>
+            </div>
+          </div>
           <div className="flex gap-3">
             <Button type="submit" disabled={submitting}>
               {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : editing ? "Salvar" : "Publicar"}
