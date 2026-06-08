@@ -62,7 +62,16 @@ const OrganizadorPage = () => {
 
   const resetForm = () => {
     setTitle(""); setDescription(""); setContent(""); setLocation(""); setEventDate("");
-    setTicketsEnabled(false); setImageFile(null); setEditing(null); setShowForm(false);
+    setTicketsEnabled(false); setTicketsTotal(""); setImageFile(null); setEditing(null); setShowForm(false);
+  };
+
+  const openEdit = (e: any) => {
+    setEditing(e);
+    setTitle(e.title); setDescription(e.description); setContent(e.content);
+    setLocation(e.location); setEventDate(e.event_date.slice(0, 16));
+    setTicketsEnabled(!!e.tickets_enabled);
+    setTicketsTotal(e.tickets_total ? String(e.tickets_total) : "");
+    setShowForm(true);
   };
 
   const openEdit = (e: any) => {
