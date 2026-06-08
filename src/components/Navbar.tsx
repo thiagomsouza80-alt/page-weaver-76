@@ -53,8 +53,15 @@ const Navbar = () => {
 
     const checkAdminAndProfile = async (userId: string) => {
       fetchProfile(userId);
-      const { data } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
-      setIsAdmin(!!data);
+      const { data: adminData } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
+      setIsAdmin(!!adminData);
+      const { data: orgData } = await supabase
+        .from("organizers")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("approval_status", "approved")
+        .maybeSingle();
+      setIsOrganizer(!!orgData);
     };
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
