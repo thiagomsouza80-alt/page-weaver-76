@@ -47,7 +47,7 @@ const AdminEventsPanel = () => {
   const resetForm = () => {
     setTitle(""); setDescription(""); setContent(""); setLocation(""); setEventDate(""); setImagePosition("center");
     setImageFile(null); setEditing(null); setShowForm(false);
-    setTicketsEnabled(false);
+    setTicketsEnabled(false); setTicketsTotal(""); setTicketType("free"); setTicketPrice("0,00");
   };
 
   const openEdit = (item: Event) => {
@@ -59,6 +59,9 @@ const AdminEventsPanel = () => {
     setEventDate(item.event_date.slice(0, 16));
     setImagePosition((item as any).image_position || "center");
     setTicketsEnabled(Boolean((item as any).tickets_enabled));
+    setTicketsTotal((item as any).tickets_total ? String((item as any).tickets_total) : "");
+    setTicketType(((item as any).ticket_type as "free" | "paid") || "free");
+    setTicketPrice(formatBRLInput((item as any).ticket_price_cents || 0));
     setShowForm(true);
   };
 
@@ -80,7 +83,19 @@ const AdminEventsPanel = () => {
       }
 
       const slug = generateSlug(title);
-      const payload = { title, slug, description, content, location, event_date: new Date(eventDate).toISOString(), image_url: imageUrl, image_position: imagePosition, tickets_enabled: ticketsEnabled } as any;
+      const priceCents = ticketType === "paid" ? brlToCents(ticketPrice) : 0;
+      if (ticketsEnabled && ticketType === "paid" && priceCents <= 0) {
+        throw new Error("Defina um valor válido para o ingresso pago.");
+      }
+      const payload = {
+        title, slug, description, content, location,
+        event_date: new Date(eventDate).toISOString(),
+        image_url: imageUrl, image_position: imagePosition,
+        tickets_enabled: ticketsEnabled,
+        tickets_total: ticketsEnabled && ticketsTotal ? parseInt(ticketsTotal, 10) : null,
+        ticket_type: ticketsEnabled ? ticketType : "free",
+        ticket_price_cents: ticketsEnabled && ticketType === "paid" ? priceCents : 0,
+      } as any;
 
       if (editing) {
         const { error } = await supabase.from("events").update(payload).eq("id", editing.id);
