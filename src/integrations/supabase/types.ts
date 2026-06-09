@@ -297,6 +297,8 @@ export type Database = {
           published: boolean
           rejection_reason: string | null
           slug: string
+          ticket_price_cents: number
+          ticket_type: string
           tickets_enabled: boolean
           tickets_total: number | null
           title: string
@@ -317,6 +319,8 @@ export type Database = {
           published?: boolean
           rejection_reason?: string | null
           slug: string
+          ticket_price_cents?: number
+          ticket_type?: string
           tickets_enabled?: boolean
           tickets_total?: number | null
           title: string
@@ -337,6 +341,8 @@ export type Database = {
           published?: boolean
           rejection_reason?: string | null
           slug?: string
+          ticket_price_cents?: number
+          ticket_type?: string
           tickets_enabled?: boolean
           tickets_total?: number | null
           title?: string
@@ -370,6 +376,42 @@ export type Database = {
           created_at?: string
           id?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      financial_audit_logs: {
+        Row: {
+          action: string
+          actor_role: string | null
+          actor_user_id: string | null
+          created_at: string
+          entity_id: string | null
+          entity_type: string
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+        }
+        Insert: {
+          action: string
+          actor_role?: string | null
+          actor_user_id?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+        }
+        Update: {
+          action?: string
+          actor_role?: string | null
+          actor_user_id?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
         }
         Relationships: []
       }
@@ -543,6 +585,151 @@ export type Database = {
           updated_at?: string
           user_id?: string
           website?: string | null
+        }
+        Relationships: []
+      }
+      payment_gateway_config: {
+        Row: {
+          active: boolean
+          client_id: string | null
+          environment: string
+          id: boolean
+          provider: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          active?: boolean
+          client_id?: string | null
+          environment?: string
+          id?: boolean
+          provider?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          active?: boolean
+          client_id?: string | null
+          environment?: string
+          id?: boolean
+          provider?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      payment_transactions: {
+        Row: {
+          amount_cents: number
+          buyer_email: string
+          buyer_name: string
+          buyer_phone: string
+          buyer_user_id: string
+          created_at: string
+          event_id: string
+          fee_cents: number
+          id: string
+          organizer_id: string | null
+          paid_at: string | null
+          pix_copy_paste: string | null
+          pix_expires_at: string | null
+          pix_qrcode: string | null
+          provider: string
+          provider_transaction_id: string | null
+          raw_payload: Json | null
+          status: string
+          ticket_id: string | null
+          total_cents: number
+          updated_at: string
+        }
+        Insert: {
+          amount_cents: number
+          buyer_email: string
+          buyer_name: string
+          buyer_phone: string
+          buyer_user_id: string
+          created_at?: string
+          event_id: string
+          fee_cents: number
+          id?: string
+          organizer_id?: string | null
+          paid_at?: string | null
+          pix_copy_paste?: string | null
+          pix_expires_at?: string | null
+          pix_qrcode?: string | null
+          provider?: string
+          provider_transaction_id?: string | null
+          raw_payload?: Json | null
+          status?: string
+          ticket_id?: string | null
+          total_cents: number
+          updated_at?: string
+        }
+        Update: {
+          amount_cents?: number
+          buyer_email?: string
+          buyer_name?: string
+          buyer_phone?: string
+          buyer_user_id?: string
+          created_at?: string
+          event_id?: string
+          fee_cents?: number
+          id?: string
+          organizer_id?: string | null
+          paid_at?: string | null
+          pix_copy_paste?: string | null
+          pix_expires_at?: string | null
+          pix_qrcode?: string | null
+          provider?: string
+          provider_transaction_id?: string | null
+          raw_payload?: Json | null
+          status?: string
+          ticket_id?: string | null
+          total_cents?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_transactions_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_transactions_organizer_id_fkey"
+            columns: ["organizer_id"]
+            isOneToOne: false
+            referencedRelation: "organizers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_transactions_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      platform_settings: {
+        Row: {
+          id: boolean
+          ticket_fee_cents: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          id?: boolean
+          ticket_fee_cents?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          id?: boolean
+          ticket_fee_cents?: number
+          updated_at?: string
+          updated_by?: string | null
         }
         Relationships: []
       }
@@ -1052,6 +1239,80 @@ export type Database = {
         }
         Relationships: []
       }
+      withdrawal_requests: {
+        Row: {
+          admin_notes: string | null
+          amount_cents: number
+          approved_at: string | null
+          approved_by: string | null
+          cpf: string
+          created_at: string
+          full_name: string
+          id: string
+          organizer_id: string
+          paid_at: string | null
+          paid_by: string | null
+          pix_key: string
+          receipt_path: string | null
+          receipt_url: string | null
+          rejection_reason: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          whatsapp: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          amount_cents: number
+          approved_at?: string | null
+          approved_by?: string | null
+          cpf: string
+          created_at?: string
+          full_name: string
+          id?: string
+          organizer_id: string
+          paid_at?: string | null
+          paid_by?: string | null
+          pix_key: string
+          receipt_path?: string | null
+          receipt_url?: string | null
+          rejection_reason?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          whatsapp: string
+        }
+        Update: {
+          admin_notes?: string | null
+          amount_cents?: number
+          approved_at?: string | null
+          approved_by?: string | null
+          cpf?: string
+          created_at?: string
+          full_name?: string
+          id?: string
+          organizer_id?: string
+          paid_at?: string | null
+          paid_by?: string | null
+          pix_key?: string
+          receipt_path?: string | null
+          receipt_url?: string | null
+          rejection_reason?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          whatsapp?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "withdrawal_requests_organizer_id_fkey"
+            columns: ["organizer_id"]
+            isOneToOne: false
+            referencedRelation: "organizers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -1059,6 +1320,7 @@ export type Database = {
     Functions: {
       banner_increment_click: { Args: { _id: string }; Returns: undefined }
       banner_increment_view: { Args: { _id: string }; Returns: undefined }
+      current_ticket_fee_cents: { Args: never; Returns: number }
       decrement_fan_count: { Args: { _artist_id: string }; Returns: number }
       event_attendees_count: { Args: { _event_id: string }; Returns: number }
       event_tickets_count: { Args: { _event_id: string }; Returns: number }
@@ -1072,6 +1334,18 @@ export type Database = {
       }
       increment_fan_count: { Args: { _artist_id: string }; Returns: number }
       is_user_blocked: { Args: { _user_id: string }; Returns: boolean }
+      organizer_financial_summary: {
+        Args: { _organizer_id: string }
+        Returns: {
+          available_cents: number
+          gross_revenue_cents: number
+          net_revenue_cents: number
+          pending_withdrawal_cents: number
+          platform_fees_cents: number
+          tickets_sold: number
+          withdrawn_cents: number
+        }[]
+      }
       social_decrement_followers: {
         Args: { _target_id: string; _target_type: string }
         Returns: number
