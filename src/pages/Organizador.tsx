@@ -14,7 +14,10 @@ import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import AdminTicketValidationPanel from "@/components/admin/AdminTicketValidationPanel";
 import OrganizerDashboard from "@/components/organizer/OrganizerDashboard";
-import { Plus, Pencil, Trash2, Loader2, Ticket, Clock, CheckCircle2, XCircle, QrCode, LayoutDashboard } from "lucide-react";
+import OrganizerFinancePanel from "@/components/organizer/OrganizerFinancePanel";
+import { Plus, Pencil, Trash2, Loader2, Ticket, Clock, CheckCircle2, XCircle, QrCode, LayoutDashboard, Wallet } from "lucide-react";
+import { centsToBRL, brlToCents, formatBRLInput } from "@/lib/money";
+import { usePlatformFee } from "@/lib/platformFee";
 
 
 const slugify = (t: string) =>
@@ -44,6 +47,9 @@ const OrganizadorPage = () => {
   const [eventDate, setEventDate] = useState("");
   const [ticketsEnabled, setTicketsEnabled] = useState(false);
   const [ticketsTotal, setTicketsTotal] = useState<string>("");
+  const [ticketType, setTicketType] = useState<"free" | "paid">("free");
+  const [ticketPrice, setTicketPrice] = useState<string>("0,00");
+  const platformFee = usePlatformFee();
 
   const load = async () => {
     setLoading(true);
@@ -63,6 +69,7 @@ const OrganizadorPage = () => {
   const resetForm = () => {
     setTitle(""); setDescription(""); setContent(""); setLocation(""); setEventDate("");
     setTicketsEnabled(false); setTicketsTotal(""); setImageFile(null); setEditing(null); setShowForm(false);
+    setTicketType("free"); setTicketPrice("0,00");
   };
 
   const openEdit = (e: any) => {
@@ -71,6 +78,8 @@ const OrganizadorPage = () => {
     setLocation(e.location); setEventDate(e.event_date.slice(0, 16));
     setTicketsEnabled(!!e.tickets_enabled);
     setTicketsTotal(e.tickets_total ? String(e.tickets_total) : "");
+    setTicketType((e.ticket_type as "free" | "paid") || "free");
+    setTicketPrice(formatBRLInput(e.ticket_price_cents || 0));
     setShowForm(true);
   };
 
@@ -90,6 +99,11 @@ const OrganizadorPage = () => {
         imageUrl = supabase.storage.from("events").getPublicUrl(path).data.publicUrl;
       }
 
+      const priceCents = ticketType === "paid" ? brlToCents(ticketPrice) : 0;
+      if (ticketsEnabled && ticketType === "paid" && priceCents <= 0) {
+        throw new Error("Defina um valor válido para o ingresso pago.");
+      }
+
       const payload: any = {
         title,
         slug: slugify(title) + "-" + Date.now().toString(36),
@@ -100,6 +114,8 @@ const OrganizadorPage = () => {
         image_url: imageUrl,
         tickets_enabled: ticketsEnabled,
         tickets_total: ticketsEnabled && ticketsTotal ? parseInt(ticketsTotal, 10) : null,
+        ticket_type: ticketsEnabled ? ticketType : "free",
+        ticket_price_cents: ticketsEnabled && ticketType === "paid" ? priceCents : 0,
         organizer_id: organizer.id,
       };
 
