@@ -14,7 +14,10 @@ import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import AdminTicketValidationPanel from "@/components/admin/AdminTicketValidationPanel";
 import OrganizerDashboard from "@/components/organizer/OrganizerDashboard";
-import { Plus, Pencil, Trash2, Loader2, Ticket, Clock, CheckCircle2, XCircle, QrCode, LayoutDashboard } from "lucide-react";
+import OrganizerFinancePanel from "@/components/organizer/OrganizerFinancePanel";
+import { Plus, Pencil, Trash2, Loader2, Ticket, Clock, CheckCircle2, XCircle, QrCode, LayoutDashboard, Wallet } from "lucide-react";
+import { centsToBRL, brlToCents, formatBRLInput } from "@/lib/money";
+import { usePlatformFee } from "@/lib/platformFee";
 
 
 const slugify = (t: string) =>
@@ -44,6 +47,9 @@ const OrganizadorPage = () => {
   const [eventDate, setEventDate] = useState("");
   const [ticketsEnabled, setTicketsEnabled] = useState(false);
   const [ticketsTotal, setTicketsTotal] = useState<string>("");
+  const [ticketType, setTicketType] = useState<"free" | "paid">("free");
+  const [ticketPrice, setTicketPrice] = useState<string>("0,00");
+  const platformFee = usePlatformFee();
 
   const load = async () => {
     setLoading(true);
@@ -63,6 +69,7 @@ const OrganizadorPage = () => {
   const resetForm = () => {
     setTitle(""); setDescription(""); setContent(""); setLocation(""); setEventDate("");
     setTicketsEnabled(false); setTicketsTotal(""); setImageFile(null); setEditing(null); setShowForm(false);
+    setTicketType("free"); setTicketPrice("0,00");
   };
 
   const openEdit = (e: any) => {
@@ -71,6 +78,8 @@ const OrganizadorPage = () => {
     setLocation(e.location); setEventDate(e.event_date.slice(0, 16));
     setTicketsEnabled(!!e.tickets_enabled);
     setTicketsTotal(e.tickets_total ? String(e.tickets_total) : "");
+    setTicketType((e.ticket_type as "free" | "paid") || "free");
+    setTicketPrice(formatBRLInput(e.ticket_price_cents || 0));
     setShowForm(true);
   };
 
@@ -90,6 +99,11 @@ const OrganizadorPage = () => {
         imageUrl = supabase.storage.from("events").getPublicUrl(path).data.publicUrl;
       }
 
+      const priceCents = ticketType === "paid" ? brlToCents(ticketPrice) : 0;
+      if (ticketsEnabled && ticketType === "paid" && priceCents <= 0) {
+        throw new Error("Defina um valor válido para o ingresso pago.");
+      }
+
       const payload: any = {
         title,
         slug: slugify(title) + "-" + Date.now().toString(36),
@@ -100,6 +114,8 @@ const OrganizadorPage = () => {
         image_url: imageUrl,
         tickets_enabled: ticketsEnabled,
         tickets_total: ticketsEnabled && ticketsTotal ? parseInt(ticketsTotal, 10) : null,
+        ticket_type: ticketsEnabled ? ticketType : "free",
+        ticket_price_cents: ticketsEnabled && ticketType === "paid" ? priceCents : 0,
         organizer_id: organizer.id,
       };
 
@@ -186,14 +202,19 @@ const OrganizadorPage = () => {
 
         {organizer.approval_status === "approved" && (
           <Tabs defaultValue="dashboard" className="mt-6">
-            <TabsList>
+            <TabsList className="flex-wrap h-auto">
               <TabsTrigger value="dashboard" className="gap-2"><LayoutDashboard className="h-4 w-4" />Dashboard</TabsTrigger>
               <TabsTrigger value="eventos" className="gap-2"><Ticket className="h-4 w-4" />Meus Eventos</TabsTrigger>
+              <TabsTrigger value="financeiro" className="gap-2"><Wallet className="h-4 w-4" />Financeiro</TabsTrigger>
               <TabsTrigger value="validar" className="gap-2"><QrCode className="h-4 w-4" />Validar Ingressos</TabsTrigger>
             </TabsList>
 
             <TabsContent value="dashboard" className="mt-6">
               <OrganizerDashboard organizerId={organizer.id} />
+            </TabsContent>
+
+            <TabsContent value="financeiro" className="mt-6">
+              <OrganizerFinancePanel organizerId={organizer.id} />
             </TabsContent>
 
             <TabsContent value="eventos" className="mt-6">
@@ -215,13 +236,33 @@ const OrganizadorPage = () => {
                         <Label htmlFor="te" className="cursor-pointer font-semibold">🎟️ Adquirir Ingresso</Label>
                         <Switch id="te" checked={ticketsEnabled} onCheckedChange={setTicketsEnabled} />
                       </div>
-                      <p className="text-xs text-muted-foreground">Permite que usuários autenticados resgatem ingresso gratuito.</p>
+                      <p className="text-xs text-muted-foreground">Ative para habilitar ingressos (gratuitos ou pagos).</p>
                       {ticketsEnabled && (
-                        <div className="space-y-1.5 pt-2">
-                          <Label htmlFor="tt" className="text-sm">Quantidade Total de Ingressos *</Label>
-                          <Input id="tt" type="number" min={1} step={1} value={ticketsTotal} onChange={e => setTicketsTotal(e.target.value)} placeholder="Ex: 500" required />
-                          <p className="text-xs text-muted-foreground">Quando atingir esse limite, o evento será marcado como esgotado automaticamente.</p>
-                        </div>
+                        <>
+                          <div className="space-y-1.5 pt-2">
+                            <Label className="text-sm">Tipo de Evento *</Label>
+                            <div className="flex gap-2">
+                              <Button type="button" size="sm" variant={ticketType === "free" ? "default" : "outline"} onClick={() => setTicketType("free")}>Gratuito</Button>
+                              <Button type="button" size="sm" variant={ticketType === "paid" ? "default" : "outline"} onClick={() => setTicketType("paid")}>Pago</Button>
+                            </div>
+                          </div>
+                          {ticketType === "paid" && (
+                            <div className="space-y-1.5 pt-2">
+                              <Label htmlFor="tp" className="text-sm">Valor do Ingresso (R$) *</Label>
+                              <Input id="tp" value={ticketPrice} onChange={e => setTicketPrice(e.target.value)} placeholder="30,00" required />
+                              <div className="bg-card border border-border rounded-lg p-3 text-xs space-y-1 mt-2">
+                                <div className="flex justify-between"><span className="text-muted-foreground">Valor do Ingresso:</span><span className="font-medium">{centsToBRL(brlToCents(ticketPrice))}</span></div>
+                                <div className="flex justify-between"><span className="text-muted-foreground">Taxa Amazônia Pop:</span><span className="font-medium">{centsToBRL(platformFee)}</span></div>
+                                <div className="border-t border-border/60 pt-1 mt-1 flex justify-between"><span className="font-semibold">Valor Final ao Comprador:</span><span className="font-bold">{centsToBRL(brlToCents(ticketPrice) + platformFee)}</span></div>
+                              </div>
+                            </div>
+                          )}
+                          <div className="space-y-1.5 pt-2">
+                            <Label htmlFor="tt" className="text-sm">Quantidade Total de Ingressos *</Label>
+                            <Input id="tt" type="number" min={1} step={1} value={ticketsTotal} onChange={e => setTicketsTotal(e.target.value)} placeholder="Ex: 500" required />
+                            <p className="text-xs text-muted-foreground">Ao atingir o limite, o evento é marcado como esgotado.</p>
+                          </div>
+                        </>
                       )}
                     </div>
                   </div>

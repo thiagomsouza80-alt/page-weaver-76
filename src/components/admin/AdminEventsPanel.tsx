@@ -10,6 +10,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, Loader2, Eye, EyeOff, Ticket } from "lucide-react";
 import ImagePositionSelector from "@/components/admin/ImagePositionSelector";
 import type { Tables } from "@/integrations/supabase/types";
+import { centsToBRL, brlToCents, formatBRLInput } from "@/lib/money";
+import { usePlatformFee } from "@/lib/platformFee";
 
 type Event = Tables<"events">;
 
@@ -29,6 +31,10 @@ const AdminEventsPanel = () => {
   const [eventDate, setEventDate] = useState("");
   const [imagePosition, setImagePosition] = useState("center");
   const [ticketsEnabled, setTicketsEnabled] = useState(false);
+  const [ticketsTotal, setTicketsTotal] = useState<string>("");
+  const [ticketType, setTicketType] = useState<"free" | "paid">("free");
+  const [ticketPrice, setTicketPrice] = useState<string>("0,00");
+  const platformFee = usePlatformFee();
 
   const fetchItems = async () => {
     const { data } = await supabase.from("events").select("*").order("event_date", { ascending: true });
@@ -41,7 +47,7 @@ const AdminEventsPanel = () => {
   const resetForm = () => {
     setTitle(""); setDescription(""); setContent(""); setLocation(""); setEventDate(""); setImagePosition("center");
     setImageFile(null); setEditing(null); setShowForm(false);
-    setTicketsEnabled(false);
+    setTicketsEnabled(false); setTicketsTotal(""); setTicketType("free"); setTicketPrice("0,00");
   };
 
   const openEdit = (item: Event) => {
@@ -53,6 +59,9 @@ const AdminEventsPanel = () => {
     setEventDate(item.event_date.slice(0, 16));
     setImagePosition((item as any).image_position || "center");
     setTicketsEnabled(Boolean((item as any).tickets_enabled));
+    setTicketsTotal((item as any).tickets_total ? String((item as any).tickets_total) : "");
+    setTicketType(((item as any).ticket_type as "free" | "paid") || "free");
+    setTicketPrice(formatBRLInput((item as any).ticket_price_cents || 0));
     setShowForm(true);
   };
 
@@ -74,7 +83,19 @@ const AdminEventsPanel = () => {
       }
 
       const slug = generateSlug(title);
-      const payload = { title, slug, description, content, location, event_date: new Date(eventDate).toISOString(), image_url: imageUrl, image_position: imagePosition, tickets_enabled: ticketsEnabled } as any;
+      const priceCents = ticketType === "paid" ? brlToCents(ticketPrice) : 0;
+      if (ticketsEnabled && ticketType === "paid" && priceCents <= 0) {
+        throw new Error("Defina um valor válido para o ingresso pago.");
+      }
+      const payload = {
+        title, slug, description, content, location,
+        event_date: new Date(eventDate).toISOString(),
+        image_url: imageUrl, image_position: imagePosition,
+        tickets_enabled: ticketsEnabled,
+        tickets_total: ticketsEnabled && ticketsTotal ? parseInt(ticketsTotal, 10) : null,
+        ticket_type: ticketsEnabled ? ticketType : "free",
+        ticket_price_cents: ticketsEnabled && ticketType === "paid" ? priceCents : 0,
+      } as any;
 
       if (editing) {
         const { error } = await supabase.from("events").update(payload).eq("id", editing.id);
@@ -157,8 +178,34 @@ const AdminEventsPanel = () => {
                 <Switch id="tickets_enabled" checked={ticketsEnabled} onCheckedChange={setTicketsEnabled} />
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                Quando ativado, o botão "Adquirir Ingresso" aparece na página do evento e usuários autenticados podem resgatar um ingresso gratuito.
+                Quando ativado, o botão aparece na página do evento.
               </p>
+              {ticketsEnabled && (
+                <div className="mt-3 space-y-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-sm">Tipo de Evento *</Label>
+                    <div className="flex gap-2">
+                      <Button type="button" size="sm" variant={ticketType === "free" ? "default" : "outline"} onClick={() => setTicketType("free")}>Gratuito</Button>
+                      <Button type="button" size="sm" variant={ticketType === "paid" ? "default" : "outline"} onClick={() => setTicketType("paid")}>Pago</Button>
+                    </div>
+                  </div>
+                  {ticketType === "paid" && (
+                    <div className="space-y-1.5">
+                      <Label className="text-sm">Valor do Ingresso (R$) *</Label>
+                      <Input value={ticketPrice} onChange={e => setTicketPrice(e.target.value)} placeholder="30,00" required />
+                      <div className="bg-card border border-border rounded-lg p-3 text-xs space-y-1 mt-1">
+                        <div className="flex justify-between"><span className="text-muted-foreground">Valor do Ingresso:</span><span className="font-medium">{centsToBRL(brlToCents(ticketPrice))}</span></div>
+                        <div className="flex justify-between"><span className="text-muted-foreground">Taxa Amazônia Pop:</span><span className="font-medium">{centsToBRL(platformFee)}</span></div>
+                        <div className="border-t border-border/60 pt-1 mt-1 flex justify-between"><span className="font-semibold">Valor Final ao Comprador:</span><span className="font-bold">{centsToBRL(brlToCents(ticketPrice) + platformFee)}</span></div>
+                      </div>
+                    </div>
+                  )}
+                  <div className="space-y-1.5">
+                    <Label className="text-sm">Quantidade Total de Ingressos *</Label>
+                    <Input type="number" min={1} step={1} value={ticketsTotal} onChange={e => setTicketsTotal(e.target.value)} placeholder="Ex: 500" required />
+                  </div>
+                </div>
+              )}
             </div>
           </div>
           <div className="flex gap-3">
