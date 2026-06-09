@@ -35,6 +35,8 @@ const AdminEventsPanel = () => {
   const [ticketType, setTicketType] = useState<"free" | "paid">("free");
   const [ticketPrice, setTicketPrice] = useState<string>("0,00");
   const platformFee = usePlatformFee();
+
+  const fetchItems = async () => {
     const { data } = await supabase.from("events").select("*").order("event_date", { ascending: true });
     setItems(data || []);
     setLoading(false);
