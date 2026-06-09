@@ -10,6 +10,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, Loader2, Eye, EyeOff, Ticket } from "lucide-react";
 import ImagePositionSelector from "@/components/admin/ImagePositionSelector";
 import type { Tables } from "@/integrations/supabase/types";
+import { centsToBRL, brlToCents, formatBRLInput } from "@/lib/money";
+import { usePlatformFee } from "@/lib/platformFee";
 
 type Event = Tables<"events">;
 
@@ -29,8 +31,10 @@ const AdminEventsPanel = () => {
   const [eventDate, setEventDate] = useState("");
   const [imagePosition, setImagePosition] = useState("center");
   const [ticketsEnabled, setTicketsEnabled] = useState(false);
-
-  const fetchItems = async () => {
+  const [ticketsTotal, setTicketsTotal] = useState<string>("");
+  const [ticketType, setTicketType] = useState<"free" | "paid">("free");
+  const [ticketPrice, setTicketPrice] = useState<string>("0,00");
+  const platformFee = usePlatformFee();
     const { data } = await supabase.from("events").select("*").order("event_date", { ascending: true });
     setItems(data || []);
     setLoading(false);
