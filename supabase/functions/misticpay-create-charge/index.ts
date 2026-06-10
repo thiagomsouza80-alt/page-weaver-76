@@ -2,12 +2,10 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 
 // =============================================================
-// MisticPay - Criar cobrança PIX
-// =============================================================
-// IMPORTANTE: As chamadas HTTP reais para a MisticPay estão marcadas
-// com "TODO MISTICPAY" abaixo. Substitua pelos endpoints reais quando
-// a documentação oficial for fornecida. A estrutura, segurança e
-// integração com o banco já estão completas e funcionais.
+// MisticPay - Criar cobrança PIX (Cash-In)
+// Doc: https://docs.misticpay.com/  (POST /api/transactions/create)
+// Auth: headers `ci` (Client ID) e `cs` (Client Secret)
+// Valores enviados em REAIS (decimal). Ex: 4.55 = R$ 4,55
 // =============================================================
 
 interface Body {
@@ -15,7 +13,10 @@ interface Body {
   buyer_name: string;
   buyer_email: string;
   buyer_phone: string;
+  buyer_document: string; // CPF, somente dígitos
 }
+
+const onlyDigits = (s: string) => (s || "").replace(/\D+/g, "");
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -42,8 +43,12 @@ Deno.serve(async (req: Request) => {
     const userId = claims.claims.sub;
 
     const body = (await req.json()) as Body;
+    const cpf = onlyDigits(body.buyer_document || "");
     if (!body.event_id || !body.buyer_name || !body.buyer_email || !body.buyer_phone) {
       return json({ error: "Campos obrigatórios ausentes" }, 400);
+    }
+    if (cpf.length !== 11) {
+      return json({ error: "CPF inválido. Informe os 11 dígitos." }, 400);
     }
 
     // 1) Evento + preço
@@ -68,7 +73,11 @@ Deno.serve(async (req: Request) => {
     }
 
     // 3) Taxa global
-    const { data: settings } = await admin.from("platform_settings").select("ticket_fee_cents").eq("id", true).maybeSingle();
+    const { data: settings } = await admin
+      .from("platform_settings")
+      .select("ticket_fee_cents")
+      .eq("id", true)
+      .maybeSingle();
     const feeCents = settings?.ticket_fee_cents ?? 100;
     const amountCents = ev.ticket_price_cents;
     const totalCents = amountCents + feeCents;
@@ -93,69 +102,96 @@ Deno.serve(async (req: Request) => {
       .single();
     if (txErr || !tx) return json({ error: "Falha ao registrar transação", detail: txErr?.message }, 500);
 
-    // ===========================================================
-    // TODO MISTICPAY - Substituir pelo POST real à API da MisticPay
-    // ===========================================================
-    // const clientId = Deno.env.get("MISTICPAY_CLIENT_ID");
-    // const clientSecret = Deno.env.get("MISTICPAY_CLIENT_SECRET");
-    // const apiBase = Deno.env.get("MISTICPAY_ENV") === "production"
-    //   ? "https://api.misticpay.com" : "https://sandbox.misticpay.com";
-    // const resp = await fetch(`${apiBase}/v1/charges`, {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //     Authorization: `Bearer ${await getAccessToken(clientId, clientSecret, apiBase)}`,
-    //   },
-    //   body: JSON.stringify({
-    //     amount: totalCents,
-    //     customer: { name: body.buyer_name, email: body.buyer_email, phone: body.buyer_phone },
-    //     reference: tx.id,
-    //     webhook_url: `${Deno.env.get("SUPABASE_URL")}/functions/v1/misticpay-webhook`,
-    //   }),
-    // });
-    // const charge = await resp.json();
+    // 5) Chamada real à MisticPay
+    const clientId = Deno.env.get("MISTICPAY_CLIENT_ID");
+    const clientSecret = Deno.env.get("MISTICPAY_CLIENT_SECRET");
+    const webhookSecret = Deno.env.get("MISTICPAY_WEBHOOK_SECRET") || "";
+    const env = (Deno.env.get("MISTICPAY_ENV") || "production").toLowerCase();
+    const apiBase = "https://api.misticpay.com/api"; // doc oficial — única base anunciada
 
-    // STUB temporário até a doc oficial chegar:
-    const charge = {
-      id: `STUB-${tx.id.slice(0, 8)}`,
-      qrcode: `https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=${encodeURIComponent(
-        `PIX|MISTICPAY-STUB|${tx.id}|${totalCents}`
-      )}`,
-      copy_paste: `00020126STUBPIX${tx.id}${totalCents}5204000053039865802BR6009AMAZONIAPOP62070503***6304MISTIC`,
-      expires_at: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
-    };
+    if (!clientId || !clientSecret) {
+      // Reverte transação e avisa
+      await admin.from("payment_transactions").update({ status: "failed" }).eq("id", tx.id);
+      return json({ error: "Credenciais MisticPay não configuradas (MISTICPAY_CLIENT_ID/SECRET)." }, 500);
+    }
 
-    // 5) Atualizar transaction com dados do PIX
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const webhookUrl = `${supabaseUrl}/functions/v1/misticpay-webhook${
+      webhookSecret ? `?secret=${encodeURIComponent(webhookSecret)}` : ""
+    }`;
+
+    const amountReais = Number((totalCents / 100).toFixed(2));
+    const description = `Ingresso - ${ev.title}`.slice(0, 140);
+
+    const resp = await fetch(`${apiBase}/transactions/create`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ci: clientId,
+        cs: clientSecret,
+      },
+      body: JSON.stringify({
+        amount: amountReais,
+        payerName: body.buyer_name,
+        payerDocument: cpf,
+        transactionId: tx.id, // referência nossa — virá de volta no webhook
+        description,
+        projectWebhook: webhookUrl,
+      }),
+    });
+
+    const respJson = await resp.json().catch(() => ({}));
+    if (!resp.ok) {
+      await admin.from("payment_transactions").update({
+        status: "failed",
+        raw_payload: respJson,
+      }).eq("id", tx.id);
+      return json({
+        error: "Falha ao criar cobrança na MisticPay",
+        detail: respJson?.message || respJson?.error || `HTTP ${resp.status}`,
+      }, 502);
+    }
+
+    const data = respJson?.data ?? {};
+    const providerTxId = String(data.transactionId ?? "");
+    const qrcode = data.qrCodeBase64 || data.qrcodeUrl || "";
+    const copyPaste = data.copyPaste || "";
+
     await admin
       .from("payment_transactions")
       .update({
-        provider_transaction_id: charge.id,
-        pix_qrcode: charge.qrcode,
-        pix_copy_paste: charge.copy_paste,
-        pix_expires_at: charge.expires_at,
+        provider_transaction_id: providerTxId,
+        pix_qrcode: qrcode,
+        pix_copy_paste: copyPaste,
+        pix_expires_at: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
       })
       .eq("id", tx.id);
 
-    // Audit
     await admin.from("financial_audit_logs").insert({
       actor_user_id: userId,
       action: "create_charge",
       entity_type: "payment_transaction",
       entity_id: tx.id,
       ip_address: req.headers.get("x-forwarded-for") ?? null,
-      metadata: { event_id: ev.id, amount_cents: amountCents, fee_cents: feeCents, total_cents: totalCents, stub: true },
+      metadata: {
+        event_id: ev.id,
+        amount_cents: amountCents,
+        fee_cents: feeCents,
+        total_cents: totalCents,
+        provider_transaction_id: providerTxId,
+        env,
+      },
     });
 
     return json({
       transaction_id: tx.id,
-      provider_transaction_id: charge.id,
-      qrcode: charge.qrcode,
-      copy_paste: charge.copy_paste,
-      expires_at: charge.expires_at,
+      provider_transaction_id: providerTxId,
+      qrcode,
+      copy_paste: copyPaste,
+      expires_at: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
       amount_cents: amountCents,
       fee_cents: feeCents,
       total_cents: totalCents,
-      stub: true,
     });
   } catch (e) {
     return json({ error: (e as Error).message }, 500);
