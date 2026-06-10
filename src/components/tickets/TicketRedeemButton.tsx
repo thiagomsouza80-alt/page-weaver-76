@@ -91,7 +91,7 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
       const { data: ent } = await supabase.from("entrepreneurs").select("name, phone").eq("user_id", session.user.id).maybeSingle();
       if (ent) { name = (ent as any).name || ""; phone = (ent as any).phone || ""; }
     }
-    setForm({ name: name || (session.user.user_metadata?.name as string) || "", email: session.user.email || "", phone });
+    setForm({ name: name || (session.user.user_metadata?.name as string) || "", email: session.user.email || "", phone, document: "" });
     setAuthChecked(true);
   };
 
