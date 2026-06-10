@@ -30,7 +30,7 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
   const [open, setOpen] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
-  const [form, setForm] = useState({ name: "", email: "", phone: "" });
+  const [form, setForm] = useState({ name: "", email: "", phone: "", document: "" });
   const [submitting, setSubmitting] = useState(false);
   const [issued, setIssued] = useState<any | null>(null);
   const [alreadyHas, setAlreadyHas] = useState(false);
@@ -91,7 +91,7 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
       const { data: ent } = await supabase.from("entrepreneurs").select("name, phone").eq("user_id", session.user.id).maybeSingle();
       if (ent) { name = (ent as any).name || ""; phone = (ent as any).phone || ""; }
     }
-    setForm({ name: name || (session.user.user_metadata?.name as string) || "", email: session.user.email || "", phone });
+    setForm({ name: name || (session.user.user_metadata?.name as string) || "", email: session.user.email || "", phone, document: "" });
     setAuthChecked(true);
   };
 
@@ -125,7 +125,7 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
     setSubmitting(true);
     try {
       const { data, error } = await supabase.functions.invoke("misticpay-create-charge", {
-        body: { event_id: eventId, buyer_name: form.name.trim(), buyer_email: form.email.trim(), buyer_phone: form.phone.trim() },
+        body: { event_id: eventId, buyer_name: form.name.trim(), buyer_email: form.email.trim(), buyer_phone: form.phone.trim(), buyer_document: form.document.replace(/\D+/g, "") },
       });
       if (error) throw error;
       if ((data as any)?.error) throw new Error((data as any).error);
@@ -200,6 +200,9 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
                 <div className="space-y-1.5"><Label>Nome completo *</Label><Input value={form.name} onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))} required maxLength={120} /></div>
                 <div className="space-y-1.5"><Label>E-mail *</Label><Input type="email" value={form.email} onChange={(e) => setForm(f => ({ ...f, email: e.target.value }))} required maxLength={255} /></div>
                 <div className="space-y-1.5"><Label>Telefone / WhatsApp *</Label><Input value={form.phone} onChange={(e) => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="(91) 99999-9999" required maxLength={30} /></div>
+                {isPaid && (
+                  <div className="space-y-1.5"><Label>CPF *</Label><Input value={form.document} onChange={(e) => setForm(f => ({ ...f, document: e.target.value }))} placeholder="000.000.000-00" required maxLength={14} inputMode="numeric" /></div>
+                )}
 
                 {isPaid && (
                   <div className="bg-secondary/40 rounded-lg p-3 space-y-1 text-sm">
@@ -211,7 +214,7 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
               </div>
               <DialogFooter className="mt-4 gap-2 sm:gap-2">
                 <Button variant="outline" onClick={close}>Cancelar</Button>
-                <Button onClick={submit} disabled={submitting || !form.name.trim() || !form.email.trim() || !form.phone.trim()} className="gap-2">
+                <Button onClick={submit} disabled={submitting || !form.name.trim() || !form.email.trim() || !form.phone.trim() || (isPaid && form.document.replace(/\D+/g, "").length !== 11)} className="gap-2">
                   {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
                   {isPaid ? "Gerar PIX" : "Confirmar Ingresso"}
                 </Button>
