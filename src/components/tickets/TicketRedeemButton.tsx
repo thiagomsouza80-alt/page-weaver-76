@@ -125,7 +125,7 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
     setSubmitting(true);
     try {
       const { data, error } = await supabase.functions.invoke("misticpay-create-charge", {
-        body: { event_id: eventId, buyer_name: form.name.trim(), buyer_email: form.email.trim(), buyer_phone: form.phone.trim() },
+        body: { event_id: eventId, buyer_name: form.name.trim(), buyer_email: form.email.trim(), buyer_phone: form.phone.trim(), buyer_document: form.document.replace(/\D+/g, "") },
       });
       if (error) throw error;
       if ((data as any)?.error) throw new Error((data as any).error);
