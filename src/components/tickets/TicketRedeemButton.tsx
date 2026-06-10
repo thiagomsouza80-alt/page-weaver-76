@@ -200,6 +200,9 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
                 <div className="space-y-1.5"><Label>Nome completo *</Label><Input value={form.name} onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))} required maxLength={120} /></div>
                 <div className="space-y-1.5"><Label>E-mail *</Label><Input type="email" value={form.email} onChange={(e) => setForm(f => ({ ...f, email: e.target.value }))} required maxLength={255} /></div>
                 <div className="space-y-1.5"><Label>Telefone / WhatsApp *</Label><Input value={form.phone} onChange={(e) => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="(91) 99999-9999" required maxLength={30} /></div>
+                {isPaid && (
+                  <div className="space-y-1.5"><Label>CPF *</Label><Input value={form.document} onChange={(e) => setForm(f => ({ ...f, document: e.target.value }))} placeholder="000.000.000-00" required maxLength={14} inputMode="numeric" /></div>
+                )}
 
                 {isPaid && (
                   <div className="bg-secondary/40 rounded-lg p-3 space-y-1 text-sm">
@@ -211,7 +214,7 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
               </div>
               <DialogFooter className="mt-4 gap-2 sm:gap-2">
                 <Button variant="outline" onClick={close}>Cancelar</Button>
-                <Button onClick={submit} disabled={submitting || !form.name.trim() || !form.email.trim() || !form.phone.trim()} className="gap-2">
+                <Button onClick={submit} disabled={submitting || !form.name.trim() || !form.email.trim() || !form.phone.trim() || (isPaid && form.document.replace(/\D+/g, "").length !== 11)} className="gap-2">
                   {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
                   {isPaid ? "Gerar PIX" : "Confirmar Ingresso"}
                 </Button>
