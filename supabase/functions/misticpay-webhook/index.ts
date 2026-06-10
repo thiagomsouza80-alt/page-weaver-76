@@ -2,11 +2,25 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 
 // =============================================================
-// MisticPay - Webhook de pagamento
-// =============================================================
-// IMPORTANTE: Substituir a validação de assinatura abaixo pelo
-// método oficial da MisticPay quando a documentação for fornecida.
-// O fluxo de liberação de ingresso já está implementado e seguro.
+// MisticPay - Webhook de pagamento (Depósito / Saque / MED)
+// Doc: https://docs.misticpay.com/
+//
+// Payload de Depósito:
+// {
+//   "transactionId": 31484480,             // ID retornado pela MisticPay
+//   "transactionType": "DEPOSITO",
+//   "transactionMethod": "PIX",
+//   "clientName": "...",
+//   "clientDocument": "...",
+//   "status": "COMPLETO" | "PENDENTE" | "FALHA" | "CANCELADO",
+//   "value": 455,
+//   "fee": 23,
+//   "e2e": "..."
+// }
+//
+// A doc atual não define assinatura HMAC. Usamos um shared secret
+// passado como query param `?secret=...` na projectWebhook (definida
+// na criação da cobrança). Configure MISTICPAY_WEBHOOK_SECRET.
 // =============================================================
 
 Deno.serve(async (req: Request) => {
@@ -19,42 +33,83 @@ Deno.serve(async (req: Request) => {
   );
 
   try {
+    // Validação do shared secret (recomendado)
+    const expectedSecret = Deno.env.get("MISTICPAY_WEBHOOK_SECRET");
+    if (expectedSecret) {
+      const url = new URL(req.url);
+      const provided =
+        url.searchParams.get("secret") ||
+        req.headers.get("x-webhook-secret") ||
+        "";
+      if (provided !== expectedSecret) {
+        return json({ error: "Invalid webhook secret" }, 401);
+      }
+    }
+
     const rawBody = await req.text();
     const payload = JSON.parse(rawBody);
 
-    // ===========================================================
-    // TODO MISTICPAY - Validar assinatura HMAC do header
-    // ex.: const signature = req.headers.get("x-misticpay-signature");
-    // verifyHmac(rawBody, signature, Deno.env.get("MISTICPAY_WEBHOOK_SECRET"));
-    // ===========================================================
-
-    // Estrutura esperada (a confirmar com a doc):
-    // { event: "payment.paid" | "payment.cancelled" | "payment.expired",
-    //   data: { id: <provider_transaction_id>, reference: <our tx.id>, paid_at?: string } }
-    const eventType: string = payload.event ?? payload.status ?? "unknown";
-    const providerId: string | undefined = payload.data?.id ?? payload.transaction_id;
-    const reference: string | undefined = payload.data?.reference ?? payload.reference;
-
-    if (!providerId && !reference) {
-      return json({ error: "Identificador ausente" }, 400);
+    // ----- Webhook de MED (infração) -----
+    if (payload?.event === "INFRACTION") {
+      await admin.from("financial_audit_logs").insert({
+        action: "med_infraction",
+        entity_type: "med",
+        entity_id: null,
+        metadata: payload,
+      });
+      return json({ ok: true, type: "infraction" });
     }
 
-    // Localizar transação
+    const txType: string = String(payload?.transactionType || "").toUpperCase();
+    const status: string = String(payload?.status || "").toUpperCase();
+    const providerId = payload?.transactionId != null ? String(payload.transactionId) : "";
+
+    if (!providerId) return json({ error: "transactionId ausente" }, 400);
+
+    // ----- Webhook de Saque (RETIRADA) -----
+    if (txType === "RETIRADA") {
+      // Atualiza withdrawal_requests pelo provider id (se armazenado em metadata)
+      const { data: wr } = await admin
+        .from("withdrawal_requests")
+        .select("id, status")
+        .contains("provider_metadata", { provider_transaction_id: providerId })
+        .maybeSingle();
+
+      if (wr) {
+        const newStatus =
+          status === "COMPLETO" ? "paid" :
+          status === "FALHA" || status === "CANCELADO" ? "rejected" :
+          wr.status;
+        await admin.from("withdrawal_requests").update({
+          status: newStatus,
+          provider_metadata: { provider_transaction_id: providerId, last_webhook: payload },
+        }).eq("id", wr.id);
+      }
+
+      await admin.from("financial_audit_logs").insert({
+        action: "withdrawal_webhook",
+        entity_type: "withdrawal_request",
+        entity_id: wr?.id ?? null,
+        metadata: payload,
+      });
+      return json({ ok: true, type: "withdrawal" });
+    }
+
+    // ----- Webhook de Depósito (DEPOSITO) -----
     const { data: tx } = await admin
       .from("payment_transactions")
       .select("*")
-      .or(`provider_transaction_id.eq.${providerId ?? ""},id.eq.${reference ?? "00000000-0000-0000-0000-000000000000"}`)
+      .eq("provider_transaction_id", providerId)
       .maybeSingle();
 
-    if (!tx) return json({ error: "Transação não encontrada" }, 404);
+    if (!tx) return json({ error: "Transação não encontrada", provider_id: providerId }, 404);
 
     // Idempotência
-    if (tx.status === "paid" && (eventType.includes("paid") || eventType === "approved")) {
+    if (tx.status === "paid" && status === "COMPLETO") {
       return json({ ok: true, idempotent: true });
     }
 
-    if (eventType.includes("paid") || eventType === "approved" || eventType === "payment.paid") {
-      // Liberar ingresso usando o sistema existente
+    if (status === "COMPLETO") {
       const { data: ticket, error: ticketErr } = await admin
         .from("tickets")
         .insert({
@@ -67,7 +122,7 @@ Deno.serve(async (req: Request) => {
           platform_fee_cents: tx.fee_cents,
           payment_status: "paid",
           payment_method: "pix",
-          payment_reference: tx.provider_transaction_id ?? tx.id,
+          payment_reference: providerId,
         })
         .select("id")
         .single();
@@ -91,24 +146,25 @@ Deno.serve(async (req: Request) => {
         action: "payment_confirmed",
         entity_type: "payment_transaction",
         entity_id: tx.id,
-        metadata: { ticket_id: ticket.id, provider: tx.provider, provider_transaction_id: tx.provider_transaction_id },
+        metadata: { ticket_id: ticket.id, provider: "misticpay", provider_transaction_id: providerId, e2e: payload?.e2e },
       });
 
       return json({ ok: true, ticket_id: ticket.id });
     }
 
-    if (eventType.includes("cancel") || eventType === "payment.cancelled") {
+    if (status === "CANCELADO") {
       await admin.from("payment_transactions").update({ status: "cancelled", raw_payload: payload }).eq("id", tx.id);
       return json({ ok: true });
     }
 
-    if (eventType.includes("expire") || eventType === "payment.expired") {
-      await admin.from("payment_transactions").update({ status: "expired", raw_payload: payload }).eq("id", tx.id);
+    if (status === "FALHA") {
+      await admin.from("payment_transactions").update({ status: "failed", raw_payload: payload }).eq("id", tx.id);
       return json({ ok: true });
     }
 
+    // PENDENTE ou outros
     await admin.from("payment_transactions").update({ raw_payload: payload }).eq("id", tx.id);
-    return json({ ok: true, unhandled: eventType });
+    return json({ ok: true, unhandled_status: status });
   } catch (e) {
     return json({ error: (e as Error).message }, 500);
   }
