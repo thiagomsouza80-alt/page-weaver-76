@@ -68,28 +68,12 @@ Deno.serve(async (req: Request) => {
 
     // ----- Webhook de Saque (RETIRADA) -----
     if (txType === "RETIRADA") {
-      // Atualiza withdrawal_requests pelo provider id (se armazenado em metadata)
-      const { data: wr } = await admin
-        .from("withdrawal_requests")
-        .select("id, status")
-        .contains("provider_metadata", { provider_transaction_id: providerId })
-        .maybeSingle();
-
-      if (wr) {
-        const newStatus =
-          status === "COMPLETO" ? "paid" :
-          status === "FALHA" || status === "CANCELADO" ? "rejected" :
-          wr.status;
-        await admin.from("withdrawal_requests").update({
-          status: newStatus,
-          provider_metadata: { provider_transaction_id: providerId, last_webhook: payload },
-        }).eq("id", wr.id);
-      }
-
+      // Registra no log de auditoria — vínculo com withdrawal_request
+      // será feito quando o admin processar o saque automaticamente.
       await admin.from("financial_audit_logs").insert({
         action: "withdrawal_webhook",
         entity_type: "withdrawal_request",
-        entity_id: wr?.id ?? null,
+        entity_id: null,
         metadata: payload,
       });
       return json({ ok: true, type: "withdrawal" });
