@@ -45,8 +45,11 @@ const AdminWithdrawalsPanel = () => {
       status: "approved", approved_by: user?.id,
     }).eq("id", w.id);
     if (error) { toast({ title: "Erro", description: error.message, variant: "destructive" }); return; }
-    await supabase.from("financial_audit_logs" as any).insert({
-      actor_user_id: user?.id, action: "withdrawal_approved", entity_type: "withdrawal_request", entity_id: w.id,
+    await (supabase as any).rpc("log_financial_event", {
+      _action: "withdrawal_approved",
+      _entity_type: "withdrawal_request",
+      _entity_id: w.id,
+      _metadata: {},
     });
     toast({ title: "Saque aprovado" });
     load();
@@ -147,9 +150,11 @@ const PayDialog = ({ withdrawal, onClose, onDone }: any) => {
         status: "paid", receipt_path: path, receipt_url: path, paid_by: user?.id,
       }).eq("id", withdrawal.id);
       if (error) throw error;
-      await supabase.from("financial_audit_logs" as any).insert({
-        actor_user_id: user?.id, action: "withdrawal_paid", entity_type: "withdrawal_request", entity_id: withdrawal.id,
-        metadata: { receipt_path: path },
+      await (supabase as any).rpc("log_financial_event", {
+        _action: "withdrawal_paid",
+        _entity_type: "withdrawal_request",
+        _entity_id: withdrawal.id,
+        _metadata: { receipt_path: path },
       });
       toast({ title: "Saque marcado como pago" });
       onDone();
@@ -188,8 +193,11 @@ const RejectDialog = ({ withdrawal, onClose, onDone }: any) => {
       status: "rejected", rejection_reason: reason,
     }).eq("id", withdrawal.id);
     if (error) { toast({ title: "Erro", description: error.message, variant: "destructive" }); return; }
-    await supabase.from("financial_audit_logs" as any).insert({
-      actor_user_id: user?.id, action: "withdrawal_rejected", entity_type: "withdrawal_request", entity_id: withdrawal.id, metadata: { reason },
+    await (supabase as any).rpc("log_financial_event", {
+      _action: "withdrawal_rejected",
+      _entity_type: "withdrawal_request",
+      _entity_id: withdrawal.id,
+      _metadata: { reason },
     });
     toast({ title: "Saque recusado" });
     onDone(); onClose();

@@ -49,8 +49,11 @@ const AdminGatewayConfigPanel = () => {
       if (r1.error) throw r1.error;
       if (r2.error) throw r2.error;
       invalidatePlatformFeeCache();
-      await supabase.from("financial_audit_logs" as any).insert({
-        actor_user_id: user?.id, action: "platform_config_updated", entity_type: "platform_settings", metadata: { fee_cents: feeCents, gateway_active: active, environment },
+      await (supabase as any).rpc("log_financial_event", {
+        _action: "platform_config_updated",
+        _entity_type: "platform_settings",
+        _entity_id: null,
+        _metadata: { fee_cents: feeCents, gateway_active: active, environment },
       });
       toast({ title: "Configurações salvas" });
     } catch (e: any) {
