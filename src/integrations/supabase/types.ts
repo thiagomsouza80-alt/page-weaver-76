@@ -1334,6 +1334,15 @@ export type Database = {
       }
       increment_fan_count: { Args: { _artist_id: string }; Returns: number }
       is_user_blocked: { Args: { _user_id: string }; Returns: boolean }
+      log_financial_event: {
+        Args: {
+          _action: string
+          _entity_id: string
+          _entity_type: string
+          _metadata?: Json
+        }
+        Returns: string
+      }
       organizer_financial_summary: {
         Args: { _organizer_id: string }
         Returns: {
