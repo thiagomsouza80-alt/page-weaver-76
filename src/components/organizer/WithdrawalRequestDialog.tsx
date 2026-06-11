@@ -50,12 +50,11 @@ const WithdrawalRequestDialog = ({ open, onClose, organizerId, availableCents, t
         amount_cents: amountCents,
       }).select("id").single();
       if (error) throw error;
-      await supabase.from("financial_audit_logs" as any).insert({
-        actor_user_id: user.id,
-        action: "withdrawal_requested",
-        entity_type: "withdrawal_request",
-        entity_id: (data as any).id,
-        metadata: { amount_cents: amountCents },
+      await (supabase as any).rpc("log_financial_event", {
+        _action: "withdrawal_requested",
+        _entity_type: "withdrawal_request",
+        _entity_id: (data as any).id,
+        _metadata: { amount_cents: amountCents },
       });
       toast({ title: "Solicitação enviada!", description: "Em análise pelo administrador." });
       onCreated();
