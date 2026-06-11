@@ -140,11 +140,15 @@ Deno.serve(async (req: Request) => {
       }),
     });
 
-    const respJson = await resp.json().catch(() => ({}));
+    const respText = await resp.text();
+    let respJson: any = {};
+    try { respJson = JSON.parse(respText); } catch { /* keep text */ }
+    console.log("[misticpay] HTTP", resp.status, "body:", respText.slice(0, 800));
+
     if (!resp.ok) {
       await admin.from("payment_transactions").update({
         status: "failed",
-        raw_payload: respJson,
+        raw_payload: { http_status: resp.status, body: respJson || respText },
       }).eq("id", tx.id);
       return json({
         error: "Falha ao criar cobrança na MisticPay",
@@ -152,10 +156,10 @@ Deno.serve(async (req: Request) => {
       }, 502);
     }
 
-    const data = respJson?.data ?? {};
-    const providerTxId = String(data.transactionId ?? "");
-    const qrcode = data.qrCodeBase64 || data.qrcodeUrl || "";
-    const copyPaste = data.copyPaste || "";
+    const data = respJson?.data ?? respJson ?? {};
+    const providerTxId = String(data.transactionId ?? data.id ?? "");
+    const qrcode = data.qrCodeBase64 || data.qrcodeUrl || data.qr_code || data.qrCode || "";
+    const copyPaste = data.copyPaste || data.copy_paste || data.pixCopyPaste || data.qrCodeText || "";
 
     await admin
       .from("payment_transactions")
@@ -164,8 +168,10 @@ Deno.serve(async (req: Request) => {
         pix_qrcode: qrcode,
         pix_copy_paste: copyPaste,
         pix_expires_at: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
+        raw_payload: respJson,
       })
       .eq("id", tx.id);
+
 
     await admin.from("financial_audit_logs").insert({
       actor_user_id: userId,
