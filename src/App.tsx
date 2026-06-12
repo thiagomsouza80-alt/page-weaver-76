@@ -25,6 +25,8 @@ import Empreendedores from "./pages/Empreendedores.tsx";
 import SocialPop from "./pages/SocialPop.tsx";
 import Organizador from "./pages/Organizador.tsx";
 import OrganizadorEvento from "./pages/OrganizadorEvento.tsx";
+import Validador from "./pages/Validador.tsx";
+import ValidadorEvento from "./pages/ValidadorEvento.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
