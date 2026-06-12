@@ -310,6 +310,10 @@ const OrganizadorPage = () => {
               )}
             </TabsContent>
 
+            <TabsContent value="validadores" className="mt-6">
+              <OrganizerValidatorsPanel organizerId={organizer.id} organizerUserId={organizer.user_id} />
+            </TabsContent>
+
             <TabsContent value="validar" className="mt-6">
               <AdminTicketValidationPanel />
             </TabsContent>
