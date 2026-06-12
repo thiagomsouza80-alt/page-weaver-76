@@ -63,6 +63,13 @@ const Navbar = () => {
         .eq("approval_status", "approved")
         .maybeSingle();
       setIsOrganizer(!!orgData);
+      const { data: valData } = await supabase
+        .from("event_validators" as any)
+        .select("id")
+        .eq("user_id", userId)
+        .eq("status", "active")
+        .limit(1);
+      setIsValidator(!!(valData && valData.length));
     };
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
