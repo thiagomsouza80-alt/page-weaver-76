@@ -186,6 +186,12 @@ const Navbar = () => {
                   <span className="text-sm font-medium text-primary">Painel do Organizador</span>
                 </Link>
               )}
+              {isValidator && (
+                <Link to="/validador" onClick={() => setMobileOpen(false)} className="flex items-center gap-3">
+                  <QrCode className="h-5 w-5 text-primary" />
+                  <span className="text-sm font-medium text-primary">Validação</span>
+                </Link>
+              )}
               <Link to="/meu-perfil" onClick={() => setMobileOpen(false)} className="flex items-center gap-3">
                 <ProfileAvatar size="md" />
                 <span className="text-sm font-medium text-primary">{profileName}</span>
