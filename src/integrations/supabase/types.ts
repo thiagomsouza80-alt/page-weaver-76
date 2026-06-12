@@ -281,6 +281,78 @@ export type Database = {
           },
         ]
       }
+      event_validators: {
+        Row: {
+          added_by: string
+          created_at: string
+          ends_at: string | null
+          event_id: string
+          id: string
+          last_access_at: string | null
+          organizer_id: string
+          permissions: Json
+          starts_at: string
+          status: string
+          updated_at: string
+          user_id: string
+          validations_count: number
+          validator_avatar_url: string | null
+          validator_email: string | null
+          validator_name: string
+        }
+        Insert: {
+          added_by: string
+          created_at?: string
+          ends_at?: string | null
+          event_id: string
+          id?: string
+          last_access_at?: string | null
+          organizer_id: string
+          permissions?: Json
+          starts_at?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+          validations_count?: number
+          validator_avatar_url?: string | null
+          validator_email?: string | null
+          validator_name: string
+        }
+        Update: {
+          added_by?: string
+          created_at?: string
+          ends_at?: string | null
+          event_id?: string
+          id?: string
+          last_access_at?: string | null
+          organizer_id?: string
+          permissions?: Json
+          starts_at?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+          validations_count?: number
+          validator_avatar_url?: string | null
+          validator_email?: string | null
+          validator_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_validators_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_validators_organizer_id_fkey"
+            columns: ["organizer_id"]
+            isOneToOne: false
+            referencedRelation: "organizers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           approval_status: string
@@ -1239,6 +1311,63 @@ export type Database = {
         }
         Relationships: []
       }
+      validations_log: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          ip_address: string | null
+          participant_name: string | null
+          result: string
+          scanned_code: string | null
+          ticket_id: string | null
+          user_agent: string | null
+          validator_name: string | null
+          validator_user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          ip_address?: string | null
+          participant_name?: string | null
+          result: string
+          scanned_code?: string | null
+          ticket_id?: string | null
+          user_agent?: string | null
+          validator_name?: string | null
+          validator_user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          ip_address?: string | null
+          participant_name?: string | null
+          result?: string
+          scanned_code?: string | null
+          ticket_id?: string | null
+          user_agent?: string | null
+          validator_name?: string | null
+          validator_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "validations_log_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "validations_log_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       withdrawal_requests: {
         Row: {
           admin_notes: string | null
@@ -1333,6 +1462,10 @@ export type Database = {
         Returns: boolean
       }
       increment_fan_count: { Args: { _artist_id: string }; Returns: number }
+      is_event_validator: {
+        Args: { _event: string; _user: string }
+        Returns: boolean
+      }
       is_user_blocked: { Args: { _user_id: string }; Returns: boolean }
       log_financial_event: {
         Args: {
@@ -1340,6 +1473,17 @@ export type Database = {
           _entity_id: string
           _entity_type: string
           _metadata?: Json
+        }
+        Returns: string
+      }
+      log_validation: {
+        Args: {
+          _event_id: string
+          _participant_name: string
+          _result: string
+          _scanned_code: string
+          _ticket_id: string
+          _user_agent?: string
         }
         Returns: string
       }
@@ -1355,6 +1499,18 @@ export type Database = {
           withdrawn_cents: number
         }[]
       }
+      search_users_for_validator: {
+        Args: { _q: string }
+        Returns: {
+          account_type: string
+          avatar_url: string
+          city: string
+          email: string
+          name: string
+          phone: string
+          user_id: string
+        }[]
+      }
       social_decrement_followers: {
         Args: { _target_id: string; _target_type: string }
         Returns: number
@@ -1367,6 +1523,14 @@ export type Database = {
       }
       social_increment_likes: { Args: { _post_id: string }; Returns: number }
       social_increment_shares: { Args: { _post_id: string }; Returns: number }
+      validator_event_summary: {
+        Args: { _event_id: string }
+        Returns: {
+          tickets_remaining: number
+          tickets_total: number
+          tickets_validated: number
+        }[]
+      }
     }
     Enums: {
       app_role: "admin" | "user" | "organizer"
