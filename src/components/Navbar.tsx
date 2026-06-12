@@ -128,6 +128,12 @@ const Navbar = () => {
                 <span className="text-sm font-medium text-primary">Painel do Organizador</span>
               </Link>
             )}
+            {isValidator && (
+              <Link to="/validador" className="hidden md:flex items-center gap-2 hover:opacity-80 transition-opacity">
+                <QrCode className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium text-primary">Validação</span>
+              </Link>
+            )}
             <Link to="/meu-perfil" className="hidden md:flex items-center gap-2 hover:opacity-80 transition-opacity">
               <ProfileAvatar />
               <span className="text-sm font-medium text-primary">{profileName.split(" ")[0]}</span>
