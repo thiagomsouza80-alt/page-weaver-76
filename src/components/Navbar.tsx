@@ -81,6 +81,7 @@ const Navbar = () => {
         setProfileName("");
         setIsAdmin(false);
         setIsOrganizer(false);
+        setIsValidator(false);
       }
     });
     supabase.auth.getSession().then(({ data: { session } }) => {
