@@ -15,7 +15,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import AdminTicketValidationPanel from "@/components/admin/AdminTicketValidationPanel";
 import OrganizerDashboard from "@/components/organizer/OrganizerDashboard";
 import OrganizerFinancePanel from "@/components/organizer/OrganizerFinancePanel";
-import { Plus, Pencil, Trash2, Loader2, Ticket, Clock, CheckCircle2, XCircle, QrCode, LayoutDashboard, Wallet } from "lucide-react";
+import OrganizerValidatorsPanel from "@/components/organizer/OrganizerValidatorsPanel";
+import { Plus, Pencil, Trash2, Loader2, Ticket, Clock, CheckCircle2, XCircle, QrCode, LayoutDashboard, Wallet, Users } from "lucide-react";
 import { centsToBRL, brlToCents, formatBRLInput } from "@/lib/money";
 import { usePlatformFee } from "@/lib/platformFee";
 
@@ -206,6 +207,7 @@ const OrganizadorPage = () => {
               <TabsTrigger value="dashboard" className="gap-2"><LayoutDashboard className="h-4 w-4" />Dashboard</TabsTrigger>
               <TabsTrigger value="eventos" className="gap-2"><Ticket className="h-4 w-4" />Meus Eventos</TabsTrigger>
               <TabsTrigger value="financeiro" className="gap-2"><Wallet className="h-4 w-4" />Financeiro</TabsTrigger>
+              <TabsTrigger value="validadores" className="gap-2"><Users className="h-4 w-4" />Equipe de Validação</TabsTrigger>
               <TabsTrigger value="validar" className="gap-2"><QrCode className="h-4 w-4" />Validar Ingressos</TabsTrigger>
             </TabsList>
 
@@ -306,6 +308,10 @@ const OrganizadorPage = () => {
                   ))}
                 </div>
               )}
+            </TabsContent>
+
+            <TabsContent value="validadores" className="mt-6">
+              <OrganizerValidatorsPanel organizerId={organizer.id} organizerUserId={organizer.user_id} />
             </TabsContent>
 
             <TabsContent value="validar" className="mt-6">

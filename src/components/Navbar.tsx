@@ -1,4 +1,4 @@
-import { User, Menu, X, Shield, LogIn, CalendarDays } from "lucide-react";
+import { User, Menu, X, Shield, LogIn, CalendarDays, QrCode } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -23,6 +23,7 @@ const Navbar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isOrganizer, setIsOrganizer] = useState(false);
+  const [isValidator, setIsValidator] = useState(false);
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [profileName, setProfileName] = useState<string>("");
 
@@ -62,6 +63,13 @@ const Navbar = () => {
         .eq("approval_status", "approved")
         .maybeSingle();
       setIsOrganizer(!!orgData);
+      const { data: valData } = await supabase
+        .from("event_validators" as any)
+        .select("id")
+        .eq("user_id", userId)
+        .eq("status", "active")
+        .limit(1);
+      setIsValidator(!!(valData && valData.length));
     };
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -73,6 +81,7 @@ const Navbar = () => {
         setProfileName("");
         setIsAdmin(false);
         setIsOrganizer(false);
+        setIsValidator(false);
       }
     });
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -117,6 +126,12 @@ const Navbar = () => {
               <Link to="/organizador" className="hidden md:flex items-center gap-2 hover:opacity-80 transition-opacity">
                 <CalendarDays className="h-4 w-4 text-primary" />
                 <span className="text-sm font-medium text-primary">Painel do Organizador</span>
+              </Link>
+            )}
+            {isValidator && (
+              <Link to="/validador" className="hidden md:flex items-center gap-2 hover:opacity-80 transition-opacity">
+                <QrCode className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium text-primary">Validação</span>
               </Link>
             )}
             <Link to="/meu-perfil" className="hidden md:flex items-center gap-2 hover:opacity-80 transition-opacity">
@@ -169,6 +184,12 @@ const Navbar = () => {
                 <Link to="/organizador" onClick={() => setMobileOpen(false)} className="flex items-center gap-3">
                   <CalendarDays className="h-5 w-5 text-primary" />
                   <span className="text-sm font-medium text-primary">Painel do Organizador</span>
+                </Link>
+              )}
+              {isValidator && (
+                <Link to="/validador" onClick={() => setMobileOpen(false)} className="flex items-center gap-3">
+                  <QrCode className="h-5 w-5 text-primary" />
+                  <span className="text-sm font-medium text-primary">Validação</span>
                 </Link>
               )}
               <Link to="/meu-perfil" onClick={() => setMobileOpen(false)} className="flex items-center gap-3">
