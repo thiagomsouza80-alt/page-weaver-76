@@ -207,6 +207,7 @@ const OrganizadorPage = () => {
               <TabsTrigger value="dashboard" className="gap-2"><LayoutDashboard className="h-4 w-4" />Dashboard</TabsTrigger>
               <TabsTrigger value="eventos" className="gap-2"><Ticket className="h-4 w-4" />Meus Eventos</TabsTrigger>
               <TabsTrigger value="financeiro" className="gap-2"><Wallet className="h-4 w-4" />Financeiro</TabsTrigger>
+              <TabsTrigger value="validadores" className="gap-2"><Users className="h-4 w-4" />Equipe de Validação</TabsTrigger>
               <TabsTrigger value="validar" className="gap-2"><QrCode className="h-4 w-4" />Validar Ingressos</TabsTrigger>
             </TabsList>
 
