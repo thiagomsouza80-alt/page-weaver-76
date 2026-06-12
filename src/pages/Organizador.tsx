@@ -15,7 +15,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import AdminTicketValidationPanel from "@/components/admin/AdminTicketValidationPanel";
 import OrganizerDashboard from "@/components/organizer/OrganizerDashboard";
 import OrganizerFinancePanel from "@/components/organizer/OrganizerFinancePanel";
-import { Plus, Pencil, Trash2, Loader2, Ticket, Clock, CheckCircle2, XCircle, QrCode, LayoutDashboard, Wallet } from "lucide-react";
+import OrganizerValidatorsPanel from "@/components/organizer/OrganizerValidatorsPanel";
+import { Plus, Pencil, Trash2, Loader2, Ticket, Clock, CheckCircle2, XCircle, QrCode, LayoutDashboard, Wallet, Users } from "lucide-react";
 import { centsToBRL, brlToCents, formatBRLInput } from "@/lib/money";
 import { usePlatformFee } from "@/lib/platformFee";
 
