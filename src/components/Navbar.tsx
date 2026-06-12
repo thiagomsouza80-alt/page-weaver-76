@@ -23,6 +23,7 @@ const Navbar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isOrganizer, setIsOrganizer] = useState(false);
+  const [isValidator, setIsValidator] = useState(false);
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [profileName, setProfileName] = useState<string>("");
 
