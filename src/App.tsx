@@ -28,6 +28,7 @@ import OrganizadorEvento from "./pages/OrganizadorEvento.tsx";
 import Validador from "./pages/Validador.tsx";
 import ValidadorEvento from "./pages/ValidadorEvento.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import MobileBottomNav from "./components/MobileBottomNav";
 
 const queryClient = new QueryClient();
 
@@ -67,6 +68,7 @@ const App = () => (
           <Route path="/validador/eventos/:id" element={<ValidadorEvento />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+        <MobileBottomNav />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
