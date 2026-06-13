@@ -44,7 +44,7 @@ const EmpreendedorDetalhe = () => {
       .eq("published", true)
       .maybeSingle()
       .then(({ data }) => {
-        setItem(data as Entrepreneur | null);
+        setItem(data as unknown as Entrepreneur | null);
         setLoading(false);
       });
   }, [slug]);

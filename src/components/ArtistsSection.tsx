@@ -56,7 +56,7 @@ const ArtistsSection = () => {
         .eq("approved", true)
         .order("created_at", { ascending: false })
         .limit(4);
-      setArtists(data || []);
+      setArtists((data as any) || []);
       setLoading(false);
     };
     fetchArtists();
