@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Instagram, Youtube, Twitter, Facebook } from "lucide-react";
 import logoOficial from "@/assets/logo-oficial.png";
+import { PwaInstallButton } from "./PwaInstallButton";
 
 const pageLinks = [
   { label: "Início", to: "/" },
@@ -22,7 +23,7 @@ const Footer = () => {
   return (
     <footer className="border-t border-border bg-card mt-16">
       <div className="max-w-7xl mx-auto px-6 md:px-12 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
           <div className="space-y-4">
             <img src={logoOficial} alt="Amazônia Pop" className="w-40" />
             <p className="text-muted-foreground text-sm leading-relaxed max-w-xs">
@@ -52,6 +53,10 @@ const Footer = () => {
               ))}
             </div>
             <p className="text-muted-foreground text-xs mt-6">contatoamazoniapop@gmail.com</p>
+          </div>
+          <div>
+            <h4 className="font-semibold text-sm uppercase tracking-wider mb-4 text-foreground/80">Aplicativo</h4>
+            <PwaInstallButton />
           </div>
         </div>
         <div className="border-t border-border mt-10 pt-6 text-center">
