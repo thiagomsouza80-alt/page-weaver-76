@@ -1,13 +1,13 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, Newspaper, CalendarDays, Ticket, User } from "lucide-react";
+import { Home, Newspaper, CalendarDays, Globe2, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const items = [
   { to: "/", label: "Início", icon: Home, match: (p: string) => p === "/" },
   { to: "/noticias", label: "Notícias", icon: Newspaper, match: (p: string) => p.startsWith("/noticias") },
   { to: "/eventos", label: "Eventos", icon: CalendarDays, match: (p: string) => p.startsWith("/eventos") },
-  { to: "/meu-perfil", label: "Ingressos", icon: Ticket, match: (p: string) => p.startsWith("/meu-perfil") },
-  { to: "/login", label: "Conta", icon: User, match: (p: string) => p.startsWith("/login") },
+  { to: "/social", label: "Social Pop", icon: Globe2, match: (p: string) => p.startsWith("/social") },
+  { to: "/meu-perfil", label: "Conta", icon: User, match: (p: string) => p.startsWith("/meu-perfil") || p.startsWith("/login") },
 ];
 
 /**
