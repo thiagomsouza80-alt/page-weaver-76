@@ -167,59 +167,73 @@ const Navbar = () => {
       </div>
 
       {mobileOpen && (
-        <div className="absolute top-full left-0 right-0 bg-background/95 backdrop-blur-md border-b border-border p-6 flex flex-col gap-4 md:hidden">
-          {navLinks.map((link) => (
-            <Link
-              key={link.label}
-              to={link.to}
-              onClick={() => setMobileOpen(false)}
-              className={`text-sm font-medium transition-colors hover:text-primary ${location.pathname === link.to ? "text-primary" : "text-foreground/70"}`}
-            >
-              {link.label}
+        <>
+          {/* Backdrop */}
+          <button
+            type="button"
+            aria-label="Fechar menu"
+            onClick={() => setMobileOpen(false)}
+            className="fixed inset-0 top-[57px] z-40 bg-black/50 backdrop-blur-sm md:hidden"
+          />
+          {/* Drawer */}
+          <div
+            className="fixed top-[57px] right-0 bottom-0 z-50 w-[85%] max-w-[320px] bg-background border-l border-border shadow-2xl overflow-y-auto overscroll-contain p-6 flex flex-col gap-4 md:hidden animate-in slide-in-from-right duration-200"
+            style={{ scrollBehavior: "smooth" }}
+          >
+            {navLinks.map((link) => (
+              <Link
+                key={link.label}
+                to={link.to}
+                onClick={() => setMobileOpen(false)}
+                className={`text-sm font-medium transition-colors hover:text-primary py-1 ${location.pathname === link.to ? "text-primary" : "text-foreground/70"}`}
+              >
+                {link.label}
+              </Link>
+            ))}
+            <div className="border-t border-border my-2" />
+            {isLoggedIn ? (
+              <>
+                {isOrganizer && (
+                  <Link to="/organizador" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 py-1">
+                    <CalendarDays className="h-5 w-5 text-primary" />
+                    <span className="text-sm font-medium text-primary">Painel do Organizador</span>
+                  </Link>
+                )}
+                {isValidator && (
+                  <Link to="/validador" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 py-1">
+                    <QrCode className="h-5 w-5 text-primary" />
+                    <span className="text-sm font-medium text-primary">Validação</span>
+                  </Link>
+                )}
+                <Link to="/meu-perfil" onClick={() => setMobileOpen(false)} className="flex items-center gap-3 py-1">
+                  <ProfileAvatar size="md" />
+                  <span className="text-sm font-medium text-primary truncate">{profileName}</span>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link to="/cadastro" onClick={() => setMobileOpen(false)}>
+                  <Button variant="nav" size="sm" className="gap-2 w-full justify-center">
+                    <User className="h-4 w-4" />
+                    Fazer Cadastro
+                  </Button>
+                </Link>
+                <Link to="/login" onClick={() => setMobileOpen(false)}>
+                  <Button variant="ghost" size="sm" className="gap-1.5 w-full justify-center text-muted-foreground hover:text-primary">
+                    <LogIn className="h-4 w-4" />
+                    Entrar
+                  </Button>
+                </Link>
+              </>
+            )}
+            <Link to={isAdmin ? "/admin" : "/admin/login"} onClick={() => setMobileOpen(false)}>
+              <Button variant="ghost" size="sm" className="gap-1.5 w-full justify-start text-muted-foreground hover:text-primary">
+                <Shield className="h-4 w-4" />
+                Admin
+              </Button>
             </Link>
-          ))}
-          {isLoggedIn ? (
-            <>
-              {isOrganizer && (
-                <Link to="/organizador" onClick={() => setMobileOpen(false)} className="flex items-center gap-3">
-                  <CalendarDays className="h-5 w-5 text-primary" />
-                  <span className="text-sm font-medium text-primary">Painel do Organizador</span>
-                </Link>
-              )}
-              {isValidator && (
-                <Link to="/validador" onClick={() => setMobileOpen(false)} className="flex items-center gap-3">
-                  <QrCode className="h-5 w-5 text-primary" />
-                  <span className="text-sm font-medium text-primary">Validação</span>
-                </Link>
-              )}
-              <Link to="/meu-perfil" onClick={() => setMobileOpen(false)} className="flex items-center gap-3">
-                <ProfileAvatar size="md" />
-                <span className="text-sm font-medium text-primary">{profileName}</span>
-              </Link>
-            </>
-          ) : (
-            <>
-              <Link to="/cadastro" onClick={() => setMobileOpen(false)}>
-                <Button variant="nav" size="sm" className="gap-2 w-fit">
-                  <User className="h-4 w-4" />
-                  Fazer Cadastro
-                </Button>
-              </Link>
-              <Link to="/login" onClick={() => setMobileOpen(false)}>
-                <Button variant="ghost" size="sm" className="gap-1.5 w-fit text-muted-foreground hover:text-primary">
-                  <LogIn className="h-4 w-4" />
-                  Entrar
-                </Button>
-              </Link>
-            </>
-          )}
-          <Link to={isAdmin ? "/admin" : "/admin/login"} onClick={() => setMobileOpen(false)}>
-            <Button variant="ghost" size="sm" className="gap-1.5 w-fit text-muted-foreground hover:text-primary">
-              <Shield className="h-4 w-4" />
-              Admin
-            </Button>
-          </Link>
-        </div>
+          </div>
+        </>
       )}
     </nav>
   );
