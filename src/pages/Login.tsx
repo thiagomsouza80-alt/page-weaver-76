@@ -104,10 +104,15 @@ const Login = () => {
             </Button>
           </form>
 
-          <p className="text-center text-sm text-muted-foreground">
-            Ainda não tem cadastro?{" "}
-            <a href="/cadastro-artista" className="text-primary hover:underline">Cadastre-se</a>
-          </p>
+          <div className="text-center space-y-2">
+            <p className="text-sm">
+              <a href="/esqueci-senha" className="text-primary hover:underline">Esqueci minha senha</a>
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Ainda não tem cadastro?{" "}
+              <a href="/cadastro-artista" className="text-primary hover:underline">Cadastre-se</a>
+            </p>
+          </div>
         </div>
       </div>
       <Footer />

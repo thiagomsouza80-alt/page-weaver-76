@@ -15,6 +15,8 @@ import AtelieCosmaker from "./pages/AtelieCosmaker.tsx";
 import Cadastro from "./pages/Cadastro.tsx";
 import Login from "./pages/Login.tsx";
 import MeuPerfil from "./pages/MeuPerfil.tsx";
+import EsqueciSenha from "./pages/EsqueciSenha.tsx";
+import RedefinirSenha from "./pages/RedefinirSenha.tsx";
 import AdminLogin from "./pages/AdminLogin.tsx";
 import AdminDashboard from "./pages/AdminDashboard.tsx";
 import NoticiaDetalhe from "./pages/NoticiaDetalhe.tsx";
@@ -57,6 +59,8 @@ const App = () => (
           <Route path="/empreendedores/:slug" element={<EmpreendedorDetalhe />} />
           <Route path="/cadastro-empreendedor" element={<Cadastro />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/esqueci-senha" element={<EsqueciSenha />} />
+          <Route path="/redefinir-senha" element={<RedefinirSenha />} />
           <Route path="/meu-perfil" element={<MeuPerfil />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin" element={<AdminDashboard />} />

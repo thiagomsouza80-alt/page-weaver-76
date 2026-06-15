@@ -110,6 +110,17 @@ const CadastroArtistaForm = () => {
   const uploadFile = (file: File, folder: string) =>
     uploadWithRetry(file, "artists", folder);
 
+  const friendlyAuthError = (msg: string): string => {
+    const m = (msg || "").toLowerCase();
+    if (m.includes("already") || m.includes("registered") || m.includes("exists"))
+      return "Este e-mail já está cadastrado. Faça login ou use 'Esqueci minha senha'.";
+    if (m.includes("password") && m.includes("weak")) return "Senha muito fraca. Use uma senha mais forte.";
+    if (m.includes("pwned") || m.includes("compromised") || m.includes("hibp"))
+      return "Esta senha aparece em vazamentos públicos. Escolha outra senha.";
+    if (m.includes("invalid") && m.includes("email")) return "E-mail inválido.";
+    return msg || "Erro interno. Tente novamente em alguns instantes.";
+  };
+
   const onSubmit = async (data: FormData) => {
     setSubmitting(true);
     try {
@@ -125,24 +136,32 @@ const CadastroArtistaForm = () => {
         portfolioUrls.push(url);
       }
 
-      // 2. Create auth account (only after uploads succeed)
-      await supabase.auth.signOut();
+      // 2. Create auth account (keep session alive for RLS insert)
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
+        options: { emailRedirectTo: `${window.location.origin}/meu-perfil` },
       });
-      if (authError) throw authError;
+      if (authError) throw new Error(friendlyAuthError(authError.message));
       if (!authData.user) throw new Error("Erro ao criar conta");
 
-      const userId = authData.user.id;
-      await supabase.auth.signOut();
+      // 3. Ensure active session (auto-confirm should give one; otherwise sign in)
+      if (!authData.session) {
+        const { error: loginErr } = await supabase.auth.signInWithPassword({
+          email: data.email,
+          password: data.password,
+        });
+        if (loginErr) throw new Error(friendlyAuthError(loginErr.message));
+      }
 
-      // 3. Determine if minor
+      const userId = authData.user.id;
+
+      // 4. Determine if minor
       const birthDate = new Date(data.birth_date);
       const age = Math.floor((Date.now() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
       const isMinorUser = age < 18;
 
-      // 4. Insert artist profile
+      // 5. Insert artist profile (session is live → RLS auth.uid() = user_id passes)
       const { error } = await supabase.from("artists").insert({
         name: data.name,
         email: data.email,
@@ -162,11 +181,11 @@ const CadastroArtistaForm = () => {
         approved: !isMinorUser,
       });
 
-      if (error) throw error;
+      if (error) throw new Error(error.message || "Não foi possível salvar seu perfil.");
 
       setSuccessMembership(data.membership_type || "free");
       setSuccess(isMinorUser ? "pending" : "approved");
-      toast({ title: "Cadastro concluído!", description: isMinorUser ? "Seu cadastro será analisado pelo administrador." : "Seu perfil já está ativo no portal." });
+      toast({ title: "Cadastro concluído!", description: isMinorUser ? "Seu cadastro será analisado pelo administrador." : "Você já está logado no portal." });
     } catch (err: any) {
       toast({ title: "Erro ao cadastrar", description: err.message, variant: "destructive" });
     } finally {
