@@ -35,6 +35,17 @@ const CadastroOrganizadorForm = () => {
     resolver: zodResolver(schema),
   });
 
+  const friendlyAuthError = (msg: string): string => {
+    const m = (msg || "").toLowerCase();
+    if (m.includes("already") || m.includes("registered") || m.includes("exists"))
+      return "Este e-mail já está cadastrado. Faça login ou use 'Esqueci minha senha'.";
+    if (m.includes("pwned") || m.includes("compromised") || m.includes("hibp"))
+      return "Esta senha aparece em vazamentos públicos. Escolha outra senha.";
+    if (m.includes("password") && m.includes("weak")) return "Senha muito fraca.";
+    if (m.includes("invalid") && m.includes("email")) return "E-mail inválido.";
+    return msg || "Erro interno. Tente novamente.";
+  };
+
   const onSubmit = async (data: FormData) => {
     setSubmitting(true);
     try {
@@ -44,19 +55,16 @@ const CadastroOrganizadorForm = () => {
         password: data.password,
         options: { emailRedirectTo: `${window.location.origin}/organizador` },
       });
-      if (signErr) throw signErr;
+      if (signErr) throw new Error(friendlyAuthError(signErr.message));
       const userId = auth.user?.id;
       if (!userId) throw new Error("Falha ao criar usuário.");
 
-      // 2) ensure session (auto-signin if email confirmation off)
+      // 2) ensure session
       if (!auth.session) {
         const { error: loginErr } = await supabase.auth.signInWithPassword({
           email: data.email, password: data.password,
         });
-        if (loginErr) {
-          // confirmation required — still create organizer row with service?  No — needs auth.uid()
-          throw new Error("Confirme seu email para concluir o cadastro.");
-        }
+        if (loginErr) throw new Error(friendlyAuthError(loginErr.message));
       }
 
       // 3) create organizer profile (pending)
@@ -72,7 +80,7 @@ const CadastroOrganizadorForm = () => {
         website: data.website || null,
         approval_status: "pending",
       } as any);
-      if (orgErr) throw orgErr;
+      if (orgErr) throw new Error(orgErr.message || "Não foi possível salvar o perfil de organizador.");
 
       setSuccess(true);
       toast({ title: "Cadastro enviado!", description: "Aguarde aprovação do administrador." });

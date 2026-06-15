@@ -96,10 +96,21 @@ const CadastroEmpreendedorForm = () => {
   const uploadFile = (file: File, folder: string) =>
     uploadWithRetry(file, "entrepreneurs", folder);
 
+  const friendlyAuthError = (msg: string): string => {
+    const m = (msg || "").toLowerCase();
+    if (m.includes("already") || m.includes("registered") || m.includes("exists"))
+      return "Este e-mail já está cadastrado. Faça login ou use 'Esqueci minha senha'.";
+    if (m.includes("pwned") || m.includes("compromised") || m.includes("hibp"))
+      return "Esta senha aparece em vazamentos públicos. Escolha outra senha.";
+    if (m.includes("password") && m.includes("weak")) return "Senha muito fraca. Use uma senha mais forte.";
+    if (m.includes("invalid") && m.includes("email")) return "E-mail inválido.";
+    return msg || "Erro interno. Tente novamente.";
+  };
+
   const onSubmit = async (data: FormData) => {
     setSubmitting(true);
     try {
-      // 1. Upload files FIRST (before creating auth account to prevent orphan users on failure)
+      // 1. Upload files FIRST
       let heroUrl: string | null = null;
       if (heroFile) {
         heroUrl = await uploadFile(heroFile, "hero");
@@ -111,21 +122,28 @@ const CadastroEmpreendedorForm = () => {
         portfolioUrls.push(url);
       }
 
-      // 2. Create auth account (only after uploads succeed)
-      await supabase.auth.signOut();
+      // 2. Create auth account (keep session alive for RLS insert)
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
+        options: { emailRedirectTo: `${window.location.origin}/meu-perfil` },
       });
-      if (authError) throw authError;
+      if (authError) throw new Error(friendlyAuthError(authError.message));
       if (!authData.user) throw new Error("Erro ao criar conta");
 
-      const userId = authData.user.id;
-      await supabase.auth.signOut();
+      // 3. Ensure active session
+      if (!authData.session) {
+        const { error: loginErr } = await supabase.auth.signInWithPassword({
+          email: data.email,
+          password: data.password,
+        });
+        if (loginErr) throw new Error(friendlyAuthError(loginErr.message));
+      }
 
+      const userId = authData.user.id;
       const slug = generateSlug(data.name);
 
-      // 3. Insert entrepreneur profile
+      // 4. Insert entrepreneur profile (RLS now passes)
       const { error } = await supabase.from("entrepreneurs").insert({
         name: data.name,
         slug,
@@ -146,10 +164,10 @@ const CadastroEmpreendedorForm = () => {
         user_id: userId,
       } as any);
 
-      if (error) throw error;
+      if (error) throw new Error(error.message || "Não foi possível salvar seu perfil.");
 
       setSuccess(true);
-      toast({ title: "Cadastro concluído!", description: "Seu perfil já está ativo no portal." });
+      toast({ title: "Cadastro concluído!", description: "Você já está logado no portal." });
     } catch (err: any) {
       toast({ title: "Erro ao cadastrar", description: err.message, variant: "destructive" });
     } finally {
