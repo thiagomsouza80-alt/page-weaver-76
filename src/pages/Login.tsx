@@ -24,7 +24,7 @@ const Login = () => {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
 
-      // Check if user has an artist or entrepreneur profile
+      // Check if user has an artist, entrepreneur, or organizer profile
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Erro ao buscar usuário");
 
@@ -59,7 +59,7 @@ const Login = () => {
               <h1 className="text-xl font-bold">Entrar no Portal</h1>
             </div>
             <p className="text-sm text-muted-foreground">
-              Acesse seu perfil de artista ou empreendedor
+              Acesse seu perfil de artista, empreendedor ou organizador
             </p>
           </div>
 
