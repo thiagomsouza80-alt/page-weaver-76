@@ -28,33 +28,19 @@ const Login = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Erro ao buscar usuário");
 
-      const { data: artist } = await supabase
-        .from("artists")
-        .select("id")
-        .eq("user_id", user.id)
-        .maybeSingle();
+      const [{ data: artist }, { data: entrepreneur }, { data: organizer }, { data: isAdmin }] = await Promise.all([
+        supabase.from("artists").select("id").eq("user_id", user.id).maybeSingle(),
+        supabase.from("entrepreneurs").select("id").eq("user_id", user.id).maybeSingle(),
+        supabase.from("organizers").select("id").eq("user_id", user.id).maybeSingle(),
+        supabase.rpc("has_role", { _user_id: user.id, _role: "admin" }),
+      ]);
 
-      const { data: entrepreneur } = await supabase
-        .from("entrepreneurs")
-        .select("id")
-        .eq("user_id", user.id)
-        .maybeSingle();
+      if (isAdmin) { navigate("/admin"); return; }
+      if (organizer) { navigate("/organizador"); return; }
+      if (artist || entrepreneur) { navigate("/meu-perfil"); return; }
 
-      if (!artist && !entrepreneur) {
-        // Check if admin
-        const { data: isAdmin } = await supabase.rpc("has_role", {
-          _user_id: user.id,
-          _role: "admin",
-        });
-        if (isAdmin) {
-          navigate("/admin");
-          return;
-        }
-        await supabase.auth.signOut();
-        throw new Error("Nenhum perfil encontrado para este e-mail. Faça seu cadastro primeiro.");
-      }
-
-      navigate("/meu-perfil");
+      await supabase.auth.signOut();
+      throw new Error("Nenhum perfil encontrado para este e-mail. Faça seu cadastro primeiro.");
     } catch (err: any) {
       toast({ title: "Erro no login", description: err.message, variant: "destructive" });
     } finally {
