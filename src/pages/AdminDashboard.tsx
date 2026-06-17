@@ -6,7 +6,7 @@ import {
   Loader2, Newspaper, CalendarDays, Users, LogOut, ExternalLink, Store,
   ClipboardCheck, Handshake, UserX, Bell, Trophy, Crown, Gift, Shield,
   Images, Database, Ticket, CalendarCheck, Wallet, BarChart3, CreditCard,
-  Settings, FileText, Menu, X, ChevronDown, Globe2,
+  Settings, FileText, Menu, X, ChevronDown, Globe2, RotateCcw,
 } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import { usePersistentBool } from "@/hooks/useSidebarState";
@@ -31,13 +31,14 @@ import AdminFinancePanel from "@/components/admin/AdminFinancePanel";
 import AdminGatewayConfigPanel from "@/components/admin/AdminGatewayConfigPanel";
 import AdminSettingsPanel from "@/components/admin/AdminSettingsPanel";
 import AdminLogsPanel from "@/components/admin/AdminLogsPanel";
+import AdminRefundsPanel from "@/components/admin/AdminRefundsPanel";
 import logoOficial from "@/assets/logo-oficial.png";
 
 type Tab =
   | "news" | "events" | "artists" | "entrepreneurs" | "pending" | "sponsors" | "banners"
   | "ranking" | "members" | "raffle" | "social" | "moderation"
   | "tickets" | "organizers" | "database"
-  | "withdrawals" | "finance" | "gateway"
+  | "withdrawals" | "refunds" | "finance" | "gateway"
   | "settings" | "orphans" | "logs";
 
 interface NavItem {
@@ -136,6 +137,7 @@ const AdminDashboard = () => {
       open: openFinance, toggle: () => setOpenFinance(!openFinance),
       items: [
         { key: "withdrawals", label: "Solicitações de Saque", icon: Wallet },
+        { key: "refunds", label: "Reembolsos", icon: RotateCcw },
         { key: "finance", label: "Controle Financeiro", icon: BarChart3 },
         { key: "gateway", label: "Gateway de Pagamento", icon: CreditCard },
       ],
@@ -287,6 +289,7 @@ const AdminDashboard = () => {
         {tab === "tickets" && <AdminTicketValidationPanel />}
         {tab === "organizers" && <AdminOrganizersPanel />}
         {tab === "withdrawals" && <AdminWithdrawalsPanel />}
+        {tab === "refunds" && <AdminRefundsPanel />}
         {tab === "finance" && <AdminFinancePanel />}
         {tab === "gateway" && <AdminGatewayConfigPanel />}
         {tab === "settings" && <AdminSettingsPanel />}
