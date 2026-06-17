@@ -892,6 +892,101 @@ export type Database = {
         }
         Relationships: []
       }
+      refund_requests: {
+        Row: {
+          admin_user_id: string | null
+          amount_paid_cents: number
+          amount_refundable_cents: number
+          created_at: string
+          decided_at: string | null
+          decision_reason: string | null
+          event_id: string
+          id: string
+          organizer_id: string | null
+          paid_at: string | null
+          payment_transaction_id: string | null
+          platform_fee_cents: number
+          reason: string
+          receipt_url: string | null
+          requested_at: string
+          status: string
+          ticket_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_user_id?: string | null
+          amount_paid_cents?: number
+          amount_refundable_cents?: number
+          created_at?: string
+          decided_at?: string | null
+          decision_reason?: string | null
+          event_id: string
+          id?: string
+          organizer_id?: string | null
+          paid_at?: string | null
+          payment_transaction_id?: string | null
+          platform_fee_cents?: number
+          reason: string
+          receipt_url?: string | null
+          requested_at?: string
+          status?: string
+          ticket_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_user_id?: string | null
+          amount_paid_cents?: number
+          amount_refundable_cents?: number
+          created_at?: string
+          decided_at?: string | null
+          decision_reason?: string | null
+          event_id?: string
+          id?: string
+          organizer_id?: string | null
+          paid_at?: string | null
+          payment_transaction_id?: string | null
+          platform_fee_cents?: number
+          reason?: string
+          receipt_url?: string | null
+          requested_at?: string
+          status?: string
+          ticket_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "refund_requests_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "refund_requests_organizer_id_fkey"
+            columns: ["organizer_id"]
+            isOneToOne: false
+            referencedRelation: "organizers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "refund_requests_payment_transaction_id_fkey"
+            columns: ["payment_transaction_id"]
+            isOneToOne: false
+            referencedRelation: "payment_transactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "refund_requests_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       social_comments: {
         Row: {
           author_avatar_url: string | null
@@ -1621,8 +1716,10 @@ export type Database = {
           available_cents: number
           gross_revenue_cents: number
           net_revenue_cents: number
+          pending_refund_cents: number
           pending_withdrawal_cents: number
           platform_fees_cents: number
+          refunded_cents: number
           tickets_sold: number
           withdrawn_cents: number
         }[]
