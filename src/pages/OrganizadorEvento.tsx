@@ -162,6 +162,14 @@ const OrganizadorEvento = () => {
           <Card><CardHeader className="pb-2"><CardTitle className="text-xs text-muted-foreground">Ocupação</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold">{total ? `${occupancy}%` : "—"}</div>{total ? <Progress value={occupancy} className="mt-2 h-2" /> : null}</CardContent></Card>
         </div>
 
+        <div className="mb-6">
+          <EventTicketingManager
+            eventId={event.id}
+            useBatches={!!event.use_batches}
+            onUseBatchesChange={(v) => setEvent({ ...event, use_batches: v })}
+          />
+        </div>
+
         <Card>
           <CardHeader>
             <div className="flex flex-wrap items-center justify-between gap-3">
