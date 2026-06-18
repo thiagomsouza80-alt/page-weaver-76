@@ -368,6 +368,197 @@ export type Database = {
           },
         ]
       }
+      event_courtesy_codes: {
+        Row: {
+          assigned_user_id: string | null
+          category_id: string
+          code: string
+          created_at: string
+          created_by: string | null
+          event_id: string
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          max_uses: number
+          notes: string | null
+          used_count: number
+        }
+        Insert: {
+          assigned_user_id?: string | null
+          category_id: string
+          code: string
+          created_at?: string
+          created_by?: string | null
+          event_id: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number
+          notes?: string | null
+          used_count?: number
+        }
+        Update: {
+          assigned_user_id?: string | null
+          category_id?: string
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          event_id?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number
+          notes?: string | null
+          used_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_courtesy_codes_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "event_ticket_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_courtesy_codes_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_ticket_batches: {
+        Row: {
+          created_at: string
+          ends_at: string | null
+          event_id: string
+          id: string
+          is_active: boolean
+          name: string
+          price_cents: number
+          quantity: number | null
+          sort_order: number
+          starts_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          ends_at?: string | null
+          event_id: string
+          id?: string
+          is_active?: boolean
+          name: string
+          price_cents?: number
+          quantity?: number | null
+          sort_order?: number
+          starts_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          ends_at?: string | null
+          event_id?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          price_cents?: number
+          quantity?: number | null
+          sort_order?: number
+          starts_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_ticket_batches_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_ticket_categories: {
+        Row: {
+          batch_id: string | null
+          created_at: string
+          description: string | null
+          donation_description: string | null
+          event_id: string
+          id: string
+          is_active: boolean
+          is_free: boolean
+          kind: Database["public"]["Enums"]["ticket_category_kind"]
+          name: string
+          per_user_limit: number
+          price_cents: number
+          quantity: number | null
+          requires_document: boolean
+          requires_donation: boolean
+          sale_ends_at: string | null
+          sale_starts_at: string | null
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          batch_id?: string | null
+          created_at?: string
+          description?: string | null
+          donation_description?: string | null
+          event_id: string
+          id?: string
+          is_active?: boolean
+          is_free?: boolean
+          kind: Database["public"]["Enums"]["ticket_category_kind"]
+          name: string
+          per_user_limit?: number
+          price_cents?: number
+          quantity?: number | null
+          requires_document?: boolean
+          requires_donation?: boolean
+          sale_ends_at?: string | null
+          sale_starts_at?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          batch_id?: string | null
+          created_at?: string
+          description?: string | null
+          donation_description?: string | null
+          event_id?: string
+          id?: string
+          is_active?: boolean
+          is_free?: boolean
+          kind?: Database["public"]["Enums"]["ticket_category_kind"]
+          name?: string
+          per_user_limit?: number
+          price_cents?: number
+          quantity?: number | null
+          requires_document?: boolean
+          requires_donation?: boolean
+          sale_ends_at?: string | null
+          sale_starts_at?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_ticket_categories_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "event_ticket_batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_ticket_categories_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_validators: {
         Row: {
           added_by: string
@@ -462,6 +653,7 @@ export type Database = {
           tickets_total: number | null
           title: string
           updated_at: string
+          use_batches: boolean
         }
         Insert: {
           approval_status?: string
@@ -484,6 +676,7 @@ export type Database = {
           tickets_total?: number | null
           title: string
           updated_at?: string
+          use_batches?: boolean
         }
         Update: {
           approval_status?: string
@@ -506,6 +699,7 @@ export type Database = {
           tickets_total?: number | null
           title?: string
           updated_at?: string
+          use_batches?: boolean
         }
         Relationships: [
           {
@@ -1425,13 +1619,23 @@ export type Database = {
       tickets: {
         Row: {
           batch_id: string | null
+          batch_name: string | null
+          category_id: string | null
+          category_kind:
+            | Database["public"]["Enums"]["ticket_category_kind"]
+            | null
+          category_name: string | null
           code: string
+          courtesy_code_id: string | null
           created_at: string
+          document_verified_at: string | null
+          donation_verified_at: string | null
           event_id: string
           holder_email: string
           holder_name: string
           holder_phone: string
           id: string
+          is_courtesy: boolean
           issued_at: string
           payment_method: string | null
           payment_reference: string | null
@@ -1440,6 +1644,7 @@ export type Database = {
           price_cents: number
           qr_token: string
           status: string
+          unit_price_cents: number | null
           updated_at: string
           used_at: string | null
           used_by: string | null
@@ -1447,13 +1652,23 @@ export type Database = {
         }
         Insert: {
           batch_id?: string | null
+          batch_name?: string | null
+          category_id?: string | null
+          category_kind?:
+            | Database["public"]["Enums"]["ticket_category_kind"]
+            | null
+          category_name?: string | null
           code?: string
+          courtesy_code_id?: string | null
           created_at?: string
+          document_verified_at?: string | null
+          donation_verified_at?: string | null
           event_id: string
           holder_email: string
           holder_name: string
           holder_phone: string
           id?: string
+          is_courtesy?: boolean
           issued_at?: string
           payment_method?: string | null
           payment_reference?: string | null
@@ -1462,6 +1677,7 @@ export type Database = {
           price_cents?: number
           qr_token?: string
           status?: string
+          unit_price_cents?: number | null
           updated_at?: string
           used_at?: string | null
           used_by?: string | null
@@ -1469,13 +1685,23 @@ export type Database = {
         }
         Update: {
           batch_id?: string | null
+          batch_name?: string | null
+          category_id?: string | null
+          category_kind?:
+            | Database["public"]["Enums"]["ticket_category_kind"]
+            | null
+          category_name?: string | null
           code?: string
+          courtesy_code_id?: string | null
           created_at?: string
+          document_verified_at?: string | null
+          donation_verified_at?: string | null
           event_id?: string
           holder_email?: string
           holder_name?: string
           holder_phone?: string
           id?: string
+          is_courtesy?: boolean
           issued_at?: string
           payment_method?: string | null
           payment_reference?: string | null
@@ -1484,12 +1710,27 @@ export type Database = {
           price_cents?: number
           qr_token?: string
           status?: string
+          unit_price_cents?: number | null
           updated_at?: string
           used_at?: string | null
           used_by?: string | null
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "tickets_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "event_ticket_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tickets_courtesy_code_id_fkey"
+            columns: ["courtesy_code_id"]
+            isOneToOne: false
+            referencedRelation: "event_courtesy_codes"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "tickets_event_id_fkey"
             columns: ["event_id"]
@@ -1653,6 +1894,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      assign_courtesy_ticket: {
+        Args: {
+          _category_id: string
+          _holder_email: string
+          _holder_name: string
+          _holder_phone: string
+          _target_user_id: string
+        }
+        Returns: string
+      }
       banner_increment_click: { Args: { _id: string }; Returns: undefined }
       banner_increment_view: { Args: { _id: string }; Returns: undefined }
       current_ticket_fee_cents: { Args: never; Returns: number }
@@ -1666,7 +1917,35 @@ export type Database = {
         Returns: number
       }
       event_attendees_count: { Args: { _event_id: string }; Returns: number }
+      event_category_available: {
+        Args: { _category_id: string }
+        Returns: number
+      }
+      event_current_batch: { Args: { _event_id: string }; Returns: string }
       event_tickets_count: { Args: { _event_id: string }; Returns: number }
+      generate_courtesy_codes: {
+        Args: { _category_id: string; _count: number; _expires_at?: string }
+        Returns: {
+          assigned_user_id: string | null
+          category_id: string
+          code: string
+          created_at: string
+          created_by: string | null
+          event_id: string
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          max_uses: number
+          notes: string | null
+          used_count: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "event_courtesy_codes"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       generate_ticket_code: { Args: never; Returns: string }
       has_role: {
         Args: {
@@ -1778,6 +2057,13 @@ export type Database = {
         | "fan_cultura_pop"
         | "youtuber"
         | "influenciador_digital"
+      ticket_category_kind:
+        | "full"
+        | "half"
+        | "solidarity"
+        | "pcd"
+        | "elderly"
+        | "courtesy"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1917,6 +2203,14 @@ export const Constants = {
         "fan_cultura_pop",
         "youtuber",
         "influenciador_digital",
+      ],
+      ticket_category_kind: [
+        "full",
+        "half",
+        "solidarity",
+        "pcd",
+        "elderly",
+        "courtesy",
       ],
     },
   },

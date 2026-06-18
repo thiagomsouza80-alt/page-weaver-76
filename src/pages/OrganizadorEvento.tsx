@@ -15,6 +15,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { ArrowLeft, Download, Loader2, Search, Ticket, Users, CalendarDays, MapPin } from "lucide-react";
+import EventTicketingManager from "@/components/organizer/EventTicketingManager";
 
 type Ticket = {
   id: string;
@@ -159,6 +160,14 @@ const OrganizadorEvento = () => {
           <Card><CardHeader className="pb-2"><CardTitle className="text-xs text-muted-foreground">Resgatados</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold">{redeemed}</div></CardContent></Card>
           <Card><CardHeader className="pb-2"><CardTitle className="text-xs text-muted-foreground">Disponíveis</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold">{remaining ?? "—"}</div></CardContent></Card>
           <Card><CardHeader className="pb-2"><CardTitle className="text-xs text-muted-foreground">Ocupação</CardTitle></CardHeader><CardContent><div className="text-2xl font-bold">{total ? `${occupancy}%` : "—"}</div>{total ? <Progress value={occupancy} className="mt-2 h-2" /> : null}</CardContent></Card>
+        </div>
+
+        <div className="mb-6">
+          <EventTicketingManager
+            eventId={event.id}
+            useBatches={!!event.use_batches}
+            onUseBatchesChange={(v) => setEvent({ ...event, use_batches: v })}
+          />
         </div>
 
         <Card>
