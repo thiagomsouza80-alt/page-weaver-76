@@ -1,84 +1,92 @@
-# Plano: Melhorias estruturais Amazônia Pop
+## Objetivo
 
-Escopo grande dividido em 5 fases. Nenhuma funcionalidade existente (ingressos, organizadores, validadores, financeiro, MisticPay, banco, social) será alterada na lógica — apenas reorganização visual, navegação e responsividade.
+Adicionar **lotes** e **modalidades de ingresso** (Inteira, Meia, Solidário, PCD, Idoso, Cortesia) ao Amazônia Pop, sem quebrar reembolsos, financeiro, saques, MisticPay, validadores, QR Codes e eventos legados.
 
-## Fase 1 — Admin Dashboard reorganizado
+Estratégia: **3 fases incrementais**. Eventos antigos continuam funcionando no modo atual (legado automático) — só passam a usar lotes/modalidades se o organizador editar e ativar.
 
-Atualmente `AdminDashboard.tsx` tem uma lista plana de 18 abas. Vou refatorar para sidebar com grupos expansíveis (collapsible/accordion), mantendo todos os panels existentes intactos.
+---
 
-Grupos:
-- **📰 Conteúdo**: Notícias, Eventos, Artistas, Empreendedores, Apoiadores, Atualizações, Banners
-- **👥 Comunidade**: Ranking de Fãs, Membros Pagos, Sorteios, Moderação Social
-- **🎟️ Eventos e Ingressos**: Validar Ingressos, Organizadores, Banco de Dados
-- **💰 Financeiro**: Solicitações de Saque, Controle Financeiro, Gateway
-- **⚙️ Sistema**: E-mails Órfãos, Configurações (nova aba placeholder), Logs (nova aba placeholder)
+## Fase A — Schema + criação no painel do organizador
 
-Persistência do estado de grupos abertos/recolhidos via `localStorage`. Sidebar fixa no desktop, recolhível no tablet, hambúrguer no mobile (usando Sheet do shadcn).
+**Banco (migration única):**
 
-## Fase 2 — Login persistente
+- `event_ticket_batches` — lotes do evento
+  - event_id, name, quantity, price_cents, starts_at, ends_at, sort_order, status (auto: scheduled/active/ended/sold_out)
+- `event_ticket_categories` — modalidades
+  - event_id, batch_id (nullable), kind (`full|half|solidarity|pcd|elderly|courtesy`), name, description, price_cents, is_free, quantity, per_user_limit, sale_starts_at, sale_ends_at, is_active, requires_document, requires_donation, donation_description, sort_order
+- `event_courtesy_codes` — códigos promocionais de cortesia
+  - category_id, code (único), max_uses, used_count, expires_at, created_by
+- `tickets` ganha colunas: `category_id`, `batch_id`, `category_kind`, `category_name`, `batch_name`, `unit_price_cents`, `is_courtesy`, `courtesy_code_id`, `document_verified_at`, `donation_verified_at` (todas nullable → legado intacto)
+- `events.use_batches boolean default false` (opt-in)
+- Função `event_category_available(category_id)` → calcula restante respeitando lote + quantidade
+- Função `event_current_batch(event_id)` → retorna lote ativo agora
+- Trigger em `tickets` para preencher snapshot de categoria/lote e validar limite por usuário + per_user_limit
+- RLS: organizador dono gerencia tudo; público lê categorias/lotes ativos; cortesia code só leitura via RPC
 
-Atualizar `src/integrations/supabase/client.ts` — já usa `localStorage` + `persistSession: true` + `autoRefreshToken: true`. Adicionar:
-- `detectSessionInUrl: true`
-- Garantir que nenhum fluxo chama `signOut()` automaticamente em mount/erros transitórios.
+**Frontend organizador (`OrganizadorEvento` ou form de criação):**
 
-Auditar `useAuth`/`useAdmin` para não forçar logout em falhas de rede. Logout só via botão "Encerrar Sessão".
+- Aba "Ingressos" com 2 sub-seções: **Lotes** e **Modalidades**
+- Checkbox "Utilizar lotes" no evento
+- CRUD de lotes (cards com status calculado)
+- CRUD de modalidades (cada uma com seu kind, vínculo de lote, limite por usuário, requisitos)
+- Painel de cortesia: gerar N códigos OU buscar usuário (RPC `search_users_for_validator` já existe) e atribuir ingresso direto
 
-## Fase 3 — Reorganização "Minha Conta" / remover "Ingressos" do nav mobile
+Sem mudança no fluxo de compra ainda — eventos editados começam a aparecer com modalidades, mas o botão atual continua usando o caminho legado se não houver categorias.
 
-`MeuPerfil.tsx` será reorganizado em tabs/seções:
-- 👤 Meu Perfil (nome, foto, telefone, e-mail, senha)
-- 🎟️ Meus Ingressos
-- 📅 Eventos Participando
-- 🕘 Histórico
-- ⚙️ Configurações
-- 🚪 Encerrar Sessão
+---
 
-`MobileBottomNav.tsx` — substituir item "Ingressos" por "Social Pop":
-`[Início, Notícias, Eventos, Social, Conta]`
+## Fase B — Compra pública + taxa condicional + limites
 
-A área Conta agrupa ingressos + perfil. Funcionalidades existentes preservadas, apenas reorganizadas em tabs.
+**`TicketRedeemButton` / página do evento:**
 
-## Fase 4 — Social Pop como menu independente
+- Se evento tem categorias ativas: substitui o botão único por lista de modalidades:
+  - Nome, descrição, preço, restante, lote atual, requisitos (ícones ♿ 👴 🎁), botão "Adquirir"
+  - Mostra "Esgotado" / "Encerrado" / "Em breve" conforme status
+- Diálogo de compra:
+  - Avisos obrigatórios (checkbox de aceite) para half/solidarity/pcd/elderly conforme `requires_document`/`requires_donation`
+  - Campo opcional "Código de cortesia" quando aplicável
+  - Respeita `per_user_limit` (consulta server-side antes de gerar PIX)
+- **Taxa da plataforma** (`platformFee`): aplicada SÓ se `is_free=false` E `category_kind != 'courtesy'`. Cortesia e qualquer modalidade gratuita ficam isentas.
+- `misticpay-create-charge` recebe `category_id`; valida elegibilidade, calcula preço a partir do lote/categoria do servidor (não confia no client), grava snapshot em `tickets` e `payment_transactions`.
+- Compatibilidade: eventos sem categorias usam o caminho atual idêntico ao de hoje. Reembolso continua olhando `payment_transactions` — sem mudanças.
 
-Adicionar link "Social Pop" no Navbar principal e no MobileBottomNav. Já existe `/social` (`SocialPop.tsx`) — apenas promover na navegação.
+---
 
-## Fase 5 — Responsividade
+## Fase C — Validador + relatórios + finalização
 
-Aplicar padrão tabela-desktop / cards-mobile em:
-- `AdminFinancePanel`
-- `AdminWithdrawalsPanel`
-- `AdminDatabasePanel`
-- `AdminTicketValidationPanel`
-- `OrganizerFinancePanel`
+**Validador (`ValidadorEvento` / `ContinuousScanner`):**
 
-Padrão: `<div className="hidden md:block">tabela</div>` + `<div className="md:hidden space-y-3">cards</div>`.
+- Tela do ticket mostra: nome, modalidade (ícone + nome), lote, status
+- Quando `requires_document` ou `requires_donation` → validação em **2 passos**:
+  1. Scan → mostra alerta amarelo "Conferir documento" / "Receber doação: <descrição>"
+  2. Validador marca checkbox "Conferido" e confirma → grava `document_verified_at`/`donation_verified_at` e marca `used`
+- `log_validation` ganha campo extra no metadata: `category_kind`, `verification_required`, `verified_by`
 
-Menu mobile do Navbar com `max-w-[85%]` e scroll suave (`overflow-y-auto`).
+**Painel do organizador — relatórios:**
 
-## Detalhes técnicos
+- `OrganizadorEvento` → tabela atual mantida + nova seção "Por modalidade":
+  - Linhas: Inteira / Meia / Solidário / PCD / Idoso / Cortesia
+  - Colunas: Disponível · Resgatado · Receita · Taxas · % Ocupação
+- Filtro por modalidade/lote na tabela de participantes
+- Export CSV ganha colunas modalidade e lote
 
-**Arquivos editados:**
-- `src/pages/AdminDashboard.tsx` — sidebar reagrupada + responsiva
-- `src/components/MobileBottomNav.tsx` — substituir Ingressos por Social
-- `src/components/Navbar.tsx` — adicionar Social Pop + ajustar menu mobile largura
-- `src/pages/MeuPerfil.tsx` — reorganizar em tabs Conta/Ingressos/etc
-- `src/integrations/supabase/client.ts` — **NÃO** será editado (é auto-gen); apenas confirmo que já está correto
-- `src/components/admin/AdminFinancePanel.tsx`, `AdminWithdrawalsPanel.tsx`, `AdminDatabasePanel.tsx`, `AdminTicketValidationPanel.tsx` — adicionar versão mobile em cards
-- `src/components/organizer/OrganizerFinancePanel.tsx` — idem
+**Polimento:**
 
-**Arquivos novos:**
-- `src/components/admin/AdminSettingsPanel.tsx` (placeholder)
-- `src/components/admin/AdminLogsPanel.tsx` (placeholder ou ligar a `validations_log`/`financial_audit_logs`)
-- `src/hooks/useSidebarState.ts` (persistência localStorage)
+- Mobile: cards de modalidade em coluna única, scroll horizontal nos lotes
+- Sem alterações em saques, financeiro, MisticPay webhook (recebe a transação igual), reembolso (continua usando `amount_paid_cents - platform_fee_cents`)
 
-**Performance (item 10):** já há React Query no projeto. Vou garantir `staleTime` configurado e adicionar `loading="lazy"` em `<img>` que ainda não tenham. Skeleton loading já existe via `components/ui/skeleton`.
+---
 
-**Padronização visual:** mantém tokens HSL atuais (roxo `265 80% 55%`, azul accent já no design system). Sem mudança de paleta.
+## Riscos & mitigação
 
-## Fora deste plano (não alterar)
+- **Eventos legados:** todas as novas colunas nullable + flag `use_batches` opt-in. Caminho de código atual permanece como fallback quando o evento não tem categorias.
+- **Taxa em cortesia:** centralizada numa função utilitária `computeFee(category)` para garantir consistência client/server.
+- **Reembolso:** intocado — opera sobre `payment_transactions`. Cortesias não geram transação paga, então naturalmente ficam fora.
+- **MisticPay webhook:** continua atualizando `tickets`/`payment_transactions` por `external_id`; só passa a ter snapshot de categoria/lote.
 
-Lógica de ingressos, organizadores, validadores, MisticPay, financeiro, banco e Social Pop — apenas reagrupados visualmente.
+---
 
-## Estimativa
+## Entrega
 
-~12 arquivos editados, 3 novos. Sem migrations. Sem mudanças de schema.
+- Cada fase = 1 ou 2 turns. Ao fim de A peço review antes de seguir para B; mesma coisa entre B e C.
+- Começo agora pela **Fase A** assim que aprovar.
