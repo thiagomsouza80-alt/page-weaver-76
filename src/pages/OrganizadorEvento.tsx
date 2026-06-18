@@ -15,6 +15,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { ArrowLeft, Download, Loader2, Search, Ticket, Users, CalendarDays, MapPin } from "lucide-react";
+import EventTicketingManager from "@/components/organizer/EventTicketingManager";
 
 type Ticket = {
   id: string;
