@@ -94,6 +94,7 @@ Deno.serve(async (req: Request) => {
     }
 
     if (status === "COMPLETO") {
+      const meta = (tx as any).metadata || {};
       const { data: ticket, error: ticketErr } = await admin
         .from("tickets")
         .insert({
@@ -107,6 +108,9 @@ Deno.serve(async (req: Request) => {
           payment_status: "paid",
           payment_method: "pix",
           payment_reference: providerId,
+          category_id: meta.category_id || null,
+          batch_id: meta.batch_id || null,
+          unit_price_cents: tx.amount_cents,
         })
         .select("id")
         .single();
