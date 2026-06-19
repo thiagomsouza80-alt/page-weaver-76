@@ -10,6 +10,7 @@ import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 
 interface Body {
   event_id: string;
+  category_id?: string | null;
   buyer_name: string;
   buyer_email: string;
   buyer_phone: string;
@@ -51,16 +52,75 @@ Deno.serve(async (req: Request) => {
       return json({ error: "CPF inválido. Informe os 11 dígitos." }, 400);
     }
 
-    // 1) Evento + preço
+    // 1) Evento
     const { data: ev, error: evErr } = await admin
       .from("events")
       .select("id, title, ticket_type, ticket_price_cents, tickets_total, organizer_id")
       .eq("id", body.event_id)
       .maybeSingle();
     if (evErr || !ev) return json({ error: "Evento não encontrado" }, 404);
-    if (ev.ticket_type !== "paid") return json({ error: "Evento não é pago" }, 400);
 
-    // 2) Disponibilidade
+    // 2) Resolver preço a partir de modalidade (se fornecida) ou evento legado
+    let amountCents = 0;
+    let categoryId: string | null = null;
+    let batchId: string | null = null;
+    let categoryKind: string | null = null;
+
+    if (body.category_id) {
+      const { data: cat } = await admin
+        .from("event_ticket_categories")
+        .select("*")
+        .eq("id", body.category_id)
+        .maybeSingle();
+      if (!cat) return json({ error: "Modalidade não encontrada" }, 404);
+      if (cat.event_id !== ev.id) return json({ error: "Modalidade não pertence ao evento" }, 400);
+      if (!cat.is_active) return json({ error: "Modalidade não está ativa" }, 400);
+      const now = Date.now();
+      if (cat.sale_starts_at && new Date(cat.sale_starts_at).getTime() > now)
+        return json({ error: "Venda dessa modalidade ainda não começou" }, 400);
+      if (cat.sale_ends_at && new Date(cat.sale_ends_at).getTime() < now)
+        return json({ error: "Venda dessa modalidade encerrada" }, 400);
+      if (cat.kind === "courtesy" || cat.is_free)
+        return json({ error: "Modalidade gratuita não usa PIX" }, 400);
+
+      if (cat.batch_id) {
+        const { data: bat } = await admin
+          .from("event_ticket_batches")
+          .select("*")
+          .eq("id", cat.batch_id)
+          .maybeSingle();
+        if (!bat || !bat.is_active) return json({ error: "Lote inativo" }, 400);
+        if (bat.starts_at && new Date(bat.starts_at).getTime() > now)
+          return json({ error: "Lote ainda não iniciou" }, 400);
+        if (bat.ends_at && new Date(bat.ends_at).getTime() < now)
+          return json({ error: "Lote encerrado" }, 400);
+        batchId = bat.id;
+      }
+
+      const { data: avail } = await admin.rpc("event_category_available", { _category_id: cat.id });
+      if (avail !== null && (avail as number) <= 0) return json({ error: "Modalidade esgotada" }, 409);
+
+      if (cat.per_user_limit) {
+        const { count } = await admin
+          .from("tickets")
+          .select("id", { count: "exact", head: true })
+          .eq("category_id", cat.id)
+          .eq("user_id", userId)
+          .neq("status", "cancelled");
+        if ((count ?? 0) >= cat.per_user_limit) {
+          return json({ error: `Limite por usuário atingido (${cat.per_user_limit})` }, 409);
+        }
+      }
+
+      amountCents = cat.price_cents;
+      categoryId = cat.id;
+      categoryKind = cat.kind;
+    } else {
+      if (ev.ticket_type !== "paid") return json({ error: "Evento não é pago" }, 400);
+      amountCents = ev.ticket_price_cents;
+    }
+
+    // 3) Disponibilidade total do evento
     if (ev.tickets_total) {
       const { count } = await admin
         .from("tickets")
@@ -72,17 +132,17 @@ Deno.serve(async (req: Request) => {
       }
     }
 
-    // 3) Taxa global
+    // 4) Taxa global (só aplica a modalidades pagas / não-cortesia)
     const { data: settings } = await admin
       .from("platform_settings")
       .select("ticket_fee_cents")
       .eq("id", true)
       .maybeSingle();
-    const feeCents = settings?.ticket_fee_cents ?? 100;
-    const amountCents = ev.ticket_price_cents;
+    const baseFee = settings?.ticket_fee_cents ?? 100;
+    const feeCents = (categoryKind === "courtesy" || amountCents === 0) ? 0 : baseFee;
     const totalCents = amountCents + feeCents;
 
-    // 4) Criar transaction (pending)
+    // 5) Criar transaction (pending)
     const { data: tx, error: txErr } = await admin
       .from("payment_transactions")
       .insert({
@@ -97,6 +157,7 @@ Deno.serve(async (req: Request) => {
         total_cents: totalCents,
         provider: "misticpay",
         status: "pending",
+        metadata: categoryId ? { category_id: categoryId, batch_id: batchId } : null,
       })
       .select("*")
       .single();
