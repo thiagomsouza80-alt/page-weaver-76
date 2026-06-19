@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/select";
 import { ArrowLeft, Download, Loader2, Search, Users, CalendarDays, MapPin, BarChart3 } from "lucide-react";
 import EventTicketingManager from "@/components/organizer/EventTicketingManager";
-import { formatBRL } from "@/lib/money";
+import { centsToBRL } from "@/lib/money";
 
 type Ticket = {
   id: string;
