@@ -1,0 +1,1 @@
+ALTER TABLE public.payment_transactions ADD COLUMN IF NOT EXISTS metadata jsonb;

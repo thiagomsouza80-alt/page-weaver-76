@@ -982,6 +982,7 @@ export type Database = {
           event_id: string
           fee_cents: number
           id: string
+          metadata: Json | null
           organizer_id: string | null
           paid_at: string | null
           pix_copy_paste: string | null
@@ -1005,6 +1006,7 @@ export type Database = {
           event_id: string
           fee_cents: number
           id?: string
+          metadata?: Json | null
           organizer_id?: string | null
           paid_at?: string | null
           pix_copy_paste?: string | null
@@ -1028,6 +1030,7 @@ export type Database = {
           event_id?: string
           fee_cents?: number
           id?: string
+          metadata?: Json | null
           organizer_id?: string | null
           paid_at?: string | null
           pix_copy_paste?: string | null
@@ -2010,6 +2013,15 @@ export type Database = {
           msg_id: number
           read_ct: number
         }[]
+      }
+      redeem_courtesy_code: {
+        Args: {
+          _code: string
+          _holder_email: string
+          _holder_name: string
+          _holder_phone: string
+        }
+        Returns: string
       }
       search_users_for_validator: {
         Args: { _q: string }
