@@ -3,9 +3,11 @@ import { Html5Qrcode } from "html5-qrcode";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Camera, StopCircle, Play, Pause, RefreshCw, Volume2, VolumeX,
   Zap, ZapOff, Search, CheckCircle, AlertCircle, XCircle, Loader2, Users,
+  ShieldAlert, Gift,
 } from "lucide-react";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -15,11 +17,21 @@ type Result =
   | { kind: "used"; ticket: any }
   | { kind: "cancelled"; ticket: any }
   | { kind: "notfound"; code: string }
+  | { kind: "pending"; ticket: any; category: any }
   | null;
 
 interface Props {
   eventId: string;
 }
+
+const KIND_LABEL: Record<string, { label: string; icon: string }> = {
+  full: { label: "Inteira", icon: "🎫" },
+  half: { label: "Meia", icon: "🎟️" },
+  solidarity: { label: "Solidário", icon: "🎁" },
+  pcd: { label: "PCD", icon: "♿" },
+  elderly: { label: "Idoso", icon: "👴" },
+  courtesy: { label: "Cortesia", icon: "✨" },
+};
 
 const beep = (audioCtx: AudioContext, freq: number, duration = 120) => {
   const o = audioCtx.createOscillator();
@@ -54,14 +66,18 @@ const ContinuousScanner = ({ eventId }: Props) => {
   const [torchSupported, setTorchSupported] = useState(false);
   const [stats, setStats] = useState({ total: 0, validated: 0, remaining: 0 });
   const [manualCode, setManualCode] = useState("");
+  const [docChecked, setDocChecked] = useState(false);
+  const [donationChecked, setDonationChecked] = useState(false);
+  const [confirming, setConfirming] = useState(false);
 
-  const playSound = (kind: "valid" | "used" | "notfound") => {
+  const playSound = (kind: "valid" | "used" | "notfound" | "pending") => {
     if (!soundOn) return;
     if (!audioCtxRef.current) {
       try { audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)(); } catch { return; }
     }
     const ctx = audioCtxRef.current!;
     if (kind === "valid") beep(ctx, 880, 120);
+    if (kind === "pending") beep(ctx, 700, 200);
     if (kind === "used") {
       beep(ctx, 660, 100);
       setTimeout(() => beep(ctx, 660, 100), 150);
@@ -97,17 +113,39 @@ const ContinuousScanner = ({ eventId }: Props) => {
     return () => { supabase.removeChannel(ch); };
   }, [eventId, refreshStats]);
 
+  const pauseSafe = async (yes: boolean) => {
+    try {
+      if (!scannerRef.current) return;
+      if (yes && !paused) { await scannerRef.current.pause(true); setPaused(true); }
+      if (!yes && paused) { await scannerRef.current.resume(); setPaused(false); }
+    } catch {}
+  };
+
+  const finalizeUsed = async (ticketId: string, extra: Record<string, any> = {}) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    const { data: updated, error } = await supabase
+      .from("tickets" as any)
+      .update({
+        status: "used",
+        used_at: new Date().toISOString(),
+        used_by: session?.user.id,
+        ...extra,
+      } as any)
+      .eq("id", ticketId)
+      .select("*, events:event_id(title,event_date,location)")
+      .single();
+    if (error) throw error;
+    return updated;
+  };
+
   const validate = useCallback(async (decoded: string) => {
     const value = (decoded || "").trim();
     if (!value) return;
 
-    // anti-duplicidade: ignora mesmo código por 3s
     const last = lastScansRef.current.get(value);
     const now = Date.now();
     if (last && now - last < 3000) return;
     lastScansRef.current.set(value, now);
-
-    // pequena janela global para evitar leituras em rajada de diferentes frames
     if (cooldownRef.current) return;
     cooldownRef.current = true;
     setTimeout(() => { cooldownRef.current = false; }, 400);
@@ -117,7 +155,7 @@ const ContinuousScanner = ({ eventId }: Props) => {
       const isUuid = UUID_RE.test(value);
       const query = supabase
         .from("tickets" as any)
-        .select("*, events:event_id(title,event_date,location)")
+        .select("*, events:event_id(title,event_date,location), category:category_id(id,name,kind,requires_document,requires_donation,donation_description)")
         .eq("event_id", eventId);
       const { data: t } = isUuid
         ? await query.eq("qr_token", value).maybeSingle()
@@ -130,36 +168,36 @@ const ContinuousScanner = ({ eventId }: Props) => {
 
       if (!t) {
         res = { kind: "notfound", code: value };
-        logResult = "notfound";
       } else {
         ticketId = (t as any).id;
         participant = (t as any).holder_name;
         const status = (t as any).status;
+        const cat = (t as any).category;
+        const needsVerification = cat && (cat.requires_document || cat.requires_donation);
+
         if (status === "used") {
           res = { kind: "used", ticket: t };
           logResult = "used";
         } else if (status === "cancelled") {
           res = { kind: "cancelled", ticket: t };
           logResult = "cancelled";
+        } else if (needsVerification) {
+          // 2-step: pause scan, await human confirmation
+          setDocChecked(false);
+          setDonationChecked(false);
+          await pauseSafe(true);
+          res = { kind: "pending", ticket: t, category: cat };
+          playSound("pending");
+          setResult(res);
+          setBusy(false);
+          return;
         } else {
-          const { data: { session } } = await supabase.auth.getSession();
-          const { data: updated, error: upErr } = await supabase
-            .from("tickets" as any)
-            .update({
-              status: "used",
-              used_at: new Date().toISOString(),
-              used_by: session?.user.id,
-            } as any)
-            .eq("id", (t as any).id)
-            .select("*, events:event_id(title,event_date,location)")
-            .single();
-          if (upErr) throw upErr;
+          const updated = await finalizeUsed((t as any).id);
           res = { kind: "valid", ticket: updated };
           logResult = "valid";
         }
       }
 
-      // log de auditoria
       await supabase.rpc("log_validation", {
         _event_id: eventId,
         _ticket_id: ticketId,
@@ -175,12 +213,49 @@ const ContinuousScanner = ({ eventId }: Props) => {
       resultTimeoutRef.current = window.setTimeout(() => setResult(null), 2000);
       refreshStats();
     } catch {
-      // silenciosamente continua varrendo
+      // silently keep scanning
     } finally {
       setBusy(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [eventId, refreshStats, soundOn]);
+  }, [eventId, refreshStats, soundOn, paused]);
+
+  const confirmPending = async () => {
+    if (!result || result.kind !== "pending") return;
+    const cat = result.category;
+    if (cat.requires_document && !docChecked) return;
+    if (cat.requires_donation && !donationChecked) return;
+    setConfirming(true);
+    try {
+      const extra: Record<string, any> = {};
+      if (cat.requires_document) extra.document_verified_at = new Date().toISOString();
+      if (cat.requires_donation) extra.donation_verified_at = new Date().toISOString();
+      const updated = await finalizeUsed(result.ticket.id, extra);
+      await supabase.rpc("log_validation", {
+        _event_id: eventId,
+        _ticket_id: result.ticket.id,
+        _participant_name: result.ticket.holder_name,
+        _scanned_code: result.ticket.code,
+        _result: "valid",
+        _user_agent: typeof navigator !== "undefined" ? navigator.userAgent : null,
+      });
+      playSound("valid");
+      setResult({ kind: "valid", ticket: updated });
+      if (resultTimeoutRef.current) window.clearTimeout(resultTimeoutRef.current);
+      resultTimeoutRef.current = window.setTimeout(() => setResult(null), 2000);
+      refreshStats();
+    } catch {
+      // ignore
+    } finally {
+      setConfirming(false);
+      await pauseSafe(false);
+    }
+  };
+
+  const cancelPending = async () => {
+    setResult(null);
+    await pauseSafe(false);
+  };
 
   const startScan = async (deviceId?: string) => {
     setResult(null);
@@ -205,16 +280,7 @@ const ContinuousScanner = ({ eventId }: Props) => {
           () => {},
         );
         currentCamRef.current = deviceId || null;
-
-        // detectar suporte a flash
-        try {
-          // @ts-ignore acesso a stream interno
-          const track = s.getRunningTrackSettings ? null : null;
-          // mais simples: tentar applyConstraints depois
-          setTorchSupported(true);
-        } catch {
-          setTorchSupported(false);
-        }
+        try { setTorchSupported(true); } catch { setTorchSupported(false); }
       } catch {
         setRunning(false);
       }
@@ -260,7 +326,6 @@ const ContinuousScanner = ({ eventId }: Props) => {
 
   const toggleTorch = async () => {
     try {
-      // @ts-ignore - acesso direto ao MediaStreamTrack
       const video: HTMLVideoElement | null = document.querySelector(`#${containerId} video`);
       const stream = (video?.srcObject as MediaStream | null);
       const track = stream?.getVideoTracks?.()[0];
@@ -284,9 +349,21 @@ const ContinuousScanner = ({ eventId }: Props) => {
     if (resultTimeoutRef.current) window.clearTimeout(resultTimeoutRef.current);
   }, []);
 
+  const renderModalityBadge = (ticket: any) => {
+    const kind = ticket?.category_kind || ticket?.category?.kind;
+    const name = ticket?.category_name || ticket?.category?.name;
+    if (!kind) return null;
+    const meta = KIND_LABEL[kind] || { label: name, icon: "🎫" };
+    return (
+      <p className="text-xs opacity-90">
+        {meta.icon} {name || meta.label}
+        {ticket?.batch_name ? ` • ${ticket.batch_name}` : ""}
+      </p>
+    );
+  };
+
   return (
     <div className="space-y-4">
-      {/* Stats topo */}
       <div className="grid grid-cols-3 gap-3">
         <div className="rounded-xl border border-border bg-card p-3 text-center">
           <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground"><Users className="h-3 w-3" /> Total</div>
@@ -302,7 +379,6 @@ const ContinuousScanner = ({ eventId }: Props) => {
         </div>
       </div>
 
-      {/* Controles */}
       <div className="flex flex-wrap gap-2">
         {!running ? (
           <Button onClick={() => startScan()} className="gap-2">
@@ -337,7 +413,6 @@ const ContinuousScanner = ({ eventId }: Props) => {
         </Button>
       </div>
 
-      {/* Câmera + overlay */}
       <div className="relative bg-card border border-border rounded-xl overflow-hidden">
         <div id={containerId} className="w-full min-h-[320px]" />
         {!running && (
@@ -351,7 +426,7 @@ const ContinuousScanner = ({ eventId }: Props) => {
           </div>
         )}
 
-        {result && (
+        {result && result.kind !== "pending" && (
           <div
             className={`absolute inset-x-0 bottom-0 p-4 text-center backdrop-blur-md border-t-4 animate-in fade-in slide-in-from-bottom duration-200 ${
               result.kind === "valid"
@@ -365,6 +440,7 @@ const ContinuousScanner = ({ eventId }: Props) => {
               <>
                 <div className="flex items-center justify-center gap-2 font-bold text-lg"><CheckCircle className="h-6 w-6" /> Ingresso Válido</div>
                 <p className="text-sm mt-1"><strong>{result.ticket.holder_name}</strong></p>
+                {renderModalityBadge(result.ticket)}
                 <p className="text-xs opacity-90">{result.ticket.events?.title} • {new Date().toLocaleTimeString("pt-BR")}</p>
                 <p className="text-xs opacity-90">Código: {result.ticket.code}</p>
               </>
@@ -373,6 +449,7 @@ const ContinuousScanner = ({ eventId }: Props) => {
               <>
                 <div className="flex items-center justify-center gap-2 font-bold text-lg"><AlertCircle className="h-6 w-6" /> Ingresso Já Utilizado</div>
                 <p className="text-sm mt-1"><strong>{result.ticket.holder_name}</strong></p>
+                {renderModalityBadge(result.ticket)}
                 <p className="text-xs opacity-90">Validado em {result.ticket.used_at ? new Date(result.ticket.used_at).toLocaleString("pt-BR") : "—"}</p>
               </>
             )}
@@ -392,7 +469,67 @@ const ContinuousScanner = ({ eventId }: Props) => {
         )}
       </div>
 
-      {/* Consulta manual */}
+      {/* 2-step verification modal-like card */}
+      {result && result.kind === "pending" && (
+        <div className="bg-yellow-50 dark:bg-yellow-950/30 border-2 border-yellow-500 rounded-xl p-5 space-y-4">
+          <div className="flex items-center gap-2 text-yellow-800 dark:text-yellow-300 font-bold">
+            <ShieldAlert className="h-5 w-5" /> Verificação Obrigatória
+          </div>
+          <div className="text-sm space-y-1">
+            <p><strong>{result.ticket.holder_name}</strong></p>
+            <p className="text-muted-foreground">
+              Modalidade: <strong>{KIND_LABEL[result.category.kind]?.icon} {result.category.name}</strong>
+            </p>
+            <p className="text-xs text-muted-foreground">Código: {result.ticket.code}</p>
+          </div>
+
+          <div className="space-y-3 border-t border-yellow-300/50 pt-3">
+            {result.category.requires_document && (
+              <label className="flex items-start gap-2 cursor-pointer text-sm">
+                <Checkbox checked={docChecked} onCheckedChange={(v) => setDocChecked(!!v)} className="mt-0.5" />
+                <span>
+                  <strong>Conferir documento</strong> que comprove a modalidade
+                  {result.category.kind === "half" && " (carteira de estudante, etc.)"}
+                  {result.category.kind === "pcd" && " (laudo/CIPCD)"}
+                  {result.category.kind === "elderly" && " (RG / documento com idade)"}
+                  .
+                </span>
+              </label>
+            )}
+            {result.category.requires_donation && (
+              <label className="flex items-start gap-2 cursor-pointer text-sm">
+                <Checkbox checked={donationChecked} onCheckedChange={(v) => setDonationChecked(!!v)} className="mt-0.5" />
+                <span className="flex items-start gap-1">
+                  <Gift className="h-4 w-4 text-pink-600 mt-0.5" />
+                  <span>
+                    <strong>Receber doação:</strong>{" "}
+                    {result.category.donation_description || "conforme descrição da modalidade"}.
+                  </span>
+                </span>
+              </label>
+            )}
+          </div>
+
+          <div className="flex gap-2 justify-end">
+            <Button variant="outline" onClick={cancelPending} disabled={confirming}>
+              Cancelar
+            </Button>
+            <Button
+              onClick={confirmPending}
+              disabled={
+                confirming ||
+                (result.category.requires_document && !docChecked) ||
+                (result.category.requires_donation && !donationChecked)
+              }
+              className="gap-2 bg-green-600 hover:bg-green-700 text-white"
+            >
+              {confirming && <Loader2 className="h-4 w-4 animate-spin" />}
+              <CheckCircle className="h-4 w-4" /> Confirmar e Validar
+            </Button>
+          </div>
+        </div>
+      )}
+
       <div className="bg-card border border-border rounded-xl p-4 space-y-3">
         <div className="flex items-center gap-2 text-sm font-medium">
           <Search className="h-4 w-4" /> Buscar por código
