@@ -2011,6 +2011,15 @@ export type Database = {
           read_ct: number
         }[]
       }
+      redeem_courtesy_code: {
+        Args: {
+          _code: string
+          _holder_email: string
+          _holder_name: string
+          _holder_phone: string
+        }
+        Returns: string
+      }
       search_users_for_validator: {
         Args: { _q: string }
         Returns: {
