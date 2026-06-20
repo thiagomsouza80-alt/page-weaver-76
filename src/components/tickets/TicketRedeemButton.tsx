@@ -306,8 +306,10 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
     if (selectedCat.requires_donation && !acceptDonation) return false;
     const needsCpf = !selectedCat.is_free && selectedCat.kind !== "courtesy";
     if (needsCpf && form.document.replace(/\D+/g, "").length !== 11) return false;
+    // Cortesia: público SEMPRE precisa de código válido (atribuição direta só é feita pelo organizador no painel)
+    if (selectedCat.kind === "courtesy" && !courtesyCode.trim()) return false;
     return true;
-  }, [selectedCat, form, acceptDoc, acceptDonation]);
+  }, [selectedCat, form, acceptDoc, acceptDonation, courtesyCode]);
 
   const sellable = useMemo(
     () => categories.map((c) => ({ c, ok: isCategorySellable(c, batches), left: available[c.id] })),
