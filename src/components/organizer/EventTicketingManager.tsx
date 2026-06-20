@@ -297,7 +297,7 @@ const EventTicketingManager = ({ eventId, useBatches, onUseBatchesChange }: Prop
         <Tabs defaultValue="categories" className="w-full">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="categories"><Ticket className="h-4 w-4 mr-1.5" /> Modalidades</TabsTrigger>
-            <TabsTrigger value="batches" disabled={!useBatches}><Layers className="h-4 w-4 mr-1.5" /> Lotes</TabsTrigger>
+            <TabsTrigger value="batches"><Layers className="h-4 w-4 mr-1.5" /> Lotes</TabsTrigger>
             <TabsTrigger value="courtesy"><Gift className="h-4 w-4 mr-1.5" /> Cortesia</TabsTrigger>
           </TabsList>
 
