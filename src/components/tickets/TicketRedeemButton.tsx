@@ -451,9 +451,9 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
 
                 {selectedCat?.kind === "courtesy" && (
                   <div className="space-y-1.5">
-                    <Label>Código de cortesia (opcional)</Label>
-                    <Input value={courtesyCode} onChange={(e) => setCourtesyCode(e.target.value.toUpperCase())} placeholder="CRT-XXXXXXXX" maxLength={40} />
-                    <p className="text-[11px] text-muted-foreground">Deixe em branco se sua cortesia foi atribuída diretamente pelo organizador.</p>
+                    <Label>Código de cortesia *</Label>
+                    <Input value={courtesyCode} onChange={(e) => setCourtesyCode(e.target.value.toUpperCase())} placeholder="CRT-XXXXXXXX" maxLength={40} required />
+                    <p className="text-[11px] text-muted-foreground">Informe o código recebido do organizador. Cortesias sem código são atribuídas diretamente pelo organizador no painel e aparecem em "Meus Ingressos".</p>
                   </div>
                 )}
 
