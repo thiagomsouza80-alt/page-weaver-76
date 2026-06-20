@@ -306,8 +306,10 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
     if (selectedCat.requires_donation && !acceptDonation) return false;
     const needsCpf = !selectedCat.is_free && selectedCat.kind !== "courtesy";
     if (needsCpf && form.document.replace(/\D+/g, "").length !== 11) return false;
+    // Cortesia: público SEMPRE precisa de código válido (atribuição direta só é feita pelo organizador no painel)
+    if (selectedCat.kind === "courtesy" && !courtesyCode.trim()) return false;
     return true;
-  }, [selectedCat, form, acceptDoc, acceptDonation]);
+  }, [selectedCat, form, acceptDoc, acceptDonation, courtesyCode]);
 
   const sellable = useMemo(
     () => categories.map((c) => ({ c, ok: isCategorySellable(c, batches), left: available[c.id] })),
@@ -449,9 +451,9 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
 
                 {selectedCat?.kind === "courtesy" && (
                   <div className="space-y-1.5">
-                    <Label>Código de cortesia (opcional)</Label>
-                    <Input value={courtesyCode} onChange={(e) => setCourtesyCode(e.target.value.toUpperCase())} placeholder="CRT-XXXXXXXX" maxLength={40} />
-                    <p className="text-[11px] text-muted-foreground">Deixe em branco se sua cortesia foi atribuída diretamente pelo organizador.</p>
+                    <Label>Código de cortesia *</Label>
+                    <Input value={courtesyCode} onChange={(e) => setCourtesyCode(e.target.value.toUpperCase())} placeholder="CRT-XXXXXXXX" maxLength={40} required />
+                    <p className="text-[11px] text-muted-foreground">Informe o código recebido do organizador. Cortesias sem código são atribuídas diretamente pelo organizador no painel e aparecem em "Meus Ingressos".</p>
                   </div>
                 )}
 
