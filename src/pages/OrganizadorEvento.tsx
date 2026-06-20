@@ -196,7 +196,7 @@ const OrganizadorEvento = () => {
       t.holder_name, t.holder_email, t.holder_phone, t.code,
       t.category_name || (t.category_id ? t.category_id : "—"),
       t.batch_name || "—",
-      formatBRL((t.unit_price_cents || 0) / 100),
+      centsToBRL(t.unit_price_cents || 0),
       new Date(t.issued_at).toLocaleString("pt-BR"),
       t.used_at ? "Utilizado" : t.status,
       t.used_at ? new Date(t.used_at).toLocaleString("pt-BR") : "",
@@ -303,8 +303,8 @@ const OrganizadorEvento = () => {
                           <TableCell className="text-right">{r.available ?? "—"}</TableCell>
                           <TableCell className="text-right">{r.redeemed}</TableCell>
                           <TableCell className="text-right">{r.validated}</TableCell>
-                          <TableCell className="text-right">{formatBRL(r.revenue / 100)}</TableCell>
-                          <TableCell className="text-right text-muted-foreground">{formatBRL(r.fees / 100)}</TableCell>
+                          <TableCell className="text-right">{centsToBRL(r.revenue)}</TableCell>
+                          <TableCell className="text-right text-muted-foreground">{centsToBRL(r.fees)}</TableCell>
                           <TableCell className="text-right">{r.occupancy != null ? `${r.occupancy}%` : "—"}</TableCell>
                         </TableRow>
                       );
