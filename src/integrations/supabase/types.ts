@@ -1818,6 +1818,60 @@ export type Database = {
           },
         ]
       }
+      validator_invitation_logs: {
+        Row: {
+          action: string
+          actor_user_id: string | null
+          created_at: string
+          event_id: string | null
+          id: string
+          metadata: Json
+          organizer_id: string | null
+          target_email: string | null
+          target_name: string | null
+          target_user_id: string | null
+        }
+        Insert: {
+          action: string
+          actor_user_id?: string | null
+          created_at?: string
+          event_id?: string | null
+          id?: string
+          metadata?: Json
+          organizer_id?: string | null
+          target_email?: string | null
+          target_name?: string | null
+          target_user_id?: string | null
+        }
+        Update: {
+          action?: string
+          actor_user_id?: string | null
+          created_at?: string
+          event_id?: string | null
+          id?: string
+          metadata?: Json
+          organizer_id?: string | null
+          target_email?: string | null
+          target_name?: string | null
+          target_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "validator_invitation_logs_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "validator_invitation_logs_organizer_id_fkey"
+            columns: ["organizer_id"]
+            isOneToOne: false
+            referencedRelation: "organizers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       withdrawal_requests: {
         Row: {
           admin_notes: string | null
@@ -2027,6 +2081,18 @@ export type Database = {
         Args: { _q: string }
         Returns: {
           account_type: string
+          avatar_url: string
+          city: string
+          email: string
+          name: string
+          phone: string
+          user_id: string
+        }[]
+      }
+      search_users_for_validator_v2: {
+        Args: { _limit?: number; _offset?: number; _q: string }
+        Returns: {
+          account_types: string[]
           avatar_url: string
           city: string
           email: string

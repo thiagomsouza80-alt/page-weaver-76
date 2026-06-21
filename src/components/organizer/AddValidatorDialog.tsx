@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -25,7 +25,19 @@ type FoundUser = {
   phone: string | null;
   city: string | null;
   avatar_url: string | null;
-  account_type: string;
+  account_types: string[];
+};
+
+const PAGE_SIZE = 10;
+
+const roleLabel = (t: string) => {
+  switch (t) {
+    case "artist": return "Artista";
+    case "entrepreneur": return "Empreendedor";
+    case "organizer": return "Organizador";
+    case "user": return "Usuário";
+    default: return t;
+  }
 };
 
 const AddValidatorDialog = ({ open, onOpenChange, organizerId, organizerUserId, onAdded }: Props) => {
@@ -34,7 +46,10 @@ const AddValidatorDialog = ({ open, onOpenChange, organizerId, organizerUserId, 
   const [q, setQ] = useState("");
   const [searching, setSearching] = useState(false);
   const [results, setResults] = useState<FoundUser[]>([]);
+  const [offset, setOffset] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
   const [selected, setSelected] = useState<FoundUser | null>(null);
+  const debounceRef = useRef<number | null>(null);
 
   const [events, setEvents] = useState<{ id: string; title: string; event_date: string }[]>([]);
   const [eventId, setEventId] = useState<string>("");
@@ -51,7 +66,7 @@ const AddValidatorDialog = ({ open, onOpenChange, organizerId, organizerUserId, 
   useEffect(() => {
     if (!open) return;
     setStep("search");
-    setQ(""); setResults([]); setSelected(null);
+    setQ(""); setResults([]); setSelected(null); setOffset(0); setHasMore(false);
     (async () => {
       const { data } = await supabase
         .from("events")
@@ -62,17 +77,36 @@ const AddValidatorDialog = ({ open, onOpenChange, organizerId, organizerUserId, 
     })();
   }, [open, organizerId]);
 
-  const handleSearch = async () => {
-    if (q.trim().length < 2) return;
+  const runSearch = async (term: string, off = 0, append = false) => {
+    if (term.trim().length < 2) {
+      setResults([]); setHasMore(false); setOffset(0);
+      return;
+    }
     setSearching(true);
-    const { data, error } = await supabase.rpc("search_users_for_validator", { _q: q.trim() });
+    const { data, error } = await supabase.rpc("search_users_for_validator_v2" as any, {
+      _q: term.trim(),
+      _limit: PAGE_SIZE,
+      _offset: off,
+    });
     setSearching(false);
     if (error) {
       toast({ title: "Erro na busca", description: error.message, variant: "destructive" });
       return;
     }
-    setResults((data as any) || []);
+    const rows = ((data as any[]) || []) as FoundUser[];
+    setResults((prev) => (append ? [...prev, ...rows] : rows));
+    setHasMore(rows.length === PAGE_SIZE);
+    setOffset(off + rows.length);
   };
+
+  // Busca em tempo real com debounce
+  useEffect(() => {
+    if (!open) return;
+    if (debounceRef.current) window.clearTimeout(debounceRef.current);
+    debounceRef.current = window.setTimeout(() => { runSearch(q, 0, false); }, 300);
+    return () => { if (debounceRef.current) window.clearTimeout(debounceRef.current); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [q, open]);
 
   const handleSelect = (u: FoundUser) => {
     setSelected(u);
@@ -110,9 +144,24 @@ const AddValidatorDialog = ({ open, onOpenChange, organizerId, organizerUserId, 
       return;
     }
 
+    const ev = events.find((e) => e.id === eventId);
+
+    // Log do convite
+    try {
+      await supabase.from("validator_invitation_logs" as any).insert({
+        event_id: eventId,
+        organizer_id: organizerId,
+        target_user_id: selected.user_id,
+        target_name: selected.name,
+        target_email: selected.email,
+        action: "invited",
+        actor_user_id: organizerUserId,
+        metadata: { event_title: ev?.title, account_types: selected.account_types },
+      } as any);
+    } catch {}
+
     // Notificação interna (best-effort)
     try {
-      const ev = events.find((e) => e.id === eventId);
       await supabase.from("social_notifications" as any).insert({
         user_id: selected.user_id,
         type: "validator_added",
@@ -129,38 +178,45 @@ const AddValidatorDialog = ({ open, onOpenChange, organizerId, organizerUserId, 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{step === "search" ? "Adicionar Validador" : "Configurar Permissões"}</DialogTitle>
           <DialogDescription>
             {step === "search"
-              ? "Busque usuários cadastrados na plataforma por nome, e-mail ou telefone."
+              ? "Busque qualquer usuário cadastrado por nome, e-mail ou telefone."
               : "Defina o evento e o período em que este usuário poderá validar ingressos."}
           </DialogDescription>
         </DialogHeader>
 
         {step === "search" ? (
           <div className="space-y-3">
-            <div className="flex gap-2">
+            <div className="relative">
+              <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <Input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder="Nome, e-mail ou telefone"
-                onKeyDown={(e) => { if (e.key === "Enter") handleSearch(); }}
+                placeholder="Digite nome, e-mail ou telefone..."
+                className="pl-9"
+                autoFocus
               />
-              <Button onClick={handleSearch} disabled={q.trim().length < 2 || searching}>
-                {searching ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
-              </Button>
+              {searching && (
+                <Loader2 className="h-4 w-4 absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-muted-foreground" />
+              )}
             </div>
-            <div className="max-h-72 overflow-y-auto space-y-2">
-              {results.length === 0 && !searching && (
+            <div className="max-h-80 overflow-y-auto space-y-2">
+              {q.trim().length < 2 && (
                 <p className="text-sm text-muted-foreground text-center py-6">
-                  Digite pelo menos 2 caracteres e busque.
+                  Digite pelo menos 2 caracteres para começar.
+                </p>
+              )}
+              {q.trim().length >= 2 && results.length === 0 && !searching && (
+                <p className="text-sm text-muted-foreground text-center py-6">
+                  Nenhum usuário encontrado.
                 </p>
               )}
               {results.map((u) => (
                 <button
-                  key={`${u.account_type}-${u.user_id}`}
+                  key={u.user_id}
                   onClick={() => handleSelect(u)}
                   className="w-full text-left flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-secondary/40 transition"
                 >
@@ -174,9 +230,24 @@ const AddValidatorDialog = ({ open, onOpenChange, organizerId, organizerUserId, 
                       {u.email || u.phone || "—"}{u.city ? ` • ${u.city}` : ""}
                     </div>
                   </div>
-                  <Badge variant="outline" className="text-xs capitalize">{u.account_type}</Badge>
+                  <div className="flex flex-wrap gap-1 justify-end max-w-[40%]">
+                    {(u.account_types || []).map((t) => (
+                      <Badge key={t} variant="outline" className="text-[10px] capitalize">{roleLabel(t)}</Badge>
+                    ))}
+                  </div>
                 </button>
               ))}
+              {hasMore && (
+                <Button
+                  variant="ghost"
+                  className="w-full"
+                  onClick={() => runSearch(q, offset, true)}
+                  disabled={searching}
+                >
+                  {searching ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                  Carregar mais
+                </Button>
+              )}
             </div>
           </div>
         ) : (

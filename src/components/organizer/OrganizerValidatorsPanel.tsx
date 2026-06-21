@@ -48,19 +48,45 @@ const OrganizerValidatorsPanel = ({ organizerId, organizerUserId }: Props) => {
   useEffect(() => { load(); }, [organizerId]);
 
   const setStatus = async (id: string, status: "active" | "suspended") => {
+    const target = rows.find((r) => r.id === id);
     const { error } = await supabase.from("event_validators" as any).update({ status } as any).eq("id", id);
     if (error) { toast({ title: "Erro", description: error.message, variant: "destructive" }); return; }
     toast({ title: status === "active" ? "Validador reativado" : "Validador suspenso" });
+    try {
+      await supabase.from("validator_invitation_logs" as any).insert({
+        event_id: target?.event_id,
+        organizer_id: organizerId,
+        target_user_id: target?.user_id,
+        target_name: target?.validator_name,
+        target_email: target?.validator_email,
+        action: "status_changed",
+        actor_user_id: organizerUserId,
+        metadata: { new_status: status },
+      } as any);
+    } catch {}
     load();
   };
 
   const remove = async (id: string) => {
     if (!confirm("Remover este validador?")) return;
+    const target = rows.find((r) => r.id === id);
     const { error } = await supabase.from("event_validators" as any).delete().eq("id", id);
     if (error) { toast({ title: "Erro", description: error.message, variant: "destructive" }); return; }
     toast({ title: "Validador removido" });
+    try {
+      await supabase.from("validator_invitation_logs" as any).insert({
+        event_id: target?.event_id,
+        organizer_id: organizerId,
+        target_user_id: target?.user_id,
+        target_name: target?.validator_name,
+        target_email: target?.validator_email,
+        action: "removed",
+        actor_user_id: organizerUserId,
+      } as any);
+    } catch {}
     load();
   };
+
 
   return (
     <div className="space-y-4">
