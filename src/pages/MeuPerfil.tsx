@@ -15,6 +15,8 @@ import { membershipTypes, membershipDescriptions, membershipPaymentInfo } from "
 import ShareButtons from "@/components/ShareButtons";
 import MyProductsSection from "@/components/social/MyProductsSection";
 import MeusIngressosSection from "@/components/tickets/MeusIngressosSection";
+import NotificationSettingsCard from "@/components/notifications/NotificationSettingsCard";
+
 
 type ProfileType = "artist" | "entrepreneur" | null;
 
@@ -445,6 +447,11 @@ const MeuPerfil = () => {
           <div className="mt-8">
             <MeusIngressosSection />
           </div>
+
+          <div className="mt-8">
+            <NotificationSettingsCard />
+          </div>
+
         </div>
         <Footer />
       </div>
