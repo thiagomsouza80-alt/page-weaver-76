@@ -102,3 +102,66 @@ export async function compressImages(
 ): Promise<File[]> {
   return Promise.all(files.map((f) => compressImage(f, maxWidth, maxHeight, quality)));
 }
+
+/**
+ * Crop an image to a fixed aspect ratio (default 3:4), centered, and resize to target.
+ * Used for News and Events covers — standardized at 1080x1440.
+ */
+export async function cropToAspect(
+  file: File,
+  targetWidth = 1080,
+  targetHeight = 1440,
+  quality = 0.85
+): Promise<File> {
+  if (!file.type.startsWith("image/") || file.type === "image/svg+xml") return file;
+
+  return new Promise((resolve) => {
+    try {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        try {
+          URL.revokeObjectURL(url);
+          const targetRatio = targetWidth / targetHeight;
+          const srcRatio = img.width / img.height;
+          let sx = 0, sy = 0, sw = img.width, sh = img.height;
+          if (srcRatio > targetRatio) {
+            // Source wider → crop sides
+            sw = Math.round(img.height * targetRatio);
+            sx = Math.round((img.width - sw) / 2);
+          } else if (srcRatio < targetRatio) {
+            // Source taller → crop top/bottom (centered, smart-ish)
+            sh = Math.round(img.width / targetRatio);
+            sy = Math.round((img.height - sh) / 2);
+          }
+          const canvas = document.createElement("canvas");
+          canvas.width = targetWidth;
+          canvas.height = targetHeight;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) { resolve(file); return; }
+          ctx.imageSmoothingQuality = "high";
+          ctx.drawImage(img, sx, sy, sw, sh, 0, 0, targetWidth, targetHeight);
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) { resolve(file); return; }
+              resolve(new File(
+                [blob],
+                file.name.replace(/\.\w+$/, ".jpg"),
+                { type: "image/jpeg", lastModified: Date.now() }
+              ));
+            },
+            "image/jpeg",
+            quality
+          );
+        } catch {
+          resolve(file);
+        }
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
+      img.src = url;
+    } catch {
+      resolve(file);
+    }
+  });
+}
+
