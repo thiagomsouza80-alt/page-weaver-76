@@ -445,6 +445,11 @@ const MeuPerfil = () => {
           <div className="mt-8">
             <MeusIngressosSection />
           </div>
+
+          <div className="mt-8">
+            <NotificationSettingsCard />
+          </div>
+
         </div>
         <Footer />
       </div>
