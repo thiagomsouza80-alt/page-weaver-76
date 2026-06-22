@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      app_secrets: {
+        Row: {
+          created_at: string
+          key: string
+          updated_at: string
+          value: string
+        }
+        Insert: {
+          created_at?: string
+          key: string
+          updated_at?: string
+          value: string
+        }
+        Update: {
+          created_at?: string
+          key?: string
+          updated_at?: string
+          value?: string
+        }
+        Relationships: []
+      }
       artist_pending_updates: {
         Row: {
           admin_notes: string | null
@@ -884,6 +905,66 @@ export type Database = {
           },
         ]
       }
+      notification_preferences: {
+        Row: {
+          created_at: string
+          email_enabled: boolean
+          events_cancelled: boolean
+          events_changes: boolean
+          events_new: boolean
+          financial_refunds: boolean
+          financial_withdrawals: boolean
+          marketplace_messages: boolean
+          news_new: boolean
+          push_enabled: boolean
+          retention_reminders: boolean
+          social_comments: boolean
+          social_followers: boolean
+          social_likes: boolean
+          social_posts: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email_enabled?: boolean
+          events_cancelled?: boolean
+          events_changes?: boolean
+          events_new?: boolean
+          financial_refunds?: boolean
+          financial_withdrawals?: boolean
+          marketplace_messages?: boolean
+          news_new?: boolean
+          push_enabled?: boolean
+          retention_reminders?: boolean
+          social_comments?: boolean
+          social_followers?: boolean
+          social_likes?: boolean
+          social_posts?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email_enabled?: boolean
+          events_cancelled?: boolean
+          events_changes?: boolean
+          events_new?: boolean
+          financial_refunds?: boolean
+          financial_withdrawals?: boolean
+          marketplace_messages?: boolean
+          news_new?: boolean
+          push_enabled?: boolean
+          retention_reminders?: boolean
+          social_comments?: boolean
+          social_followers?: boolean
+          social_likes?: boolean
+          social_posts?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       organizers: {
         Row: {
           approval_status: string
@@ -1086,6 +1167,39 @@ export type Database = {
           ticket_fee_cents?: number
           updated_at?: string
           updated_by?: string | null
+        }
+        Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          id: string
+          last_used_at: string | null
+          p256dh: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          last_used_at?: string | null
+          p256dh: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          last_used_at?: string | null
+          p256dh?: string
+          user_agent?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -2004,6 +2118,7 @@ export type Database = {
         }
       }
       generate_ticket_code: { Args: never; Returns: string }
+      get_vapid_public_key: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -2045,6 +2160,10 @@ export type Database = {
           source_queue: string
         }
         Returns: number
+      }
+      notif_pref_enabled: {
+        Args: { _key: string; _user: string }
+        Returns: boolean
       }
       organizer_financial_summary: {
         Args: { _organizer_id: string }
