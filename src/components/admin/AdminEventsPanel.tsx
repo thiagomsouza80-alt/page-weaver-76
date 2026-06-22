@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { compressImage } from "@/lib/imageCompression";
+import { compressImage, cropToAspect } from "@/lib/imageCompression";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,10 +8,11 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, Loader2, Eye, EyeOff, Ticket } from "lucide-react";
-import ImagePositionSelector from "@/components/admin/ImagePositionSelector";
+import { useMemo } from "react";
 import type { Tables } from "@/integrations/supabase/types";
 import { centsToBRL, brlToCents, formatBRLInput } from "@/lib/money";
 import { usePlatformFee } from "@/lib/platformFee";
+
 
 type Event = Tables<"events">;
 
