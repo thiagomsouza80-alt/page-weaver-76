@@ -108,7 +108,7 @@ const AdminNewsPanel = () => {
     try {
       let imageUrl = editing?.image_url || null;
       if (imageFile) {
-        const compressed = await compressImage(imageFile);
+        const compressed = await compressImage(await cropToAspect(imageFile, 1080, 1440, 0.85), 1080, 1440, 0.85);
         const ext = compressed.name.split(".").pop();
         const path = `${crypto.randomUUID()}.${ext}`;
         const { error: uploadErr } = await supabase.storage.from("news").upload(path, compressed);
