@@ -75,13 +75,15 @@ const AdminEventsPanel = () => {
     try {
       let imageUrl = editing?.image_url || null;
       if (imageFile) {
-        const compressed = await compressImage(imageFile);
+        const cropped = await cropToAspect(imageFile, 1080, 1440, 0.85);
+        const compressed = await compressImage(cropped, 1080, 1440, 0.85);
         const ext = compressed.name.split(".").pop();
         const path = `${crypto.randomUUID()}.${ext}`;
         const { error: uploadErr } = await supabase.storage.from("events").upload(path, compressed);
         if (uploadErr) throw uploadErr;
         imageUrl = supabase.storage.from("events").getPublicUrl(path).data.publicUrl;
       }
+
 
       const slug = generateSlug(title);
       const priceCents = ticketType === "paid" ? brlToCents(ticketPrice) : 0;
