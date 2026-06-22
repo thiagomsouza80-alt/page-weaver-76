@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { compressImage } from "@/lib/imageCompression";
+import { compressImage, cropToAspect } from "@/lib/imageCompression";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -9,7 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, Loader2, Eye, EyeOff, X, Image, Ticket } from "lucide-react";
-import ImagePositionSelector from "@/components/admin/ImagePositionSelector";
+
 import type { Tables } from "@/integrations/supabase/types";
 
 type News = Tables<"news">;
@@ -108,7 +108,7 @@ const AdminNewsPanel = () => {
     try {
       let imageUrl = editing?.image_url || null;
       if (imageFile) {
-        const compressed = await compressImage(imageFile);
+        const compressed = await compressImage(await cropToAspect(imageFile, 1080, 1440, 0.85), 1080, 1440, 0.85);
         const ext = compressed.name.split(".").pop();
         const path = `${crypto.randomUUID()}.${ext}`;
         const { error: uploadErr } = await supabase.storage.from("news").upload(path, compressed);
@@ -200,14 +200,22 @@ const AdminNewsPanel = () => {
             <Textarea value={content} onChange={e => setContent(e.target.value)} rows={8} required />
           </div>
           <div className="space-y-2">
-            <Label>Imagem Principal (topo da notícia)</Label>
+            <Label>Imagem Principal (proporção 3:4 — 1080×1440 automático)</Label>
             <Input type="file" accept="image/*" onChange={e => setImageFile(e.target.files?.[0] || null)} />
+            {(imageFile || editing?.image_url) && (
+              <div className="mt-2">
+                <p className="text-xs text-muted-foreground mb-2">Pré-visualização (recorte central automático):</p>
+                <div className="w-40 aspect-[3/4] rounded-lg overflow-hidden border border-border bg-secondary">
+                  <img
+                    src={imageFile ? URL.createObjectURL(imageFile) : editing?.image_url || ""}
+                    alt=""
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+            )}
           </div>
-          <ImagePositionSelector
-            value={imagePosition}
-            onChange={setImagePosition}
-            imageUrl={imageFile ? URL.createObjectURL(imageFile) : editing?.image_url}
-          />
+
 
           {/* Gallery Images */}
           <div className="space-y-3">

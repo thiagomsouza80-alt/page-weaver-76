@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { compressImage } from "@/lib/imageCompression";
+import { compressImage, cropToAspect } from "@/lib/imageCompression";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,10 +8,11 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, Loader2, Eye, EyeOff, Ticket } from "lucide-react";
-import ImagePositionSelector from "@/components/admin/ImagePositionSelector";
+import { useMemo } from "react";
 import type { Tables } from "@/integrations/supabase/types";
 import { centsToBRL, brlToCents, formatBRLInput } from "@/lib/money";
 import { usePlatformFee } from "@/lib/platformFee";
+
 
 type Event = Tables<"events">;
 
@@ -74,13 +75,15 @@ const AdminEventsPanel = () => {
     try {
       let imageUrl = editing?.image_url || null;
       if (imageFile) {
-        const compressed = await compressImage(imageFile);
+        const cropped = await cropToAspect(imageFile, 1080, 1440, 0.85);
+        const compressed = await compressImage(cropped, 1080, 1440, 0.85);
         const ext = compressed.name.split(".").pop();
         const path = `${crypto.randomUUID()}.${ext}`;
         const { error: uploadErr } = await supabase.storage.from("events").upload(path, compressed);
         if (uploadErr) throw uploadErr;
         imageUrl = supabase.storage.from("events").getPublicUrl(path).data.publicUrl;
       }
+
 
       const slug = generateSlug(title);
       const priceCents = ticketType === "paid" ? brlToCents(ticketPrice) : 0;
@@ -162,14 +165,22 @@ const AdminEventsPanel = () => {
             <Textarea value={content} onChange={e => setContent(e.target.value)} rows={8} required />
           </div>
           <div className="space-y-2">
-            <Label>Imagem de Capa</Label>
+            <Label>Imagem de Capa (proporção 3:4 — 1080×1440 automático)</Label>
             <Input type="file" accept="image/*" onChange={e => setImageFile(e.target.files?.[0] || null)} />
+            {(imageFile || editing?.image_url) && (
+              <div className="mt-2">
+                <p className="text-xs text-muted-foreground mb-2">Pré-visualização (recorte central automático):</p>
+                <div className="w-40 aspect-[3/4] rounded-lg overflow-hidden border border-border bg-secondary">
+                  <img
+                    src={imageFile ? URL.createObjectURL(imageFile) : editing?.image_url || ""}
+                    alt=""
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+            )}
           </div>
-          <ImagePositionSelector
-            value={imagePosition}
-            onChange={setImagePosition}
-            imageUrl={imageFile ? URL.createObjectURL(imageFile) : editing?.image_url}
-          />
+
           <div className="flex items-start gap-3 p-4 rounded-lg border border-border bg-secondary/30">
             <Ticket className="h-5 w-5 text-primary mt-0.5 shrink-0" />
             <div className="flex-1">
