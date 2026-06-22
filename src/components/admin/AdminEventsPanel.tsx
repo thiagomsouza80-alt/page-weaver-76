@@ -165,14 +165,22 @@ const AdminEventsPanel = () => {
             <Textarea value={content} onChange={e => setContent(e.target.value)} rows={8} required />
           </div>
           <div className="space-y-2">
-            <Label>Imagem de Capa</Label>
+            <Label>Imagem de Capa (proporção 3:4 — 1080×1440 automático)</Label>
             <Input type="file" accept="image/*" onChange={e => setImageFile(e.target.files?.[0] || null)} />
+            {(imageFile || editing?.image_url) && (
+              <div className="mt-2">
+                <p className="text-xs text-muted-foreground mb-2">Pré-visualização (recorte central automático):</p>
+                <div className="w-40 aspect-[3/4] rounded-lg overflow-hidden border border-border bg-secondary">
+                  <img
+                    src={imageFile ? URL.createObjectURL(imageFile) : editing?.image_url || ""}
+                    alt=""
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
+            )}
           </div>
-          <ImagePositionSelector
-            value={imagePosition}
-            onChange={setImagePosition}
-            imageUrl={imageFile ? URL.createObjectURL(imageFile) : editing?.image_url}
-          />
+
           <div className="flex items-start gap-3 p-4 rounded-lg border border-border bg-secondary/30">
             <Ticket className="h-5 w-5 text-primary mt-0.5 shrink-0" />
             <div className="flex-1">
