@@ -9,7 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Pencil, Trash2, Loader2, Eye, EyeOff, X, Image, Ticket } from "lucide-react";
-import ImagePositionSelector from "@/components/admin/ImagePositionSelector";
+
 import type { Tables } from "@/integrations/supabase/types";
 
 type News = Tables<"news">;
