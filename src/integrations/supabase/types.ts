@@ -74,6 +74,13 @@ export type Database = {
             referencedRelation: "artists"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "artist_pending_updates_artist_id_fkey"
+            columns: ["artist_id"]
+            isOneToOne: false
+            referencedRelation: "artists_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       artists: {
@@ -281,6 +288,13 @@ export type Database = {
             columns: ["entrepreneur_id"]
             isOneToOne: false
             referencedRelation: "entrepreneurs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "entrepreneur_pending_updates_entrepreneur_id_fkey"
+            columns: ["entrepreneur_id"]
+            isOneToOne: false
+            referencedRelation: "entrepreneurs_public"
             referencedColumns: ["id"]
           },
         ]
@@ -2062,7 +2076,120 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      artists_public: {
+        Row: {
+          approved: boolean | null
+          bio: string | null
+          city: string | null
+          created_at: string | null
+          fan_count: number | null
+          followers_count: number | null
+          id: string | null
+          instagram: string | null
+          membership_type: string | null
+          name: string | null
+          portfolio_images: string[] | null
+          posts_count: number | null
+          profile_image_url: string | null
+          segment: Database["public"]["Enums"]["artist_segment"] | null
+          user_id: string | null
+          youtube_url: string | null
+        }
+        Insert: {
+          approved?: boolean | null
+          bio?: string | null
+          city?: string | null
+          created_at?: string | null
+          fan_count?: number | null
+          followers_count?: number | null
+          id?: string | null
+          instagram?: string | null
+          membership_type?: string | null
+          name?: string | null
+          portfolio_images?: string[] | null
+          posts_count?: number | null
+          profile_image_url?: string | null
+          segment?: Database["public"]["Enums"]["artist_segment"] | null
+          user_id?: string | null
+          youtube_url?: string | null
+        }
+        Update: {
+          approved?: boolean | null
+          bio?: string | null
+          city?: string | null
+          created_at?: string | null
+          fan_count?: number | null
+          followers_count?: number | null
+          id?: string | null
+          instagram?: string | null
+          membership_type?: string | null
+          name?: string | null
+          portfolio_images?: string[] | null
+          posts_count?: number | null
+          profile_image_url?: string | null
+          segment?: Database["public"]["Enums"]["artist_segment"] | null
+          user_id?: string | null
+          youtube_url?: string | null
+        }
+        Relationships: []
+      }
+      entrepreneurs_public: {
+        Row: {
+          address: string | null
+          badge: string | null
+          created_at: string | null
+          description: string | null
+          followers_count: number | null
+          full_description: string | null
+          hero_image_url: string | null
+          id: string | null
+          image_url: string | null
+          instagram: string | null
+          name: string | null
+          portfolio_images: string[] | null
+          posts_count: number | null
+          published: boolean | null
+          slug: string | null
+          user_id: string | null
+        }
+        Insert: {
+          address?: string | null
+          badge?: string | null
+          created_at?: string | null
+          description?: string | null
+          followers_count?: number | null
+          full_description?: string | null
+          hero_image_url?: string | null
+          id?: string | null
+          image_url?: string | null
+          instagram?: string | null
+          name?: string | null
+          portfolio_images?: string[] | null
+          posts_count?: number | null
+          published?: boolean | null
+          slug?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          address?: string | null
+          badge?: string | null
+          created_at?: string | null
+          description?: string | null
+          followers_count?: number | null
+          full_description?: string | null
+          hero_image_url?: string | null
+          id?: string | null
+          image_url?: string | null
+          instagram?: string | null
+          name?: string | null
+          portfolio_images?: string[] | null
+          posts_count?: number | null
+          published?: boolean | null
+          slug?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       assign_courtesy_ticket: {
