@@ -153,8 +153,8 @@ const ArtistaDetalhe = () => {
   useEffect(() => {
     if (staticArtist || !slug) return;
     // Try to find by slug generated from name
-    supabase
-      .from("artists")
+    (supabase as any)
+      .from("artists_public")
       .select("id, name, segment, bio, city, instagram, profile_image_url, portfolio_images, youtube_url, membership_type, fan_count, followers_count, posts_count, approved, created_at, user_id")
       .eq("approved", true)
       .then(({ data }) => {
