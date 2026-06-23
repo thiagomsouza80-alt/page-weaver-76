@@ -95,8 +95,8 @@ const AdminOrphanUsersPanel = () => {
           Nenhum e-mail órfão encontrado.
         </div>
       ) : (
-        <div className="border rounded-lg overflow-hidden">
-          <table className="w-full">
+        <div className="border rounded-lg overflow-hidden overflow-x-auto">
+          <table className="w-full min-w-[480px]">
             <thead>
               <tr className="border-b bg-muted/50">
                 <th className="text-left px-4 py-3 text-sm font-medium">E-mail</th>
