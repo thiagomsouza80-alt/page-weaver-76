@@ -37,8 +37,8 @@ const EmpreendedorDetalhe = () => {
 
   useEffect(() => {
     if (!slug) return;
-    supabase
-      .from("entrepreneurs")
+    (supabase as any)
+      .from("entrepreneurs_public")
       .select("id, name, slug, badge, description, full_description, image_url, hero_image_url, instagram, address, portfolio_images, posts_count, followers_count, published, created_at, user_id")
       .eq("slug", slug)
       .eq("published", true)

@@ -54,8 +54,8 @@ const Artistas = () => {
 
   useEffect(() => {
     const fetchArtists = async () => {
-      const { data } = await supabase
-        .from("artists")
+      const { data } = await (supabase as any)
+        .from("artists_public")
         .select("id, name, segment, bio, city, instagram, profile_image_url, portfolio_images, youtube_url, membership_type, fan_count, followers_count, posts_count, approved, created_at, user_id")
         .eq("approved", true)
         .order("created_at", { ascending: false });

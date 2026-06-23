@@ -34,8 +34,8 @@ const Empreendedores = () => {
 
   useEffect(() => {
     const fetch = async () => {
-      const { data } = await supabase
-        .from("entrepreneurs")
+      const { data } = await (supabase as any)
+        .from("entrepreneurs_public")
         .select("name, slug, badge, description, image_url, instagram")
         .eq("published", true)
         .order("created_at");
