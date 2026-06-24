@@ -296,6 +296,7 @@ const AdminDashboard = () => {
         {tab === "gateway" && <AdminGatewayConfigPanel />}
         {tab === "settings" && <AdminSettingsPanel />}
         {tab === "logs" && <AdminLogsPanel />}
+        {tab === "messenger_verif" && <AdminMessengerVerificationsPanel />}
       </main>
     </div>
   );
