@@ -30,6 +30,7 @@ import OrganizadorEvento from "./pages/OrganizadorEvento.tsx";
 import Validador from "./pages/Validador.tsx";
 import ValidadorEvento from "./pages/ValidadorEvento.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import Mensagens from "./pages/Mensagens.tsx";
 import MobileBottomNav from "./components/MobileBottomNav";
 
 const queryClient = new QueryClient();
