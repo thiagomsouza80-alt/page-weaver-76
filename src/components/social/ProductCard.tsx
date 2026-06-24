@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { ShoppingBag, MessageCircle, Pencil, Trash2 } from "lucide-react";
+import { ShoppingBag, MessageCircle, Pencil, Trash2, Send } from "lucide-react";
+import { Link } from "react-router-dom";
 import ReportDialog from "./ReportDialog";
 
 export type ProductCardData = {
@@ -55,6 +56,11 @@ const ProductCard = ({ product, canManage, onEdit, onDelete }: Props) => {
           <p className="text-base font-bold text-primary mt-2">{formatPrice(product.price)}</p>
         )}
         <div className="mt-3 flex flex-col gap-2">
+          {!canManage && (
+            <Link to={`/mensagens?to=${product.user_id}&product=${product.id}`}>
+              <Button size="sm" variant="outline" className="w-full gap-2"><Send className="h-4 w-4" />Conversar</Button>
+            </Link>
+          )}
           {waLink && (
             <a href={waLink} target="_blank" rel="noopener noreferrer">
               <Button size="sm" variant="outline" className="w-full gap-2"><MessageCircle className="h-4 w-4" />WhatsApp</Button>

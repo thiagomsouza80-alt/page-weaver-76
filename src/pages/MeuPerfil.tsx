@@ -16,6 +16,7 @@ import ShareButtons from "@/components/ShareButtons";
 import MyProductsSection from "@/components/social/MyProductsSection";
 import MeusIngressosSection from "@/components/tickets/MeusIngressosSection";
 import NotificationSettingsCard from "@/components/notifications/NotificationSettingsCard";
+import MessengerVerificationCard from "@/components/messenger/MessengerVerificationCard";
 
 
 type ProfileType = "artist" | "entrepreneur" | null;
@@ -451,6 +452,12 @@ const MeuPerfil = () => {
           <div className="mt-8">
             <NotificationSettingsCard />
           </div>
+
+          {userId && (
+            <div className="mt-8">
+              <MessengerVerificationCard userId={userId} />
+            </div>
+          )}
 
         </div>
         <Footer />
