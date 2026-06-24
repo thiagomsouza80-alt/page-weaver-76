@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
   Loader2, Newspaper, CalendarDays, Users, LogOut, ExternalLink, Store,
-  ClipboardCheck, Handshake, UserX, Bell, Trophy, Crown, Gift, Shield,
+  ClipboardCheck, Handshake, UserX, Bell, Trophy, Crown, Gift, Shield, ShieldCheck,
   Images, Database, Ticket, CalendarCheck, Wallet, BarChart3, CreditCard,
   Settings, FileText, Menu, X, ChevronDown, Globe2, RotateCcw,
 } from "lucide-react";
