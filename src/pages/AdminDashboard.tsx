@@ -37,7 +37,7 @@ import logoOficial from "@/assets/logo-oficial.png";
 
 type Tab =
   | "news" | "events" | "artists" | "entrepreneurs" | "pending" | "sponsors" | "banners"
-  | "ranking" | "members" | "raffle" | "social" | "moderation"
+  | "ranking" | "members" | "raffle" | "social" | "moderation" | "messenger_verif"
   | "tickets" | "organizers" | "database"
   | "withdrawals" | "refunds" | "finance" | "gateway"
   | "settings" | "orphans" | "logs";
