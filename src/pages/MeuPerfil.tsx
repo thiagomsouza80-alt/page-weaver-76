@@ -453,6 +453,12 @@ const MeuPerfil = () => {
             <NotificationSettingsCard />
           </div>
 
+          {userId && (
+            <div className="mt-8">
+              <MessengerVerificationCard userId={userId} />
+            </div>
+          )}
+
         </div>
         <Footer />
       </div>
