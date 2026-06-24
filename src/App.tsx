@@ -71,6 +71,7 @@ const App = () => (
           <Route path="/organizador/eventos/:id" element={<OrganizadorEvento />} />
           <Route path="/validador" element={<Validador />} />
           <Route path="/validador/eventos/:id" element={<ValidadorEvento />} />
+          <Route path="/mensagens" element={<Mensagens />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <MobileBottomNav />
