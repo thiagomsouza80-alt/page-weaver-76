@@ -32,6 +32,7 @@ import AdminGatewayConfigPanel from "@/components/admin/AdminGatewayConfigPanel"
 import AdminSettingsPanel from "@/components/admin/AdminSettingsPanel";
 import AdminLogsPanel from "@/components/admin/AdminLogsPanel";
 import AdminRefundsPanel from "@/components/admin/AdminRefundsPanel";
+import AdminMessengerVerificationsPanel from "@/components/admin/AdminMessengerVerificationsPanel";
 import logoOficial from "@/assets/logo-oficial.png";
 
 type Tab =
