@@ -122,6 +122,7 @@ const AdminDashboard = () => {
         { key: "raffle", label: "Sorteios", icon: Gift },
         { key: "social", label: "Social Pop", icon: Globe2 },
         { key: "moderation", label: "Moderação Social", icon: Shield, badge: reportsCount },
+        { key: "messenger_verif", label: "Verif. Messenger", icon: ShieldCheck },
       ],
     },
     {
