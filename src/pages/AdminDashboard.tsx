@@ -33,11 +33,12 @@ import AdminSettingsPanel from "@/components/admin/AdminSettingsPanel";
 import AdminLogsPanel from "@/components/admin/AdminLogsPanel";
 import AdminRefundsPanel from "@/components/admin/AdminRefundsPanel";
 import AdminMessengerVerificationsPanel from "@/components/admin/AdminMessengerVerificationsPanel";
+import AdminSocialPopPanel from "@/components/admin/AdminSocialPopPanel";
 import logoOficial from "@/assets/logo-oficial.png";
 
 type Tab =
   | "news" | "events" | "artists" | "entrepreneurs" | "pending" | "sponsors" | "banners"
-  | "ranking" | "members" | "raffle" | "social" | "moderation" | "messenger_verif"
+  | "ranking" | "members" | "raffle" | "social" | "moderation" | "messenger_verif" | "gamification"
   | "tickets" | "organizers" | "database"
   | "withdrawals" | "refunds" | "finance" | "gateway"
   | "settings" | "orphans" | "logs";
@@ -123,6 +124,7 @@ const AdminDashboard = () => {
         { key: "social", label: "Social Pop", icon: Globe2 },
         { key: "moderation", label: "Moderação Social", icon: Shield, badge: reportsCount },
         { key: "messenger_verif", label: "Verif. Messenger", icon: ShieldCheck },
+        { key: "gamification", label: "Gamificação (XP/Ranks)", icon: Trophy },
       ],
     },
     {
@@ -297,6 +299,7 @@ const AdminDashboard = () => {
         {tab === "settings" && <AdminSettingsPanel />}
         {tab === "logs" && <AdminLogsPanel />}
         {tab === "messenger_verif" && <AdminMessengerVerificationsPanel />}
+        {tab === "gamification" && <AdminSocialPopPanel />}
       </main>
     </div>
   );
