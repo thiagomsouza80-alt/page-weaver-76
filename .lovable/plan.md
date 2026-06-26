@@ -1,91 +1,73 @@
-## Visão geral
+# Social Pop — Rede Social do Amazônia Pop
 
-O pedido cobre 13 frentes — algumas pequenas (corrigir busca de validador, login persistente) e outras enormes (marketplace completo com chat, Messenger privado com verificação por documento, central de notificações push, auditoria geral). Tentar tudo em uma única entrega quebraria o que já funciona. Proponho dividir em **6 fases**, cada uma entregue, testada e aprovada antes da próxima.
+O escopo é enorme (26 áreas, gamificação, stories, messenger avançado, galerias de eventos, antifraude, painel admin completo). Para não quebrar nada do que já está no ar (eventos, ingressos, marketplace, messenger básico, notificações push, verificação), vou entregar em **fases incrementais**, cada uma com migração + UI + admin + testes antes de seguir.
 
-Cada fase entrega valor por si só. Você pode reordenar.
-
----
-
-## Fase 1 — Correções rápidas e de alto impacto (entregar primeiro)
-
-1. **Busca de validadores (item 1)**
-   - Ampliar `search_users_for_validator` para também buscar em `auth.users` (e-mail) e considerar organizadores cadastrados.
-   - Debounce de 300 ms no `AddValidatorDialog`, paginação (10 + "carregar mais"), foto, nome, papel, status ativo.
-   - Logs em nova tabela `validator_invitation_logs` (enviado / aceito / removido).
-
-2. **Eventos antigos com ingressos avançados (item 2)**
-   - Já está disponível tecnicamente; o que falta é UX. Adicionar banner "Ative lotes e modalidades neste evento" no painel de eventos antigos (sem categorias). Nenhuma migração de dados destrutiva.
-
-3. **Login persistente (item 4)**
-   - Confirmar `persistSession: true`, `autoRefreshToken: true` no client, listener `onAuthStateChange` em `useAuth`, e remover qualquer `signOut` automático em foco/visibility. Auditoria de 1 arquivo.
-
-4. **Conta unificada (item 9)**
-   - Rota `/conta` que centraliza Perfil, Segurança, Notificações para organizador, empreendedor, artista, usuário. Reaproveita componentes existentes de `MeuPerfil`.
-
-5. **Padronização de imagens 3:4 1080×1440 (item 11)**
-   - Atualizar upload de Notícias e Eventos para forçar 3:4, crop automático centralizado (smart-crop simples baseado em foco central), preview ao vivo. Remover seletor topo/centro/baixo.
+Confirme a ordem abaixo (ou reordene) que eu começo pela Fase 1.
 
 ---
 
-## Fase 2 — Central de notificações (item 3 + 6 financeiro)
+## Fase 1 — Fundação de Gamificação (XP, Níveis, Classes, Ranks, Conquistas)
+- Tabelas: `xp_rules` (configurável), `xp_events` (log antifraude), `user_progression` (xp, level, rank, class), `classes`, `ranks`, `achievements`, `user_achievements`.
+- Função `award_xp(user, action, ref)` com deduplicação (mesma ação/alvo/janela) → base do antifraude.
+- Triggers em: posts, comments, likes, shares, follows, fans, tickets, event_attendees, validations_log, social_products, messages, conversations.
+- Cálculo de nível (curva progressiva configurável) + recálculo de rank em job.
+- UI: barra XP, badge de classe, rank e medalhas no PostCard, ProductCard e perfil.
+- Admin: painel `Social Pop → XP / Classes / Ranks / Medalhas` editando valores em tempo real.
 
-- Tabela `user_notifications` (tipo, payload, lida_em) + `notification_preferences` (toggles por categoria).
-- Gatilhos no banco para: novo evento, novo evento favoritado alterado, cancelado, nova notícia, curtidas, comentários, seguidores, saques (solicitado/aprovado/pago), reembolsos (solicitado/aprovado/pago).
-- Tela `Conta → Notificações` com toggles por categoria.
-- Sino na navbar + lista em `/conta/notificacoes`.
-- **Push web (PWA):** Service Worker + Web Push API com VAPID. Requer 2 segredos (`VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`) — solicitarei na hora.
-- Lembretes de inatividade: cron via Edge Function diária.
+## Fase 2 — Perfil Público Completo (`/u/:username`)
+- Tabela `social_profiles` (username único, banner, bio, redes, privacy_messenger).
+- Página única de perfil agregando: artista/empreendedor/organizador + posts + stories destacados + produtos + eventos organizados/participados + medalhas + XP/Rank/Classe.
+- Edição em `/meu-perfil`.
 
----
+## Fase 3 — Stories (24h) + Destaques + Stories de Evento
+- Tabelas: `stories` (media, expires_at, event_id?, ticket_id?), `story_views`, `story_reactions`, `story_highlights`, `story_highlight_items`.
+- Bucket `stories` (público com transformação) + cleanup job (expira em 24h).
+- UI: bolhas no topo do Social Pop, viewer fullscreen com progress, reações, contagem de views.
+- Stories de evento aparecem na página do evento; só liberados para quem tem ingresso ou RSVP.
+- Destaques permanentes por categoria no perfil.
 
-## Fase 3 — Privacidade e responsividade (itens 10 + 12)
+## Fase 4 — Check-in Social + Galeria Colaborativa + Melhores Momentos + Histórico do Evento
+- Tabela `event_checkins` (após validação do ingresso libera botão).
+- Tabela `event_gallery` (fotos/vídeos com autorização).
+- Página `/evento/:id/historico` gerada após `event_date` passar: banner, participantes, stories autorizados, melhores momentos (top por engajamento), avaliações.
 
-- Campos obrigatórios em todos os cadastros: foto, nome, e-mail, nascimento, WhatsApp.
-- Toggles `hide_email` / `hide_phone` no perfil; views públicas respeitam; admin sempre vê.
-- Sweep de responsividade: navbar mobile, tabelas (`overflow-x-auto`), painéis admin, dashboard organizador.
+## Fase 5 — Messenger Avançado
+- Estender `messages`: tipo (text/image/gif/audio futuro), `read_at`, `delivered_at`, attachments.
+- Tabela `message_attachments` + bucket `messenger-media`.
+- Presence (`online`, `last_seen`, `typing`) via Realtime channel.
+- Privacidade configurável (todos / seguidores / sigo / fãs / ninguém) na tabela `social_profiles`.
+- Bloquear, silenciar, denunciar, excluir conversa.
+- Ícone de mensagens com badge na navbar do Social Pop.
+- Mantém o fluxo de verificação já existente.
 
----
+## Fase 6 — Feed Inteligente + Tendências + Reações Estendidas
+- View materializada `feed_ranking` (peso: recência, afinidade, fãs/seguidores, RSVP de eventos, engajamento).
+- Página `/social/em-alta` (posts, stories, eventos, perfis, hashtags).
+- Tabela `social_reactions` (❤️🔥👏😂😍👍) substituindo like simples (mantém compatibilidade com `social_likes`).
+- Extração de hashtags + tabela `hashtags` + trending.
 
-## Fase 4 — Marketplace de Empreendedores (item 5 + parte do 6)
+## Fase 7 — Notificações Granulares + Missões + Login Diário
+- Estender `notification_preferences` com todos os novos tipos.
+- Tabela `missions` (diárias/semanais) + `user_missions` + `daily_logins` (streak).
+- Notificações de XP, level up, novo rank, medalha, check-in.
 
-Já existe `social_products` básico. Expandir para marketplace real:
-
-- Adicionar campos: `category`, `stock`, `external_url`, `whatsapp_number`, `enable_chat`.
-- Páginas: `/marketplace` (lista global), `/empreendedor/:slug/produtos`, detalhe do produto.
-- Botões configuráveis por produto: Comprar no site / WhatsApp (`wa.me/?text=`) / Chat interno.
-- Notificações: novo interesse, nova mensagem (integra com Fase 5).
-
----
-
-## Fase 5 — Messenger privado com verificação (itens 7 + 8)
-
-- Tabela `messaging_verification_requests` (selfie, documento, status). Upload em bucket privado `messaging-verification`.
-- Painel admin para aprovar/recusar; usuários aprovados recebem flag `messaging_verified` e selo ✅.
-- Tabelas `conversations`, `conversation_participants`, `messages` (com imagens via bucket `messages`).
-- Realtime via `postgres_changes` para entregar mensagens ao vivo.
-- Menu 💬 Mensagens no Social Pop. Bloqueio para não verificados.
-
----
-
-## Fase 6 — Auditoria geral (item 13)
-
-Após as fases anteriores: rodar `security--run_security_scan`, `supabase--linter`, varredura de RLS, testes manuais em fluxos de pagamento (MisticPay), reembolso, saque, validação. Entrega: relatório com correções aplicadas.
-
----
-
-## Detalhes técnicos (referência)
-
-- Push web: VAPID + `web-push` (Deno) em Edge Function; assinaturas em `push_subscriptions`.
-- Realtime do Messenger: `ALTER PUBLICATION supabase_realtime ADD TABLE public.messages`.
-- Smart-crop 3:4: canvas client-side, foco no centro com detecção de bordas simples; fallback `object-fit: cover`.
-- Login persistente já está habilitado no client gerado; auditoria confirmará se algum hook está chamando `signOut` indevidamente.
-- Marketplace e Messenger reaproveitam infra do Social Pop (`social_posts`, buckets, notificações).
+## Fase 8 — Antifraude + Admin "Social Pop" unificado + Performance
+- Limites por janela, detecção de bots (rate, padrões), shadow-flag em `xp_events`.
+- Menu admin "Social Pop" agrupando todos os sub-painéis.
+- Lazy-load de stories/feed, prefetch, índices de performance, cache client.
 
 ---
 
-## O que preciso de você antes de começar
+## Detalhes técnicos (resumo)
+- Tudo em Supabase: tabelas + RLS + GRANTs + triggers SECURITY DEFINER.
+- Realtime habilitado para `stories`, `messages`, `social_reactions`, `social_notifications`.
+- Arquivos novos em `src/components/social/*` (StoriesBar, StoryViewer, ReactionsBar, XpBadge, RankBadge, ClassBadge, ProfileHeader…), `src/pages/Perfil.tsx`, `src/pages/EmAlta.tsx`, `src/components/admin/AdminSocialPopPanel.tsx` (com sub-tabs).
+- Compatibilidade: nada do que existe é removido — apenas estendido. Triggers de XP têm `EXCEPTION WHEN OTHERS THEN RETURN NEW` para não quebrar inserts existentes.
+- Responsivo mobile-first em todas as telas novas.
 
-1. **Confirma esta ordem** (Fase 1 → 6) ou prefere priorizar Messenger/Marketplace antes?
-2. **Push web real ou só notificações internas (sino + toast)?** Push real exige gerar chaves VAPID.
-3. **Verificação do Messenger:** posso reusar `pending_updates` existente ou prefere fluxo dedicado novo?
-4. **Tudo aprovado?** Começo pela **Fase 1** imediatamente após sua resposta.
+---
+
+## Sugestão de entrega
+Pela escala, cada fase é uma resposta dedicada (migração → tipos → UI → admin). Posso começar **agora pela Fase 1 (XP, Níveis, Classes, Ranks, Conquistas)**, que é a fundação que tudo o resto consome.
+
+Responda **"Siga"** para começar pela Fase 1, ou indique outra ordem.
