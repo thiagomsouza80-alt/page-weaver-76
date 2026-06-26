@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      achievements: {
+        Row: {
+          code: string
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          is_active: boolean
+          name: string
+          rarity: string
+          updated_at: string
+          xp_bonus: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          rarity?: string
+          updated_at?: string
+          xp_bonus?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          rarity?: string
+          updated_at?: string
+          xp_bonus?: number
+        }
+        Relationships: []
+      }
       app_secrets: {
         Row: {
           created_at: string
@@ -161,6 +200,45 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
           youtube_url?: string | null
+        }
+        Relationships: []
+      }
+      classes: {
+        Row: {
+          code: string
+          color: string | null
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          is_active: boolean
+          name: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          sort_order?: number
+          updated_at?: string
         }
         Relationships: []
       }
@@ -1335,6 +1413,45 @@ export type Database = {
         }
         Relationships: []
       }
+      ranks: {
+        Row: {
+          code: string
+          color: string | null
+          created_at: string
+          icon: string | null
+          id: string
+          is_active: boolean
+          min_xp: number
+          name: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          color?: string | null
+          created_at?: string
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          min_xp?: number
+          name: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          color?: string | null
+          created_at?: string
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          min_xp?: number
+          name?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       refund_requests: {
         Row: {
           admin_user_id: string | null
@@ -1989,6 +2106,110 @@ export type Database = {
           },
         ]
       }
+      user_achievements: {
+        Row: {
+          achievement_id: string
+          id: string
+          unlocked_at: string
+          user_id: string
+        }
+        Insert: {
+          achievement_id: string
+          id?: string
+          unlocked_at?: string
+          user_id: string
+        }
+        Update: {
+          achievement_id?: string
+          id?: string
+          unlocked_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_achievements_achievement_id_fkey"
+            columns: ["achievement_id"]
+            isOneToOne: false
+            referencedRelation: "achievements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_progression: {
+        Row: {
+          class_id: string | null
+          comments_received: number
+          created_at: string
+          events_attended: number
+          events_organized: number
+          fans_count: number
+          followers_count: number
+          following_count: number
+          last_activity_at: string | null
+          level: number
+          likes_received: number
+          products_sold: number
+          rank_id: string | null
+          shares_received: number
+          updated_at: string
+          user_id: string
+          xp: number
+        }
+        Insert: {
+          class_id?: string | null
+          comments_received?: number
+          created_at?: string
+          events_attended?: number
+          events_organized?: number
+          fans_count?: number
+          followers_count?: number
+          following_count?: number
+          last_activity_at?: string | null
+          level?: number
+          likes_received?: number
+          products_sold?: number
+          rank_id?: string | null
+          shares_received?: number
+          updated_at?: string
+          user_id: string
+          xp?: number
+        }
+        Update: {
+          class_id?: string | null
+          comments_received?: number
+          created_at?: string
+          events_attended?: number
+          events_organized?: number
+          fans_count?: number
+          followers_count?: number
+          following_count?: number
+          last_activity_at?: string | null
+          level?: number
+          likes_received?: number
+          products_sold?: number
+          rank_id?: string | null
+          shares_received?: number
+          updated_at?: string
+          user_id?: string
+          xp?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_progression_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_progression_rank_id_fkey"
+            columns: ["rank_id"]
+            isOneToOne: false
+            referencedRelation: "ranks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
@@ -2192,6 +2413,84 @@ export type Database = {
           },
         ]
       }
+      xp_events: {
+        Row: {
+          action: string
+          created_at: string
+          flagged: boolean
+          id: string
+          metadata: Json
+          reason: string | null
+          target_id: string | null
+          target_type: string | null
+          user_id: string
+          xp: number
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          flagged?: boolean
+          id?: string
+          metadata?: Json
+          reason?: string | null
+          target_id?: string | null
+          target_type?: string | null
+          user_id: string
+          xp?: number
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          flagged?: boolean
+          id?: string
+          metadata?: Json
+          reason?: string | null
+          target_id?: string | null
+          target_type?: string | null
+          user_id?: string
+          xp?: number
+        }
+        Relationships: []
+      }
+      xp_rules: {
+        Row: {
+          action: string
+          cooldown_seconds: number
+          created_at: string
+          daily_cap: number | null
+          id: string
+          is_active: boolean
+          label: string
+          per_target_once: boolean
+          updated_at: string
+          xp: number
+        }
+        Insert: {
+          action: string
+          cooldown_seconds?: number
+          created_at?: string
+          daily_cap?: number | null
+          id?: string
+          is_active?: boolean
+          label: string
+          per_target_once?: boolean
+          updated_at?: string
+          xp?: number
+        }
+        Update: {
+          action?: string
+          cooldown_seconds?: number
+          created_at?: string
+          daily_cap?: number | null
+          id?: string
+          is_active?: boolean
+          label?: string
+          per_target_once?: boolean
+          updated_at?: string
+          xp?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       artists_public: {
@@ -2320,8 +2619,19 @@ export type Database = {
         }
         Returns: string
       }
+      award_xp: {
+        Args: {
+          _action: string
+          _metadata?: Json
+          _target_id?: string
+          _target_type?: string
+          _user: string
+        }
+        Returns: number
+      }
       banner_increment_click: { Args: { _id: string }; Returns: undefined }
       banner_increment_view: { Args: { _id: string }; Returns: undefined }
+      calc_level_for_xp: { Args: { _xp: number }; Returns: number }
       current_ticket_fee_cents: { Args: never; Returns: number }
       decrement_fan_count: { Args: { _artist_id: string }; Returns: number }
       delete_email: {
@@ -2433,6 +2743,7 @@ export type Database = {
           read_ct: number
         }[]
       }
+      recalc_user_rank: { Args: { _user: string }; Returns: undefined }
       redeem_courtesy_code: {
         Args: {
           _code: string
