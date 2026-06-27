@@ -31,6 +31,7 @@ import Validador from "./pages/Validador.tsx";
 import ValidadorEvento from "./pages/ValidadorEvento.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Mensagens from "./pages/Mensagens.tsx";
+import PerfilPublico from "./pages/PerfilPublico.tsx";
 import MobileBottomNav from "./components/MobileBottomNav";
 
 const queryClient = new QueryClient();
@@ -72,6 +73,7 @@ const App = () => (
           <Route path="/validador" element={<Validador />} />
           <Route path="/validador/eventos/:id" element={<ValidadorEvento />} />
           <Route path="/mensagens" element={<Mensagens />} />
+          <Route path="/u/:username" element={<PerfilPublico />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <MobileBottomNav />
