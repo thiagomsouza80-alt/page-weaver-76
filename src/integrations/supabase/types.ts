@@ -2135,6 +2135,63 @@ export type Database = {
           },
         ]
       }
+      user_profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          cover_url: string | null
+          created_at: string
+          display_name: string | null
+          headline: string | null
+          links: Json
+          show_achievements: boolean
+          show_birth_date: boolean
+          show_email: boolean
+          show_phone: boolean
+          show_xp: boolean
+          updated_at: string
+          user_id: string
+          username: string | null
+          visibility: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          cover_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          headline?: string | null
+          links?: Json
+          show_achievements?: boolean
+          show_birth_date?: boolean
+          show_email?: boolean
+          show_phone?: boolean
+          show_xp?: boolean
+          updated_at?: string
+          user_id: string
+          username?: string | null
+          visibility?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          cover_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          headline?: string | null
+          links?: Json
+          show_achievements?: boolean
+          show_birth_date?: boolean
+          show_email?: boolean
+          show_phone?: boolean
+          show_xp?: boolean
+          updated_at?: string
+          user_id?: string
+          username?: string | null
+          visibility?: string
+        }
+        Relationships: []
+      }
       user_progression: {
         Row: {
           class_id: string | null
@@ -2673,6 +2730,33 @@ export type Database = {
         }
       }
       generate_ticket_code: { Args: never; Returns: string }
+      get_public_profile: {
+        Args: { _username: string }
+        Returns: {
+          artist_id: string
+          artist_name: string
+          avatar_url: string
+          bio: string
+          city: string
+          class_id: string
+          cover_url: string
+          display_name: string
+          entrepreneur_id: string
+          entrepreneur_slug: string
+          followers_count: number
+          following_count: number
+          headline: string
+          level: number
+          links: Json
+          rank_id: string
+          show_achievements: boolean
+          show_xp: boolean
+          user_id: string
+          username: string
+          visibility: string
+          xp: number
+        }[]
+      }
       get_vapid_public_key: { Args: never; Returns: string }
       has_role: {
         Args: {

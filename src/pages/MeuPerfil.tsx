@@ -18,6 +18,7 @@ import MeusIngressosSection from "@/components/tickets/MeusIngressosSection";
 import NotificationSettingsCard from "@/components/notifications/NotificationSettingsCard";
 import MessengerVerificationCard from "@/components/messenger/MessengerVerificationCard";
 import ProgressionCard from "@/components/social/ProgressionCard";
+import PublicProfileEditor from "@/components/social/PublicProfileEditor";
 
 
 type ProfileType = "artist" | "entrepreneur" | null;
@@ -449,6 +450,12 @@ const MeuPerfil = () => {
           {userId && (
             <div className="mt-8">
               <ProgressionCard userId={userId} />
+            </div>
+          )}
+
+          {userId && (
+            <div className="mt-8">
+              <PublicProfileEditor userId={userId} />
             </div>
           )}
 
