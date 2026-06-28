@@ -9,6 +9,7 @@ import XpProgressBar from "@/components/social/XpProgressBar";
 import RankBadge from "@/components/social/RankBadge";
 import ClassBadge from "@/components/social/ClassBadge";
 import { useUserProgression } from "@/hooks/useUserProgression";
+import HighlightsRow from "@/components/social/HighlightsRow";
 
 interface PublicProfile {
   user_id: string;
@@ -145,6 +146,8 @@ export default function PerfilPublico() {
           {profile.bio && (
             <p className="mt-4 text-sm text-foreground/80 whitespace-pre-wrap">{profile.bio}</p>
           )}
+
+          <HighlightsRow userId={profile.user_id} />
 
           {/* Stats */}
           <div className="grid grid-cols-3 gap-2 mt-6 text-center">
