@@ -7,6 +7,7 @@ import PostComposer from "@/components/social/PostComposer";
 import PostCard, { type SocialPost } from "@/components/social/PostCard";
 import VitrineTab from "@/components/social/VitrineTab";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import StoriesBar from "@/components/social/StoriesBar";
 import { Loader2, MessageSquare, ShoppingBag } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -63,6 +64,7 @@ const SocialPop = () => {
           </TabsList>
 
           <TabsContent value="feed" className="space-y-4">
+            <StoriesBar currentUserId={author?.userId ?? null} />
             {authorLoading ? null : author ? (
               <PostComposer author={author} onPosted={load} />
             ) : (

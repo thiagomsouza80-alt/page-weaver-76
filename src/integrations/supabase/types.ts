@@ -1898,6 +1898,164 @@ export type Database = {
           },
         ]
       }
+      social_stories: {
+        Row: {
+          caption: string | null
+          created_at: string
+          deleted: boolean
+          duration_seconds: number
+          expires_at: string
+          id: string
+          link_url: string | null
+          media_type: string
+          media_url: string
+          thumbnail_url: string | null
+          user_id: string
+          views_count: number
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          deleted?: boolean
+          duration_seconds?: number
+          expires_at?: string
+          id?: string
+          link_url?: string | null
+          media_type: string
+          media_url: string
+          thumbnail_url?: string | null
+          user_id: string
+          views_count?: number
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          deleted?: boolean
+          duration_seconds?: number
+          expires_at?: string
+          id?: string
+          link_url?: string | null
+          media_type?: string
+          media_url?: string
+          thumbnail_url?: string | null
+          user_id?: string
+          views_count?: number
+        }
+        Relationships: []
+      }
+      social_story_highlight_items: {
+        Row: {
+          caption: string | null
+          created_at: string
+          highlight_id: string
+          id: string
+          link_url: string | null
+          media_type: string
+          media_url: string
+          sort_order: number
+          story_id: string | null
+          user_id: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          highlight_id: string
+          id?: string
+          link_url?: string | null
+          media_type: string
+          media_url: string
+          sort_order?: number
+          story_id?: string | null
+          user_id: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          highlight_id?: string
+          id?: string
+          link_url?: string | null
+          media_type?: string
+          media_url?: string
+          sort_order?: number
+          story_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_story_highlight_items_highlight_id_fkey"
+            columns: ["highlight_id"]
+            isOneToOne: false
+            referencedRelation: "social_story_highlights"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "social_story_highlight_items_story_id_fkey"
+            columns: ["story_id"]
+            isOneToOne: false
+            referencedRelation: "social_stories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      social_story_highlights: {
+        Row: {
+          cover_url: string | null
+          created_at: string
+          id: string
+          sort_order: number
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cover_url?: string | null
+          created_at?: string
+          id?: string
+          sort_order?: number
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cover_url?: string | null
+          created_at?: string
+          id?: string
+          sort_order?: number
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      social_story_views: {
+        Row: {
+          created_at: string
+          id: string
+          story_id: string
+          viewer_user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          story_id: string
+          viewer_user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          story_id?: string
+          viewer_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_story_views_story_id_fkey"
+            columns: ["story_id"]
+            isOneToOne: false
+            referencedRelation: "social_stories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       social_user_status: {
         Row: {
           created_at: string
@@ -2730,6 +2888,18 @@ export type Database = {
         }
       }
       generate_ticket_code: { Args: never; Returns: string }
+      get_active_stories_feed: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          display_name: string
+          has_unseen: boolean
+          latest_at: string
+          story_count: number
+          user_id: string
+          username: string
+        }[]
+      }
       get_public_profile: {
         Args: { _username: string }
         Returns: {
@@ -2873,6 +3043,7 @@ export type Database = {
       }
       social_increment_likes: { Args: { _post_id: string }; Returns: number }
       social_increment_shares: { Args: { _post_id: string }; Returns: number }
+      story_register_view: { Args: { _story_id: string }; Returns: undefined }
       validator_event_summary: {
         Args: { _event_id: string }
         Returns: {
