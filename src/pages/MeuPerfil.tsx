@@ -334,13 +334,14 @@ const MeuPerfil = () => {
               {userId && (
                 <ProfileSettingsMenu
                   userId={userId}
+                  profileType={profileType as any}
+                  entrepreneurId={entrepreneurData?.id || null}
                   isOrganizer={isOrganizer}
-                  isEntrepreneur={profileType === "entrepreneur"}
                   onEditProfile={() => setEditing(true)}
-                  onLogout={handleLogout}
                 />
               )}
             </div>
+
 
           </div>
 
