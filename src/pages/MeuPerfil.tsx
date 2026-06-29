@@ -462,25 +462,10 @@ const MeuPerfil = () => {
             </div>
           )}
 
-          {userId && (
-            <div className="mt-8">
-              <PublicProfileEditor userId={userId} />
-            </div>
-          )}
+          {/* Configurações de perfil público, ingressos, notificações, messenger
+              foram movidos para o menu superior direito (ProfileSettingsMenu). */}
 
-          <div className="mt-8">
-            <MeusIngressosSection />
-          </div>
 
-          <div className="mt-8">
-            <NotificationSettingsCard />
-          </div>
-
-          {userId && (
-            <div className="mt-8">
-              <MessengerVerificationCard userId={userId} />
-            </div>
-          )}
 
         </div>
         <Footer />
