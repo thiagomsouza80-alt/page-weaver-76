@@ -2297,6 +2297,7 @@ export type Database = {
         Row: {
           avatar_url: string | null
           bio: string | null
+          class_id: string | null
           cover_url: string | null
           created_at: string
           display_name: string | null
@@ -2315,6 +2316,7 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           bio?: string | null
+          class_id?: string | null
           cover_url?: string | null
           created_at?: string
           display_name?: string | null
@@ -2333,6 +2335,7 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           bio?: string | null
+          class_id?: string | null
           cover_url?: string | null
           created_at?: string
           display_name?: string | null
@@ -2348,7 +2351,15 @@ export type Database = {
           username?: string | null
           visibility?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_profiles_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_progression: {
         Row: {
@@ -2908,7 +2919,10 @@ export type Database = {
           avatar_url: string
           bio: string
           city: string
+          class_color: string
+          class_icon: string
           class_id: string
+          class_name: string
           cover_url: string
           display_name: string
           entrepreneur_id: string
