@@ -331,15 +331,17 @@ const MeuPerfil = () => {
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="hero" size="sm" onClick={() => setEditing(true)} className="gap-2">
-                <Pencil className="h-4 w-4" />
-                Editar Perfil
-              </Button>
-              <Button variant="ghost" onClick={handleLogout} className="gap-2 text-muted-foreground">
-                <LogOut className="h-4 w-4" />
-                Sair
-              </Button>
+              {userId && (
+                <ProfileSettingsMenu
+                  userId={userId}
+                  isOrganizer={isOrganizer}
+                  isEntrepreneur={profileType === "entrepreneur"}
+                  onEditProfile={() => setEditing(true)}
+                  onLogout={handleLogout}
+                />
+              )}
             </div>
+
           </div>
 
           {/* Profile card */}
