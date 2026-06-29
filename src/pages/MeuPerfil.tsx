@@ -95,8 +95,10 @@ const MeuPerfil = () => {
   const [removedPortfolioImages, setRemovedPortfolioImages] = useState<string[]>([]);
   const [showMembershipQR, setShowMembershipQR] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [isOrganizer, setIsOrganizer] = useState(false);
 
   useEffect(() => { loadProfile(); }, []);
+
 
   const loadProfile = async () => {
     const { data: { session } } = await supabase.auth.getSession();
