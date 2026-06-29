@@ -14,25 +14,12 @@ import { Upload, X, Camera, CheckCircle, Loader2, AlertTriangle } from "lucide-r
 import { PasswordInput } from "@/components/ui/password-input";
 import { membershipTypes, membershipDescriptions, membershipPaymentInfo } from "@/lib/membership";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-
-const segments = [
-  { value: "cosplayer", label: "Cosplayer" },
-  { value: "cosmaker", label: "Cosmaker" },
-  { value: "kpop", label: "K-Pop" },
-  { value: "ilustrador", label: "Ilustrador" },
-  { value: "quadrinista", label: "Quadrinista" },
-  { value: "colecionador", label: "Colecionador" },
-  { value: "desenvolvedor_jogos", label: "Desenvolvedor de Jogos" },
-  { value: "fan_cultura_pop", label: "Fã de Cultura Pop" },
-  { value: "youtuber", label: "YouTuber" },
-  { value: "influenciador_digital", label: "Influenciador Digital" },
-] as const;
+import ClassSelector, { classToLegacySegment, type ClassOption } from "./ClassSelector";
 
 const schema = z.object({
   name: z.string().trim().min(2, "Nome deve ter pelo menos 2 caracteres").max(100),
   email: z.string().trim().email("Email inválido").max(255),
   password: z.string().min(6, "Senha deve ter pelo menos 6 caracteres"),
-  segment: z.enum(["cosplayer", "cosmaker", "kpop", "ilustrador", "quadrinista", "colecionador", "desenvolvedor_jogos", "fan_cultura_pop", "youtuber", "influenciador_digital"], { required_error: "Selecione um segmento" }),
   birth_date: z.string().min(1, "Data de nascimento é obrigatória"),
   guardian_name: z.string().trim().max(100).optional(),
   guardian_phone: z.string().trim().max(30).optional(),
@@ -43,6 +30,7 @@ const schema = z.object({
   membership_type: z.enum(["free", "star", "pro", "hero"]).default("free"),
   youtube_url: z.string().trim().url("URL inválida").max(500).optional().or(z.literal("")),
 });
+
 
 type FormData = z.infer<typeof schema>;
 
