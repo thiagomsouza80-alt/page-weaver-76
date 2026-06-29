@@ -14,11 +14,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { membershipTypes, membershipDescriptions, membershipPaymentInfo } from "@/lib/membership";
 import ShareButtons from "@/components/ShareButtons";
 import MyProductsSection from "@/components/social/MyProductsSection";
-import MeusIngressosSection from "@/components/tickets/MeusIngressosSection";
-import NotificationSettingsCard from "@/components/notifications/NotificationSettingsCard";
-import MessengerVerificationCard from "@/components/messenger/MessengerVerificationCard";
 import ProgressionCard from "@/components/social/ProgressionCard";
-import PublicProfileEditor from "@/components/social/PublicProfileEditor";
+import ProfileSettingsMenu from "@/components/social/ProfileSettingsMenu";
+
 
 
 type ProfileType = "artist" | "entrepreneur" | null;
