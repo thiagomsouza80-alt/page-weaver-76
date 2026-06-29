@@ -112,6 +112,10 @@ const CadastroArtistaForm = () => {
   };
 
   const onSubmit = async (data: FormData) => {
+    if (!selectedClass) {
+      setClassError("Escolha sua Classe para continuar.");
+      return;
+    }
     setSubmitting(true);
     try {
       // 1. Upload files FIRST (before creating auth account to prevent orphan users on failure)
@@ -130,7 +134,10 @@ const CadastroArtistaForm = () => {
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
-        options: { emailRedirectTo: `${window.location.origin}/meu-perfil` },
+        options: {
+          emailRedirectTo: `${window.location.origin}/meu-perfil`,
+          data: { name: data.name, class_id: selectedClass.id },
+        },
       });
       if (authError) throw new Error(friendlyAuthError(authError.message));
       if (!authData.user) throw new Error("Erro ao criar conta");
@@ -151,11 +158,11 @@ const CadastroArtistaForm = () => {
       const age = Math.floor((Date.now() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
       const isMinorUser = age < 18;
 
-      // 5. Insert artist profile (session is live → RLS auth.uid() = user_id passes)
+      // 5. Insert artist profile (segment kept as legacy compat — derivado da Classe)
       const { error } = await supabase.from("artists").insert({
         name: data.name,
         email: data.email,
-        segment: data.segment,
+        segment: classToLegacySegment(selectedClass) as any,
         birth_date: data.birth_date,
         guardian_name: data.guardian_name || null,
         guardian_phone: data.guardian_phone || null,
@@ -172,6 +179,13 @@ const CadastroArtistaForm = () => {
       });
 
       if (error) throw new Error(error.message || "Não foi possível salvar seu perfil.");
+
+      // 6. Garante user_profiles.class_id (caso o trigger não tenha rodado a tempo)
+      await supabase.from("user_profiles" as any).upsert(
+        { user_id: userId, class_id: selectedClass.id },
+        { onConflict: "user_id" }
+      );
+
 
       setSuccessMembership(data.membership_type || "free");
       setSuccess(isMinorUser ? "pending" : "approved");
