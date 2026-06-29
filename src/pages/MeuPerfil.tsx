@@ -106,6 +106,12 @@ const MeuPerfil = () => {
     const userId = session.user.id;
     setUserId(userId);
 
+    // Detect organizer role (for settings menu)
+    const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", userId);
+    setIsOrganizer((roles || []).some((r: any) => r.role === "organizer"));
+
+
+
     const { data: artist } = await supabase
       .from("artists")
       .select("id, name, segment, bio, city, instagram, youtube_url, phone, membership_type, membership_approved_at, membership_expires_at, profile_image_url, portfolio_images, fan_count")
