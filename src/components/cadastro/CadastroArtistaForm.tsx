@@ -43,14 +43,16 @@ const CadastroArtistaForm = () => {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState<false | "approved" | "pending">(false);
   const [successMembership, setSuccessMembership] = useState<string>("free");
+  const [selectedClass, setSelectedClass] = useState<ClassOption | null>(null);
+  const [classError, setClassError] = useState<string | null>(null);
 
   const { register, handleSubmit, setValue, formState: { errors }, watch } = useForm<FormData>({
     resolver: zodResolver(schema),
   });
 
-  const segmentValue = watch("segment");
   const membershipValue = watch("membership_type") || "free";
   const birthDateValue = watch("birth_date");
+
 
   const isMinor = (() => {
     if (!birthDateValue) return false;
