@@ -351,7 +351,7 @@ const CadastroArtistaForm = () => {
           )}
         </div>
 
-        {(segmentValue === "cosplayer" || segmentValue === "kpop" || segmentValue === "youtuber" || segmentValue === "influenciador_digital") && (
+        {(selectedClass?.code === "cosplayer" || selectedClass?.code === "army" || selectedClass?.code === "youtuber" || selectedClass?.code === "influenciador" || selectedClass?.code === "streamer" || selectedClass?.code === "criador_conteudo") && (
           <div className="space-y-2">
             <Label htmlFor="artist-youtube">Vídeo de Apresentação (YouTube)</Label>
             <Input id="artist-youtube" placeholder="https://www.youtube.com/watch?v=..." {...register("youtube_url")} />
@@ -359,6 +359,7 @@ const CadastroArtistaForm = () => {
             <p className="text-xs text-muted-foreground">Cole o link do seu vídeo de apresentação no YouTube</p>
           </div>
         )}
+
 
         <div className="space-y-2">
           <Label htmlFor="artist-bio">Bio / Sobre você</Label>
