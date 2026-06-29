@@ -14,11 +14,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { membershipTypes, membershipDescriptions, membershipPaymentInfo } from "@/lib/membership";
 import ShareButtons from "@/components/ShareButtons";
 import MyProductsSection from "@/components/social/MyProductsSection";
-import MeusIngressosSection from "@/components/tickets/MeusIngressosSection";
-import NotificationSettingsCard from "@/components/notifications/NotificationSettingsCard";
-import MessengerVerificationCard from "@/components/messenger/MessengerVerificationCard";
 import ProgressionCard from "@/components/social/ProgressionCard";
-import PublicProfileEditor from "@/components/social/PublicProfileEditor";
+import ProfileSettingsMenu from "@/components/social/ProfileSettingsMenu";
+
 
 
 type ProfileType = "artist" | "entrepreneur" | null;
@@ -97,14 +95,22 @@ const MeuPerfil = () => {
   const [removedPortfolioImages, setRemovedPortfolioImages] = useState<string[]>([]);
   const [showMembershipQR, setShowMembershipQR] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
+  const [isOrganizer, setIsOrganizer] = useState(false);
 
   useEffect(() => { loadProfile(); }, []);
+
 
   const loadProfile = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) { navigate("/login"); return; }
     const userId = session.user.id;
     setUserId(userId);
+
+    // Detect organizer role (for settings menu)
+    const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", userId);
+    setIsOrganizer((roles || []).some((r: any) => r.role === "organizer"));
+
+
 
     const { data: artist } = await supabase
       .from("artists")
@@ -325,15 +331,18 @@ const MeuPerfil = () => {
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="hero" size="sm" onClick={() => setEditing(true)} className="gap-2">
-                <Pencil className="h-4 w-4" />
-                Editar Perfil
-              </Button>
-              <Button variant="ghost" onClick={handleLogout} className="gap-2 text-muted-foreground">
-                <LogOut className="h-4 w-4" />
-                Sair
-              </Button>
+              {userId && (
+                <ProfileSettingsMenu
+                  userId={userId}
+                  profileType={profileType as any}
+                  entrepreneurId={entrepreneurData?.id || null}
+                  isOrganizer={isOrganizer}
+                  onEditProfile={() => setEditing(true)}
+                />
+              )}
             </div>
+
+
           </div>
 
           {/* Profile card */}
@@ -453,25 +462,10 @@ const MeuPerfil = () => {
             </div>
           )}
 
-          {userId && (
-            <div className="mt-8">
-              <PublicProfileEditor userId={userId} />
-            </div>
-          )}
+          {/* Configurações de perfil público, ingressos, notificações, messenger
+              foram movidos para o menu superior direito (ProfileSettingsMenu). */}
 
-          <div className="mt-8">
-            <MeusIngressosSection />
-          </div>
 
-          <div className="mt-8">
-            <NotificationSettingsCard />
-          </div>
-
-          {userId && (
-            <div className="mt-8">
-              <MessengerVerificationCard userId={userId} />
-            </div>
-          )}
 
         </div>
         <Footer />

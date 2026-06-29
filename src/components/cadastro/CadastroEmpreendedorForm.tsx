@@ -12,6 +12,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Upload, X, CheckCircle, Loader2, Image, AlertTriangle } from "lucide-react";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { fetchClassByCode } from "./ClassSelector";
+
 
 const schema = z.object({
   name: z.string().trim().min(2, "Nome deve ter pelo menos 2 caracteres").max(100),
@@ -122,11 +124,17 @@ const CadastroEmpreendedorForm = () => {
         portfolioUrls.push(url);
       }
 
+      // Classe automática para empreendedores
+      const empClass = await fetchClassByCode("empreendedor");
+
       // 2. Create auth account (keep session alive for RLS insert)
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
-        options: { emailRedirectTo: `${window.location.origin}/meu-perfil` },
+        options: {
+          emailRedirectTo: `${window.location.origin}/meu-perfil`,
+          data: { name: data.name, class_id: empClass?.id || null },
+        },
       });
       if (authError) throw new Error(friendlyAuthError(authError.message));
       if (!authData.user) throw new Error("Erro ao criar conta");
@@ -142,6 +150,14 @@ const CadastroEmpreendedorForm = () => {
 
       const userId = authData.user.id;
       const slug = generateSlug(data.name);
+
+      if (empClass?.id) {
+        await supabase.from("user_profiles" as any).upsert(
+          { user_id: userId, class_id: empClass.id },
+          { onConflict: "user_id" }
+        );
+      }
+
 
       // 4. Insert entrepreneur profile (RLS now passes)
       const { error } = await supabase.from("entrepreneurs").insert({

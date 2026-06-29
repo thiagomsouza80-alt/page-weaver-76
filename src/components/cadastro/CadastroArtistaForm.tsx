@@ -14,25 +14,12 @@ import { Upload, X, Camera, CheckCircle, Loader2, AlertTriangle } from "lucide-r
 import { PasswordInput } from "@/components/ui/password-input";
 import { membershipTypes, membershipDescriptions, membershipPaymentInfo } from "@/lib/membership";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-
-const segments = [
-  { value: "cosplayer", label: "Cosplayer" },
-  { value: "cosmaker", label: "Cosmaker" },
-  { value: "kpop", label: "K-Pop" },
-  { value: "ilustrador", label: "Ilustrador" },
-  { value: "quadrinista", label: "Quadrinista" },
-  { value: "colecionador", label: "Colecionador" },
-  { value: "desenvolvedor_jogos", label: "Desenvolvedor de Jogos" },
-  { value: "fan_cultura_pop", label: "Fã de Cultura Pop" },
-  { value: "youtuber", label: "YouTuber" },
-  { value: "influenciador_digital", label: "Influenciador Digital" },
-] as const;
+import ClassSelector, { classToLegacySegment, type ClassOption } from "./ClassSelector";
 
 const schema = z.object({
   name: z.string().trim().min(2, "Nome deve ter pelo menos 2 caracteres").max(100),
   email: z.string().trim().email("Email inválido").max(255),
   password: z.string().min(6, "Senha deve ter pelo menos 6 caracteres"),
-  segment: z.enum(["cosplayer", "cosmaker", "kpop", "ilustrador", "quadrinista", "colecionador", "desenvolvedor_jogos", "fan_cultura_pop", "youtuber", "influenciador_digital"], { required_error: "Selecione um segmento" }),
   birth_date: z.string().min(1, "Data de nascimento é obrigatória"),
   guardian_name: z.string().trim().max(100).optional(),
   guardian_phone: z.string().trim().max(30).optional(),
@@ -43,6 +30,7 @@ const schema = z.object({
   membership_type: z.enum(["free", "star", "pro", "hero"]).default("free"),
   youtube_url: z.string().trim().url("URL inválida").max(500).optional().or(z.literal("")),
 });
+
 
 type FormData = z.infer<typeof schema>;
 
@@ -55,14 +43,16 @@ const CadastroArtistaForm = () => {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState<false | "approved" | "pending">(false);
   const [successMembership, setSuccessMembership] = useState<string>("free");
+  const [selectedClass, setSelectedClass] = useState<ClassOption | null>(null);
+  const [classError, setClassError] = useState<string | null>(null);
 
   const { register, handleSubmit, setValue, formState: { errors }, watch } = useForm<FormData>({
     resolver: zodResolver(schema),
   });
 
-  const segmentValue = watch("segment");
   const membershipValue = watch("membership_type") || "free";
   const birthDateValue = watch("birth_date");
+
 
   const isMinor = (() => {
     if (!birthDateValue) return false;
@@ -122,6 +112,10 @@ const CadastroArtistaForm = () => {
   };
 
   const onSubmit = async (data: FormData) => {
+    if (!selectedClass) {
+      setClassError("Escolha sua Classe para continuar.");
+      return;
+    }
     setSubmitting(true);
     try {
       // 1. Upload files FIRST (before creating auth account to prevent orphan users on failure)
@@ -140,7 +134,10 @@ const CadastroArtistaForm = () => {
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
-        options: { emailRedirectTo: `${window.location.origin}/meu-perfil` },
+        options: {
+          emailRedirectTo: `${window.location.origin}/meu-perfil`,
+          data: { name: data.name, class_id: selectedClass.id },
+        },
       });
       if (authError) throw new Error(friendlyAuthError(authError.message));
       if (!authData.user) throw new Error("Erro ao criar conta");
@@ -161,11 +158,11 @@ const CadastroArtistaForm = () => {
       const age = Math.floor((Date.now() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
       const isMinorUser = age < 18;
 
-      // 5. Insert artist profile (session is live → RLS auth.uid() = user_id passes)
+      // 5. Insert artist profile (segment kept as legacy compat — derivado da Classe)
       const { error } = await supabase.from("artists").insert({
         name: data.name,
         email: data.email,
-        segment: data.segment,
+        segment: classToLegacySegment(selectedClass) as any,
         birth_date: data.birth_date,
         guardian_name: data.guardian_name || null,
         guardian_phone: data.guardian_phone || null,
@@ -182,6 +179,13 @@ const CadastroArtistaForm = () => {
       });
 
       if (error) throw new Error(error.message || "Não foi possível salvar seu perfil.");
+
+      // 6. Garante user_profiles.class_id (caso o trigger não tenha rodado a tempo)
+      await supabase.from("user_profiles" as any).upsert(
+        { user_id: userId, class_id: selectedClass.id },
+        { onConflict: "user_id" }
+      );
+
 
       setSuccessMembership(data.membership_type || "free");
       setSuccess(isMinorUser ? "pending" : "approved");
@@ -310,21 +314,16 @@ const CadastroArtistaForm = () => {
           </div>
         )}
 
-        {/* Segment */}
+        {/* Class */}
         <div className="space-y-2">
-          <Label>Segmento *</Label>
-          <Select value={segmentValue} onValueChange={(val) => setValue("segment", val as FormData["segment"])}>
-            <SelectTrigger>
-              <SelectValue placeholder="Selecione seu segmento" />
-            </SelectTrigger>
-            <SelectContent>
-              {segments.map(s => (
-                <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {errors.segment && <p className="text-sm text-destructive">{errors.segment.message}</p>}
+          <ClassSelector
+            value={selectedClass?.id || null}
+            onChange={(_, k) => { setSelectedClass(k); setClassError(null); }}
+            required
+          />
+          {classError && <p className="text-sm text-destructive">{classError}</p>}
         </div>
+
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div className="space-y-2">
@@ -366,7 +365,7 @@ const CadastroArtistaForm = () => {
           )}
         </div>
 
-        {(segmentValue === "cosplayer" || segmentValue === "kpop" || segmentValue === "youtuber" || segmentValue === "influenciador_digital") && (
+        {(selectedClass?.code === "cosplayer" || selectedClass?.code === "army" || selectedClass?.code === "youtuber" || selectedClass?.code === "influenciador" || selectedClass?.code === "streamer" || selectedClass?.code === "criador_conteudo") && (
           <div className="space-y-2">
             <Label htmlFor="artist-youtube">Vídeo de Apresentação (YouTube)</Label>
             <Input id="artist-youtube" placeholder="https://www.youtube.com/watch?v=..." {...register("youtube_url")} />
@@ -374,6 +373,7 @@ const CadastroArtistaForm = () => {
             <p className="text-xs text-muted-foreground">Cole o link do seu vídeo de apresentação no YouTube</p>
           </div>
         )}
+
 
         <div className="space-y-2">
           <Label htmlFor="artist-bio">Bio / Sobre você</Label>
