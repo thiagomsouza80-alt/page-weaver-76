@@ -12,6 +12,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Upload, X, CheckCircle, Loader2, Image, AlertTriangle } from "lucide-react";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { fetchClassByCode } from "./ClassSelector";
+
 
 const schema = z.object({
   name: z.string().trim().min(2, "Nome deve ter pelo menos 2 caracteres").max(100),
