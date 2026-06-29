@@ -51,11 +51,17 @@ const CadastroOrganizadorForm = () => {
   const onSubmit = async (data: FormData) => {
     setSubmitting(true);
     try {
+      // Classe automática para organizadores
+      const orgClass = await fetchClassByCode("organizador_eventos");
+
       // 1) signup
       const { data: auth, error: signErr } = await supabase.auth.signUp({
         email: data.email,
         password: data.password,
-        options: { emailRedirectTo: `${window.location.origin}/organizador` },
+        options: {
+          emailRedirectTo: `${window.location.origin}/organizador`,
+          data: { name: data.name, class_id: orgClass?.id || null },
+        },
       });
       if (signErr) throw new Error(friendlyAuthError(signErr.message));
       const userId = auth.user?.id;
@@ -68,6 +74,14 @@ const CadastroOrganizadorForm = () => {
         });
         if (loginErr) throw new Error(friendlyAuthError(loginErr.message));
       }
+
+      if (orgClass?.id) {
+        await supabase.from("user_profiles" as any).upsert(
+          { user_id: userId, class_id: orgClass.id },
+          { onConflict: "user_id" }
+        );
+      }
+
 
       // 3) create organizer profile (pending)
       const { error: orgErr } = await supabase.from("organizers").insert({
