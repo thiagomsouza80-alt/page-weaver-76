@@ -1,73 +1,73 @@
-# Social Pop — Rede Social do Amazônia Pop
+## Reestruturação Cadastro + Perfil + Classes
 
-O escopo é enorme (26 áreas, gamificação, stories, messenger avançado, galerias de eventos, antifraude, painel admin completo). Para não quebrar nada do que já está no ar (eventos, ingressos, marketplace, messenger básico, notificações push, verificação), vou entregar em **fases incrementais**, cada uma com migração + UI + admin + testes antes de seguir.
+Entrega única. Coluna `segment` permanece no banco (legado) mas deixa de ser usada/exibida em qualquer tela nova. Classe vira o único eixo de categorização.
 
-Confirme a ordem abaixo (ou reordene) que eu começo pela Fase 1.
+### 1. Banco de dados (1 migração)
+- Adicionar `class_id uuid` em `user_profiles` (FK opcional para `classes`).
+- Atualizar trigger `ensure_user_profile` para aceitar `class_id` vindo do signup `raw_user_meta_data`.
+- Backfill: mapear `artists.segment` → `classes.name` (cosplayer→Cosplayer, kpop→Army, youtuber→Youtuber/Criador, influenciador_digital→Influenciador, fan_cultura_pop→Fã, etc.) e gravar `user_profiles.class_id` quando ainda nulo.
+- Para empreendedores existentes sem classe: setar Classe "Empreendedor". Organizadores: "Organizador de Eventos".
+- Adicionar Classes faltantes do brief (Youtuber separado do "Criador de Conteúdo") e reordenar ícones/cores conforme lista.
+- Função `recalc_user_rank` e demais permanecem intocadas (compatibilidade total com XP/Ranks/Conquistas).
 
----
+### 2. Cadastro
+- `CadastroArtistaForm`: remover campo "Segmento", adicionar seletor visual de **Classe** (obrigatório) — grid de chips com ícone + cor da `classes` table. Salvar `class_id` no `user_profiles` via `auth.signUp({ options: { data: { class_id } } })` que o trigger lê.
+- `CadastroEmpreendedorForm`: define automaticamente Classe "Empreendedor" (sem seletor).
+- `CadastroOrganizadorForm`: define automaticamente Classe "Organizador de Eventos" (sem seletor).
+- Página `Cadastro.tsx` mantém os 3 fluxos atuais.
 
-## Fase 1 — Fundação de Gamificação (XP, Níveis, Classes, Ranks, Conquistas)
-- Tabelas: `xp_rules` (configurável), `xp_events` (log antifraude), `user_progression` (xp, level, rank, class), `classes`, `ranks`, `achievements`, `user_achievements`.
-- Função `award_xp(user, action, ref)` com deduplicação (mesma ação/alvo/janela) → base do antifraude.
-- Triggers em: posts, comments, likes, shares, follows, fans, tickets, event_attendees, validations_log, social_products, messages, conversations.
-- Cálculo de nível (curva progressiva configurável) + recálculo de rank em job.
-- UI: barra XP, badge de classe, rank e medalhas no PostCard, ProductCard e perfil.
-- Admin: painel `Social Pop → XP / Classes / Ranks / Medalhas` editando valores em tempo real.
+### 3. Novo Perfil (`MeuPerfil.tsx`)
+Reescrita completa. Layout clean focado em identidade:
 
-## Fase 2 — Perfil Público Completo (`/u/:username`)
-- Tabela `social_profiles` (username único, banner, bio, redes, privacy_messenger).
-- Página única de perfil agregando: artista/empreendedor/organizador + posts + stories destacados + produtos + eventos organizados/participados + medalhas + XP/Rank/Classe.
-- Edição em `/meu-perfil`.
+```text
+┌─────────────────────────────────┐
+│   [Banner com gradiente]    [⋮] │ ← menu superior direito
+│  [Avatar]                       │
+│   Nome · @username              │
+│   [Classe chip] [Rank badge]    │
+│   Nível N — [████░░] XP         │
+│   ♥ N fãs · 👥 N seguidores     │
+│   Bio curta                     │
+│   [Seguir] [Sou fã]             │
+├─────────────────────────────────┤
+│ Tabs: Publicações | Destaques   │
+│       Estatísticas | Conquistas │
+│       Galeria                   │
+└─────────────────────────────────┘
+```
+Remover da tela principal: editor de perfil público, ClassPicker, NotificationSettings, MessengerVerification, MyProducts, MeusIngressos, configurações. Todos passam para o menu (≡).
 
-## Fase 3 — Stories (24h) + Destaques + Stories de Evento
-- Tabelas: `stories` (media, expires_at, event_id?, ticket_id?), `story_views`, `story_reactions`, `story_highlights`, `story_highlight_items`.
-- Bucket `stories` (público com transformação) + cleanup job (expira em 24h).
-- UI: bolhas no topo do Social Pop, viewer fullscreen com progress, reações, contagem de views.
-- Stories de evento aparecem na página do evento; só liberados para quem tem ingresso ou RSVP.
-- Destaques permanentes por categoria no perfil.
+### 4. Menu superior do perfil
+Novo componente `ProfileSettingsMenu.tsx` (Sheet lateral direito) com categorias colapsáveis:
+- **Minha Conta** → Editar perfil, Alterar foto, Alterar banner, Alterar Classe, Alterar bio
+- **Ingressos** → Meus ingressos, Histórico, Reembolsos
+- **Marketplace** (se aplicável) → Meus produtos, Mensagens, Pedidos
+- **Organizador** (se aplicável) → Meus eventos, Financeiro, Validadores, Relatórios
+- **Privacidade** → toggles (ocultar e-mail, WhatsApp, quem envia mensagens, quem vê stories, bloqueados)
+- **Notificações** → preferências por canal
+- **Segurança** → Alterar senha, Sessões, 2FA (placeholder "em breve")
+- **Privacidade e Dados** → Baixar dados, Excluir conta, Política, Termos
+- **Sair**
 
-## Fase 4 — Check-in Social + Galeria Colaborativa + Melhores Momentos + Histórico do Evento
-- Tabela `event_checkins` (após validação do ingresso libera botão).
-- Tabela `event_gallery` (fotos/vídeos com autorização).
-- Página `/evento/:id/historico` gerada após `event_date` passar: banner, participantes, stories autorizados, melhores momentos (top por engajamento), avaliações.
+Cada item abre dialog/sheet aninhado reaproveitando componentes existentes (PublicProfileEditor, NotificationSettingsCard, MessengerVerificationCard, MyProductsSection, MeusIngressosSection, RefundRequestDialog, etc.).
 
-## Fase 5 — Messenger Avançado
-- Estender `messages`: tipo (text/image/gif/audio futuro), `read_at`, `delivered_at`, attachments.
-- Tabela `message_attachments` + bucket `messenger-media`.
-- Presence (`online`, `last_seen`, `typing`) via Realtime channel.
-- Privacidade configurável (todos / seguidores / sigo / fãs / ninguém) na tabela `social_profiles`.
-- Bloquear, silenciar, denunciar, excluir conversa.
-- Ícone de mensagens com badge na navbar do Social Pop.
-- Mantém o fluxo de verificação já existente.
+### 5. Filtros, Ranking, Busca
+- `Artistas.tsx`, `ArtistsSection.tsx`, `ArtistaDetalhe.tsx`: substituir filtro/exibição de Segmento por Classe (join `user_profiles.class_id → classes`).
+- `AdminArtistsPanel`, `AdminFanRankingPanel`, `AdminDatabasePanel`: coluna Classe; remover seletor de Segmento dos forms admin.
+- Social Pop / Ranking: filtrar por `class_id`.
+- Edge function `og-preview`: usar Classe quando disponível, fallback no segment legado.
 
-## Fase 6 — Feed Inteligente + Tendências + Reações Estendidas
-- View materializada `feed_ranking` (peso: recência, afinidade, fãs/seguidores, RSVP de eventos, engajamento).
-- Página `/social/em-alta` (posts, stories, eventos, perfis, hashtags).
-- Tabela `social_reactions` (❤️🔥👏😂😍👍) substituindo like simples (mantém compatibilidade com `social_likes`).
-- Extração de hashtags + tabela `hashtags` + trending.
+### 6. Admin de Classes
+Adicionar aba em `AdminSocialPopPanel` (já existente): CRUD de `classes` (nome, ícone Lucide, cor hex, descrição, `is_active`, `sort_order`). Usa políticas RLS já existentes para admin.
 
-## Fase 7 — Notificações Granulares + Missões + Login Diário
-- Estender `notification_preferences` com todos os novos tipos.
-- Tabela `missions` (diárias/semanais) + `user_missions` + `daily_logins` (streak).
-- Notificações de XP, level up, novo rank, medalha, check-in.
+### 7. Validação final
+- `rg -i "segmento|segment"` deve retornar só legados em migrations antigas, `types.ts` auto-gerado, e a coluna `artists.segment` (intocada). Tudo o que é UI/filtro/cadastro removido.
+- Smoke test: cadastrar artista, ver Classe salva, perfil carrega sem pedir Classe de novo, menu abre, filtros funcionam.
 
-## Fase 8 — Antifraude + Admin "Social Pop" unificado + Performance
-- Limites por janela, detecção de bots (rate, padrões), shadow-flag em `xp_events`.
-- Menu admin "Social Pop" agrupando todos os sub-painéis.
-- Lazy-load de stories/feed, prefetch, índices de performance, cache client.
+### Detalhe técnico
+- Trigger `ensure_user_profile` lê `NEW.raw_user_meta_data->>'class_id'`.
+- Formulários passam `options.data.class_id`.
+- Editor de Classe no menu usa `ClassPicker` já existente (gravando em `user_profiles.class_id`, não mais em `user_progression.class_id` — `user_progression.class_id` continua mas espelha a escolha).
+- Trigger adicional: ao atualizar `user_profiles.class_id`, propagar para `user_progression.class_id` para manter compatibilidade com badges/UI existentes.
 
----
-
-## Detalhes técnicos (resumo)
-- Tudo em Supabase: tabelas + RLS + GRANTs + triggers SECURITY DEFINER.
-- Realtime habilitado para `stories`, `messages`, `social_reactions`, `social_notifications`.
-- Arquivos novos em `src/components/social/*` (StoriesBar, StoryViewer, ReactionsBar, XpBadge, RankBadge, ClassBadge, ProfileHeader…), `src/pages/Perfil.tsx`, `src/pages/EmAlta.tsx`, `src/components/admin/AdminSocialPopPanel.tsx` (com sub-tabs).
-- Compatibilidade: nada do que existe é removido — apenas estendido. Triggers de XP têm `EXCEPTION WHEN OTHERS THEN RETURN NEW` para não quebrar inserts existentes.
-- Responsivo mobile-first em todas as telas novas.
-
----
-
-## Sugestão de entrega
-Pela escala, cada fase é uma resposta dedicada (migração → tipos → UI → admin). Posso começar **agora pela Fase 1 (XP, Níveis, Classes, Ranks, Conquistas)**, que é a fundação que tudo o resto consome.
-
-Responda **"Siga"** para começar pela Fase 1, ou indique outra ordem.
+Confirma para eu executar tudo de uma vez?
