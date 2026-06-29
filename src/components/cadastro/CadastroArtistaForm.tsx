@@ -300,21 +300,16 @@ const CadastroArtistaForm = () => {
           </div>
         )}
 
-        {/* Segment */}
+        {/* Class */}
         <div className="space-y-2">
-          <Label>Segmento *</Label>
-          <Select value={segmentValue} onValueChange={(val) => setValue("segment", val as FormData["segment"])}>
-            <SelectTrigger>
-              <SelectValue placeholder="Selecione seu segmento" />
-            </SelectTrigger>
-            <SelectContent>
-              {segments.map(s => (
-                <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {errors.segment && <p className="text-sm text-destructive">{errors.segment.message}</p>}
+          <ClassSelector
+            value={selectedClass?.id || null}
+            onChange={(_, k) => { setSelectedClass(k); setClassError(null); }}
+            required
+          />
+          {classError && <p className="text-sm text-destructive">{classError}</p>}
         </div>
+
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div className="space-y-2">
