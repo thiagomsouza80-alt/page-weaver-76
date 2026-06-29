@@ -3,8 +3,8 @@ import XpProgressBar from "./XpProgressBar";
 import RankBadge from "./RankBadge";
 import ClassBadge from "./ClassBadge";
 import AchievementsList from "./AchievementsList";
-import ClassPicker from "./ClassPicker";
 import { Trophy, Heart, Users, Calendar } from "lucide-react";
+
 
 export default function ProgressionCard({ userId }: { userId: string }) {
   const { progression, klass, rank, achievements, loading } = useUserProgression(userId);
