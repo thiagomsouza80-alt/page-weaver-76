@@ -519,6 +519,57 @@ export type Database = {
           },
         ]
       }
+      event_checkins: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          latitude: number | null
+          longitude: number | null
+          message: string | null
+          source: string
+          ticket_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          message?: string | null
+          source?: string
+          ticket_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          message?: string | null
+          source?: string
+          ticket_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_checkins_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_checkins_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_courtesy_codes: {
         Row: {
           assigned_user_id: string | null
@@ -575,6 +626,88 @@ export type Database = {
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_gallery_items: {
+        Row: {
+          approved: boolean
+          caption: string | null
+          created_at: string
+          event_id: string
+          id: string
+          likes_count: number
+          media_type: string
+          media_url: string
+          reported: boolean
+          thumbnail_url: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          approved?: boolean
+          caption?: string | null
+          created_at?: string
+          event_id: string
+          id?: string
+          likes_count?: number
+          media_type?: string
+          media_url: string
+          reported?: boolean
+          thumbnail_url?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          approved?: boolean
+          caption?: string | null
+          created_at?: string
+          event_id?: string
+          id?: string
+          likes_count?: number
+          media_type?: string
+          media_url?: string
+          reported?: boolean
+          thumbnail_url?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_gallery_items_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_gallery_likes: {
+        Row: {
+          created_at: string
+          gallery_item_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          gallery_item_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          gallery_item_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_gallery_likes_gallery_item_id_fkey"
+            columns: ["gallery_item_id"]
+            isOneToOne: false
+            referencedRelation: "event_gallery_items"
             referencedColumns: ["id"]
           },
         ]
@@ -2872,6 +3005,27 @@ export type Database = {
       event_category_available: {
         Args: { _category_id: string }
         Returns: number
+      }
+      event_checkin: {
+        Args: {
+          _event_id: string
+          _latitude?: number
+          _longitude?: number
+          _message?: string
+        }
+        Returns: string
+      }
+      event_checkins_feed: {
+        Args: { _event_id: string; _limit?: number }
+        Returns: {
+          avatar_url: string
+          created_at: string
+          display_name: string
+          id: string
+          message: string
+          user_id: string
+          username: string
+        }[]
       }
       event_current_batch: { Args: { _event_id: string }; Returns: string }
       event_tickets_count: { Args: { _event_id: string }; Returns: number }
