@@ -7,6 +7,8 @@ import { Loader2, ArrowLeft, CalendarDays, MapPin } from "lucide-react";
 import EuVouButton from "@/components/EuVouButton";
 import ShareButtons from "@/components/ShareButtons";
 import TicketRedeemButton from "@/components/tickets/TicketRedeemButton";
+import EventCheckin from "@/components/events/EventCheckin";
+import EventGallery from "@/components/events/EventGallery";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Event = Tables<"events">;
