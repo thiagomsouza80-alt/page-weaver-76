@@ -85,9 +85,12 @@ const EventoDetalhe = () => {
 
         <p className="text-lg text-muted-foreground mb-8">{item.description}</p>
 
-        <div className="prose prose-invert max-w-none text-foreground/85 leading-relaxed whitespace-pre-wrap">
+        <div className="prose prose-invert max-w-none text-foreground/85 leading-relaxed whitespace-pre-wrap mb-10">
           {item.content}
         </div>
+
+        <EventCheckin eventId={item.id} eventDate={item.event_date} />
+        <EventGallery eventId={item.id} />
       </article>
       <Footer />
     </div>
