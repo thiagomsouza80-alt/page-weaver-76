@@ -127,7 +127,7 @@ export function useUserProgression(userId: string | null) {
   useEffect(() => {
     if (!userId) return;
     const ch = supabase
-      .channel(`progression:${userId}`)
+      .channel(`progression:${userId}:${Math.random().toString(36).slice(2, 10)}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "user_progression", filter: `user_id=eq.${userId}` },
