@@ -7,6 +7,8 @@ import { Loader2, ArrowLeft, CalendarDays, MapPin } from "lucide-react";
 import EuVouButton from "@/components/EuVouButton";
 import ShareButtons from "@/components/ShareButtons";
 import TicketRedeemButton from "@/components/tickets/TicketRedeemButton";
+import EventCheckin from "@/components/events/EventCheckin";
+import EventGallery from "@/components/events/EventGallery";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Event = Tables<"events">;
@@ -83,9 +85,12 @@ const EventoDetalhe = () => {
 
         <p className="text-lg text-muted-foreground mb-8">{item.description}</p>
 
-        <div className="prose prose-invert max-w-none text-foreground/85 leading-relaxed whitespace-pre-wrap">
+        <div className="prose prose-invert max-w-none text-foreground/85 leading-relaxed whitespace-pre-wrap mb-10">
           {item.content}
         </div>
+
+        <EventCheckin eventId={item.id} eventDate={item.event_date} />
+        <EventGallery eventId={item.id} />
       </article>
       <Footer />
     </div>
