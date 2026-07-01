@@ -8,7 +8,8 @@ import PostCard, { type SocialPost } from "@/components/social/PostCard";
 import VitrineTab from "@/components/social/VitrineTab";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import StoriesBar from "@/components/social/StoriesBar";
-import { Loader2, MessageSquare, ShoppingBag } from "lucide-react";
+import ArtistSearchBar from "@/components/social/ArtistSearchBar";
+import { Loader2, MessageSquare, ShoppingBag, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
@@ -51,6 +52,20 @@ const SocialPop = () => {
       <main className="max-w-3xl mx-auto px-4 pt-24 pb-16">
         <header className="mb-6">
           <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
+            <MessageSquare className="h-7 w-7 text-primary" />
+            Social Pop
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">A comunidade da cultura pop paraense.</p>
+        </header>
+
+        <div className="mb-4 flex items-center gap-2">
+          <div className="flex-1"><ArtistSearchBar /></div>
+          <Link to="/comunidades">
+            <Button variant="outline" size="sm" className="gap-2 whitespace-nowrap">
+              <Users className="h-4 w-4" /> Comunidades
+            </Button>
+          </Link>
+        </div>
             <MessageSquare className="h-7 w-7 text-primary" />
             Social Pop
           </h1>
