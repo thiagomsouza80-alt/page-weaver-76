@@ -15,9 +15,10 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
 import {
-  Layers, Ticket, Gift, Plus, Trash2, Pencil, Loader2, Copy, Calendar, Accessibility, UserRound, HeartHandshake, Ban,
+  Layers, Ticket, Gift, Plus, Trash2, Pencil, Loader2, Copy, Calendar, Accessibility, UserRound, HeartHandshake, Ban, Settings2, ChevronDown,
 } from "lucide-react";
 import { centsToBRL } from "@/lib/money";
 
