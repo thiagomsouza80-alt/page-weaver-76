@@ -22,7 +22,7 @@ export default function ArtistSearchBar() {
       const { data } = await supabase
         .from("artists")
         .select("id, name, slug, profile_image_url, segment")
-        .eq("status", "approved")
+        .eq("approved", true)
         .ilike("name", `%${q.trim()}%`)
         .limit(8);
       setResults(((data as any) || []) as Artist[]);

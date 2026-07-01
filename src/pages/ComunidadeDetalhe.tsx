@@ -39,7 +39,7 @@ export default function ComunidadeDetalhe() {
 
     const { data: cd } = await supabase.from("communities" as any).select("*").eq("slug", slug).maybeSingle();
     if (!cd) { setLoading(false); return; }
-    setC(cd as Community);
+    setC(cd as any as Community);
 
     if (u.user?.id) {
       const { data: mem } = await supabase.from("community_members" as any)
