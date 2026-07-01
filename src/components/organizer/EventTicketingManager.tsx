@@ -15,9 +15,10 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { useToast } from "@/hooks/use-toast";
 import {
-  Layers, Ticket, Gift, Plus, Trash2, Pencil, Loader2, Copy, Calendar, Accessibility, UserRound, HeartHandshake, Ban,
+  Layers, Ticket, Gift, Plus, Trash2, Pencil, Loader2, Copy, Calendar, Accessibility, UserRound, HeartHandshake, Ban, Settings2, ChevronDown,
 } from "lucide-react";
 import { centsToBRL } from "@/lib/money";
 
@@ -79,6 +80,7 @@ const EventTicketingManager = ({ eventId, useBatches, onUseBatchesChange }: Prop
   const [batches, setBatches] = useState<Batch[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [courtesy, setCourtesy] = useState<CourtesyCode[]>([]);
+  const [advancedOpen, setAdvancedOpen] = useState(false);
 
   const [batchOpen, setBatchOpen] = useState(false);
   const [editingBatch, setEditingBatch] = useState<Batch | null>(null);
@@ -97,6 +99,8 @@ const EventTicketingManager = ({ eventId, useBatches, onUseBatchesChange }: Prop
   const [assignResults, setAssignResults] = useState<any[]>([]);
   const [assignSearching, setAssignSearching] = useState(false);
   const [assigning, setAssigning] = useState(false);
+
+  const MAX_BATCHES = 4;
 
   const load = async () => {
     setLoading(true);
@@ -121,6 +125,10 @@ const EventTicketingManager = ({ eventId, useBatches, onUseBatchesChange }: Prop
 
   // ============== BATCH CRUD ==============
   const openNewBatch = () => {
+    if (batches.length >= MAX_BATCHES) {
+      toast({ title: "Limite de lotes atingido", description: `Você pode criar até ${MAX_BATCHES} lotes por evento.`, variant: "destructive" });
+      return;
+    }
     setEditingBatch({
       id: "", event_id: eventId,
       name: `${batches.length + 1}º Lote`,
@@ -286,7 +294,7 @@ const EventTicketingManager = ({ eventId, useBatches, onUseBatchesChange }: Prop
     <Card>
       <CardHeader>
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <CardTitle className="text-base flex items-center gap-2"><Ticket className="h-4 w-4 text-primary" /> Lotes e Modalidades</CardTitle>
+          <CardTitle className="text-base flex items-center gap-2"><Ticket className="h-4 w-4 text-primary" /> Ingressos do Evento</CardTitle>
           <div className="flex items-center gap-2">
             <Switch id="use-batches" checked={useBatches} onCheckedChange={toggleUseBatches} />
             <Label htmlFor="use-batches" className="text-sm cursor-pointer">Utilizar lotes</Label>
@@ -294,12 +302,24 @@ const EventTicketingManager = ({ eventId, useBatches, onUseBatchesChange }: Prop
         </div>
       </CardHeader>
       <CardContent>
+        <Collapsible open={advancedOpen} onOpenChange={setAdvancedOpen}>
+          <CollapsibleTrigger asChild>
+            <Button variant="outline" className="w-full justify-between gap-2 mb-3">
+              <span className="flex items-center gap-2 text-sm font-medium">
+                <Settings2 className="h-4 w-4 text-primary" /> Configurações avançadas
+                <span className="text-xs text-muted-foreground">(lotes, meia, PCD, solidário, cortesia)</span>
+              </span>
+              <ChevronDown className={`h-4 w-4 transition-transform ${advancedOpen ? "rotate-180" : ""}`} />
+            </Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
         <Tabs defaultValue="categories" className="w-full">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="categories"><Ticket className="h-4 w-4 mr-1.5" /> Modalidades</TabsTrigger>
             <TabsTrigger value="batches"><Layers className="h-4 w-4 mr-1.5" /> Lotes</TabsTrigger>
             <TabsTrigger value="courtesy"><Gift className="h-4 w-4 mr-1.5" /> Cortesia</TabsTrigger>
           </TabsList>
+
 
           {/* MODALIDADES */}
           <TabsContent value="categories" className="space-y-4 mt-4">
@@ -373,7 +393,12 @@ const EventTicketingManager = ({ eventId, useBatches, onUseBatchesChange }: Prop
                 Ative o switch <strong>"Utilizar lotes"</strong> acima para usar os lotes na página pública do evento. Você ainda pode criar/editar lotes aqui à vontade.
               </div>
             )}
-            <Button size="sm" onClick={openNewBatch} className="gap-2"><Plus className="h-4 w-4" /> Novo lote</Button>
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <Button size="sm" onClick={openNewBatch} className="gap-2" disabled={batches.length >= MAX_BATCHES}>
+                <Plus className="h-4 w-4" /> Novo lote
+              </Button>
+              <span className="text-xs text-muted-foreground">{batches.length}/{MAX_BATCHES} lotes · você pode nomeá-los livremente</span>
+            </div>
             {batches.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-8">Nenhum lote criado ainda.</p>
             ) : (
@@ -436,7 +461,10 @@ const EventTicketingManager = ({ eventId, useBatches, onUseBatchesChange }: Prop
             )}
           </TabsContent>
         </Tabs>
+          </CollapsibleContent>
+        </Collapsible>
       </CardContent>
+
 
       {/* DIALOG: Batch */}
       <Dialog open={batchOpen} onOpenChange={(v) => { if (!v) { setBatchOpen(false); setEditingBatch(null); } }}>
