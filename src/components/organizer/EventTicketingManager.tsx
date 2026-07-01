@@ -389,7 +389,12 @@ const EventTicketingManager = ({ eventId, useBatches, onUseBatchesChange }: Prop
                 Ative o switch <strong>"Utilizar lotes"</strong> acima para usar os lotes na página pública do evento. Você ainda pode criar/editar lotes aqui à vontade.
               </div>
             )}
-            <Button size="sm" onClick={openNewBatch} className="gap-2"><Plus className="h-4 w-4" /> Novo lote</Button>
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <Button size="sm" onClick={openNewBatch} className="gap-2" disabled={batches.length >= MAX_BATCHES}>
+                <Plus className="h-4 w-4" /> Novo lote
+              </Button>
+              <span className="text-xs text-muted-foreground">{batches.length}/{MAX_BATCHES} lotes · você pode nomeá-los livremente</span>
+            </div>
             {batches.length === 0 ? (
               <p className="text-sm text-muted-foreground text-center py-8">Nenhum lote criado ainda.</p>
             ) : (
