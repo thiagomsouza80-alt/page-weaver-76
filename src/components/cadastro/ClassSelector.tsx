@@ -20,7 +20,7 @@ interface Props {
 
 const emojiMap: Record<string, string> = {
   cosplayer: "🎭", dancarino: "💃", cantor: "🎤", musico: "🎸", gamer: "🎮",
-  army: "💜", artista: "🎨", criador_conteudo: "🎬", youtuber: "📺",
+  army: "💜", kpopper: "💜", artista: "🎨", criador_conteudo: "🎬", youtuber: "📺",
   influenciador: "📱", streamer: "🎥", fotografo: "📸", videomaker: "🎞️",
   empreendedor: "🛍️", organizador_eventos: "🎫", fan: "⭐",
 };
@@ -92,6 +92,7 @@ export function classToLegacySegment(klass: ClassOption | null | undefined): str
   const map: Record<string, string> = {
     cosplayer: "cosplayer",
     army: "kpop",
+    kpopper: "kpop",
     youtuber: "youtuber",
     influenciador: "influenciador_digital",
     fan: "fan_cultura_pop",
