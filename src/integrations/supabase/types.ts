@@ -242,6 +242,159 @@ export type Database = {
         }
         Relationships: []
       }
+      communities: {
+        Row: {
+          category: string | null
+          cover_url: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_public: boolean
+          members_count: number
+          name: string
+          owner_user_id: string
+          posts_count: number
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_public?: boolean
+          members_count?: number
+          name: string
+          owner_user_id: string
+          posts_count?: number
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_public?: boolean
+          members_count?: number
+          name?: string
+          owner_user_id?: string
+          posts_count?: number
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      community_members: {
+        Row: {
+          community_id: string
+          id: string
+          joined_at: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          community_id: string
+          id?: string
+          joined_at?: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          community_id?: string
+          id?: string
+          joined_at?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_members_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_post_likes: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_post_likes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_posts: {
+        Row: {
+          author_avatar_url: string | null
+          author_name: string | null
+          community_id: string
+          content: string
+          created_at: string
+          deleted: boolean
+          id: string
+          image_url: string | null
+          likes_count: number
+          user_id: string
+        }
+        Insert: {
+          author_avatar_url?: string | null
+          author_name?: string | null
+          community_id: string
+          content: string
+          created_at?: string
+          deleted?: boolean
+          id?: string
+          image_url?: string | null
+          likes_count?: number
+          user_id: string
+        }
+        Update: {
+          author_avatar_url?: string | null
+          author_name?: string | null
+          community_id?: string
+          content?: string
+          created_at?: string
+          deleted?: boolean
+          id?: string
+          image_url?: string | null
+          likes_count?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_posts_community_id_fkey"
+            columns: ["community_id"]
+            isOneToOne: false
+            referencedRelation: "communities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       conversations: {
         Row: {
           created_at: string
@@ -3104,6 +3257,10 @@ export type Database = {
         Returns: boolean
       }
       increment_fan_count: { Args: { _artist_id: string }; Returns: number }
+      is_community_member: {
+        Args: { _community: string; _user: string }
+        Returns: boolean
+      }
       is_event_validator: {
         Args: { _event: string; _user: string }
         Returns: boolean
