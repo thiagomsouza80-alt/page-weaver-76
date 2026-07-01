@@ -66,11 +66,6 @@ const SocialPop = () => {
             </Button>
           </Link>
         </div>
-            <MessageSquare className="h-7 w-7 text-primary" />
-            Social Pop
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">A comunidade da cultura pop paraense.</p>
-        </header>
 
         <Tabs value={mainTab} onValueChange={v => setMainTab(v as MainTab)}>
           <TabsList className="grid w-full grid-cols-2 mb-4">
