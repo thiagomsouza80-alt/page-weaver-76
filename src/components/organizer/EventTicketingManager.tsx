@@ -452,7 +452,10 @@ const EventTicketingManager = ({ eventId, useBatches, onUseBatchesChange }: Prop
             )}
           </TabsContent>
         </Tabs>
+          </CollapsibleContent>
+        </Collapsible>
       </CardContent>
+
 
       {/* DIALOG: Batch */}
       <Dialog open={batchOpen} onOpenChange={(v) => { if (!v) { setBatchOpen(false); setEditingBatch(null); } }}>
