@@ -125,6 +125,10 @@ const EventTicketingManager = ({ eventId, useBatches, onUseBatchesChange }: Prop
 
   // ============== BATCH CRUD ==============
   const openNewBatch = () => {
+    if (batches.length >= MAX_BATCHES) {
+      toast({ title: "Limite de lotes atingido", description: `Você pode criar até ${MAX_BATCHES} lotes por evento.`, variant: "destructive" });
+      return;
+    }
     setEditingBatch({
       id: "", event_id: eventId,
       name: `${batches.length + 1}º Lote`,
