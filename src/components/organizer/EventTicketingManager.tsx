@@ -80,6 +80,7 @@ const EventTicketingManager = ({ eventId, useBatches, onUseBatchesChange }: Prop
   const [batches, setBatches] = useState<Batch[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [courtesy, setCourtesy] = useState<CourtesyCode[]>([]);
+  const [advancedOpen, setAdvancedOpen] = useState(false);
 
   const [batchOpen, setBatchOpen] = useState(false);
   const [editingBatch, setEditingBatch] = useState<Batch | null>(null);
@@ -98,6 +99,8 @@ const EventTicketingManager = ({ eventId, useBatches, onUseBatchesChange }: Prop
   const [assignResults, setAssignResults] = useState<any[]>([]);
   const [assignSearching, setAssignSearching] = useState(false);
   const [assigning, setAssigning] = useState(false);
+
+  const MAX_BATCHES = 4;
 
   const load = async () => {
     setLoading(true);
@@ -287,7 +290,7 @@ const EventTicketingManager = ({ eventId, useBatches, onUseBatchesChange }: Prop
     <Card>
       <CardHeader>
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <CardTitle className="text-base flex items-center gap-2"><Ticket className="h-4 w-4 text-primary" /> Lotes e Modalidades</CardTitle>
+          <CardTitle className="text-base flex items-center gap-2"><Ticket className="h-4 w-4 text-primary" /> Ingressos do Evento</CardTitle>
           <div className="flex items-center gap-2">
             <Switch id="use-batches" checked={useBatches} onCheckedChange={toggleUseBatches} />
             <Label htmlFor="use-batches" className="text-sm cursor-pointer">Utilizar lotes</Label>
@@ -295,12 +298,24 @@ const EventTicketingManager = ({ eventId, useBatches, onUseBatchesChange }: Prop
         </div>
       </CardHeader>
       <CardContent>
+        <Collapsible open={advancedOpen} onOpenChange={setAdvancedOpen}>
+          <CollapsibleTrigger asChild>
+            <Button variant="outline" className="w-full justify-between gap-2 mb-3">
+              <span className="flex items-center gap-2 text-sm font-medium">
+                <Settings2 className="h-4 w-4 text-primary" /> Configurações avançadas
+                <span className="text-xs text-muted-foreground">(lotes, meia, PCD, solidário, cortesia)</span>
+              </span>
+              <ChevronDown className={`h-4 w-4 transition-transform ${advancedOpen ? "rotate-180" : ""}`} />
+            </Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
         <Tabs defaultValue="categories" className="w-full">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="categories"><Ticket className="h-4 w-4 mr-1.5" /> Modalidades</TabsTrigger>
             <TabsTrigger value="batches"><Layers className="h-4 w-4 mr-1.5" /> Lotes</TabsTrigger>
             <TabsTrigger value="courtesy"><Gift className="h-4 w-4 mr-1.5" /> Cortesia</TabsTrigger>
           </TabsList>
+
 
           {/* MODALIDADES */}
           <TabsContent value="categories" className="space-y-4 mt-4">
