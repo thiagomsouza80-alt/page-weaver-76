@@ -53,7 +53,7 @@ export default function ArtistSearchBar() {
             <p className="text-sm text-muted-foreground text-center py-4">Nenhum artista encontrado.</p>
           ) : (
             results.map((a) => (
-              <Link key={a.id} to={`/artistas/${a.slug}`} className="flex items-center gap-3 px-3 py-2 hover:bg-secondary/60 transition">
+              <Link key={a.id} to={`/artistas/${toSlug(a.name)}`} className="flex items-center gap-3 px-3 py-2 hover:bg-secondary/60 transition">
                 <Avatar className="h-8 w-8">
                   {a.profile_image_url && <AvatarImage src={a.profile_image_url} />}
                   <AvatarFallback>{a.name?.[0] || "?"}</AvatarFallback>
