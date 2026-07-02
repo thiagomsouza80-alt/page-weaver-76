@@ -33,17 +33,19 @@ Deno.serve(async (req: Request) => {
   );
 
   try {
-    // Validação do shared secret (recomendado)
+    // Validação obrigatória do shared secret
     const expectedSecret = Deno.env.get("MISTICPAY_WEBHOOK_SECRET");
-    if (expectedSecret) {
-      const url = new URL(req.url);
-      const provided =
-        url.searchParams.get("secret") ||
-        req.headers.get("x-webhook-secret") ||
-        "";
-      if (provided !== expectedSecret) {
-        return json({ error: "Invalid webhook secret" }, 401);
-      }
+    if (!expectedSecret) {
+      console.error("MISTICPAY_WEBHOOK_SECRET not configured");
+      return json({ error: "Webhook not configured" }, 503);
+    }
+    const url = new URL(req.url);
+    const provided =
+      url.searchParams.get("secret") ||
+      req.headers.get("x-webhook-secret") ||
+      "";
+    if (provided !== expectedSecret) {
+      return json({ error: "Invalid webhook secret" }, 401);
     }
 
     const rawBody = await req.text();
