@@ -47,11 +47,10 @@ export default function StoryComposer({ userId, onClose, onPosted }: Props) {
         upsert: false,
       });
       if (upErr) throw upErr;
-      const { data: pub } = supabase.storage.from("stories").getPublicUrl(path);
-
+      // Bucket is private → save the storage path; viewer generates a signed URL on the fly.
       const { error: insErr } = await supabase.from("social_stories" as any).insert({
         user_id: userId,
-        media_url: pub.publicUrl,
+        media_url: path,
         media_type: isVideo ? "video" : "image",
         caption: caption.trim() || null,
         link_url: linkUrl.trim() || null,
