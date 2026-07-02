@@ -197,13 +197,13 @@ export default function StoryViewer({ authorUserId, onClose }: Props) {
               {current.media_type === "video" ? (
                 <video
                   key={current.id}
-                  src={current.media_url}
+                  src={signedUrls[current.media_url] || ""}
                   autoPlay
                   playsInline
                   className="w-full h-full object-contain bg-black"
                 />
               ) : (
-                <img src={current.media_url} alt="" className="w-full h-full object-contain bg-black" />
+                <img src={signedUrls[current.media_url] || ""} alt="" className="w-full h-full object-contain bg-black" />
               )}
 
               {/* Caption + link */}
