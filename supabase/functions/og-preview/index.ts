@@ -197,7 +197,7 @@ function renderHTML(og: OGData): string {
 </head>
 <body>
   <p>Redirecionando para <a href="${url}">${title}</a>...</p>
-  <script>window.location.replace("${redirectUrl}");</script>
+  <script>window.location.replace(${redirectUrl});</script>
 </body>
 </html>`;
 }
