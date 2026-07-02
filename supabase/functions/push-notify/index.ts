@@ -36,6 +36,31 @@ async function ensureVapid() {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   try {
+    // Auth: only service_role (server-side triggers) or admin users may call
+    const authHeader = req.headers.get("Authorization") || "";
+    const token = authHeader.replace(/^Bearer\s+/i, "");
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    let allowed = false;
+    if (token && token === serviceKey) {
+      allowed = true;
+    } else if (token) {
+      const { data, error } = await supabase.auth.getUser(token);
+      if (!error && data?.user) {
+        const { data: role } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", data.user.id)
+          .eq("role", "admin")
+          .maybeSingle();
+        if (role) allowed = true;
+      }
+    }
+    if (!allowed) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     if (!(await ensureVapid())) {
       return new Response(JSON.stringify({ error: "VAPID not configured" }), {
         status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
