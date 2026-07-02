@@ -175,7 +175,7 @@ function renderHTML(og: OGData): string {
   const description = escapeHtml(og.description);
   const image = escapeHtml(og.image);
   const url = escapeHtml(og.url);
-  const redirectUrl = og.url.replace(/"/g, "\\\"");
+  const redirectUrl = JSON.stringify(og.url);
 
   return `<!DOCTYPE html>
 <html lang="pt-BR">
