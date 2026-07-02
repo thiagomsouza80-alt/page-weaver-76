@@ -42,14 +42,8 @@ export default function StoryViewer({ authorUserId, onClose }: Props) {
     return m ? m[1] : val;
   };
 
-  const resolveUrl = async (rawUrl: string): Promise<string> => {
-    if (signedUrls[rawUrl]) return signedUrls[rawUrl];
-    const path = toStoragePath(rawUrl);
-    const { data } = await supabase.storage.from("stories").createSignedUrl(path, 60 * 60 * 24);
-    const url = data?.signedUrl || rawUrl;
-    setSignedUrls((prev) => ({ ...prev, [rawUrl]: url }));
-    return url;
-  };
+
+
 
   useEffect(() => {
     (async () => {
