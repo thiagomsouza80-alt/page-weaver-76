@@ -5,7 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Search, Loader2 } from "lucide-react";
 
-type Artist = { id: string; name: string; slug: string; profile_image_url: string | null; segment: string | null };
+type Artist = { id: string; name: string; profile_image_url: string | null; segment: string | null };
+
+const toSlug = (name: string) =>
+  name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
 export default function ArtistSearchBar() {
   const [q, setQ] = useState("");
@@ -19,9 +22,9 @@ export default function ArtistSearchBar() {
     if (q.trim().length < 2) { setResults([]); return; }
     timer.current = window.setTimeout(async () => {
       setLoading(true);
-      const { data } = await supabase
-        .from("artists")
-        .select("id, name, slug, profile_image_url, segment")
+      const { data } = await (supabase as any)
+        .from("artists_public")
+        .select("id, name, profile_image_url, segment")
         .eq("approved", true)
         .ilike("name", `%${q.trim()}%`)
         .limit(8);
@@ -50,7 +53,7 @@ export default function ArtistSearchBar() {
             <p className="text-sm text-muted-foreground text-center py-4">Nenhum artista encontrado.</p>
           ) : (
             results.map((a) => (
-              <Link key={a.id} to={`/artistas/${a.slug}`} className="flex items-center gap-3 px-3 py-2 hover:bg-secondary/60 transition">
+              <Link key={a.id} to={`/artistas/${toSlug(a.name)}`} className="flex items-center gap-3 px-3 py-2 hover:bg-secondary/60 transition">
                 <Avatar className="h-8 w-8">
                   {a.profile_image_url && <AvatarImage src={a.profile_image_url} />}
                   <AvatarFallback>{a.name?.[0] || "?"}</AvatarFallback>
