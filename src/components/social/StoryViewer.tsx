@@ -28,11 +28,28 @@ export default function StoryViewer({ authorUserId, onClose }: Props) {
   const [progress, setProgress] = useState(0);
   const [me, setMe] = useState<string | null>(null);
   const [highlights, setHighlights] = useState<any[]>([]);
+  const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
   const timerRef = useRef<number | null>(null);
 
   const current = stories[idx];
   const isOwner = me && current && me === current.user_id;
   const duration = current?.media_type === "video" ? 15000 : 5000;
+
+  // Extract storage path from either a full public URL (legacy) or a raw path.
+  const toStoragePath = (val: string): string => {
+    if (!val) return val;
+    const m = val.match(/\/stories\/(.+)$/);
+    return m ? m[1] : val;
+  };
+
+  const resolveUrl = async (rawUrl: string): Promise<string> => {
+    if (signedUrls[rawUrl]) return signedUrls[rawUrl];
+    const path = toStoragePath(rawUrl);
+    const { data } = await supabase.storage.from("stories").createSignedUrl(path, 60 * 60 * 24);
+    const url = data?.signedUrl || rawUrl;
+    setSignedUrls((prev) => ({ ...prev, [rawUrl]: url }));
+    return url;
+  };
 
   useEffect(() => {
     (async () => {
@@ -45,7 +62,18 @@ export default function StoryViewer({ authorUserId, onClose }: Props) {
         .eq("deleted", false)
         .gt("expires_at", new Date().toISOString())
         .order("created_at", { ascending: true });
-      setStories((data as any) ?? []);
+      const rows = ((data as any) ?? []) as Story[];
+      setStories(rows);
+      // Pre-sign all URLs
+      const map: Record<string, string> = {};
+      await Promise.all(
+        rows.map(async (s) => {
+          const path = toStoragePath(s.media_url);
+          const { data: sig } = await supabase.storage.from("stories").createSignedUrl(path, 60 * 60 * 24);
+          if (sig?.signedUrl) map[s.media_url] = sig.signedUrl;
+        })
+      );
+      setSignedUrls(map);
       setLoading(false);
     })();
   }, [authorUserId]);
