@@ -96,20 +96,6 @@ const EventoDetalhe = () => {
           {(item as any).tickets_enabled && (
             <TicketRedeemButton eventId={item.id} eventTitle={item.title} eventDate={item.event_date} eventLocation={item.location} />
           )}
-          <ShareButtons label="Compartilhar evento" />
-        </div>
-
-        <p className="text-lg text-muted-foreground mb-8">{item.description}</p>
-
-        <div className="prose prose-invert max-w-none text-foreground/85 leading-relaxed whitespace-pre-wrap mb-10">
-          {item.content}
-        </div>
-
-        <div className="mb-8 flex flex-wrap items-center gap-4">
-          <EuVouButton eventId={item.id} />
-          {(item as any).tickets_enabled && (
-            <TicketRedeemButton eventId={item.id} eventTitle={item.title} eventDate={item.event_date} eventLocation={item.location} />
-          )}
           {isValidator && (
             <Link to={`/validador/eventos/${item.id}`}>
               <Button variant="secondary" className="gap-2">
@@ -120,5 +106,18 @@ const EventoDetalhe = () => {
           <ShareButtons label="Compartilhar evento" />
         </div>
 
+        <p className="text-lg text-muted-foreground mb-8">{item.description}</p>
+
+        <div className="prose prose-invert max-w-none text-foreground/85 leading-relaxed whitespace-pre-wrap mb-10">
+          {item.content}
+        </div>
+
+        <EventCheckin eventId={item.id} eventDate={item.event_date} />
+        <EventGallery eventId={item.id} />
+      </article>
+      <Footer />
+    </div>
+  );
+};
 
 export default EventoDetalhe;
