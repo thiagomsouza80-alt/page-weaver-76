@@ -110,6 +110,10 @@ const CadastroEmpreendedorForm = () => {
   };
 
   const onSubmit = async (data: FormData) => {
+    if (!heroFile) {
+      toast({ title: "Imagem principal obrigatória", description: "Envie a imagem principal do seu negócio para concluir o cadastro.", variant: "destructive" });
+      return;
+    }
     setSubmitting(true);
     try {
       // 1. Upload files FIRST

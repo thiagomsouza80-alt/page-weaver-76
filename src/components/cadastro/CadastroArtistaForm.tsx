@@ -116,6 +116,10 @@ const CadastroArtistaForm = () => {
       setClassError("Escolha sua Classe para continuar.");
       return;
     }
+    if (!profileImage) {
+      toast({ title: "Foto de perfil obrigatória", description: "Envie uma foto para concluir o cadastro.", variant: "destructive" });
+      return;
+    }
     setSubmitting(true);
     try {
       // 1. Upload files FIRST (before creating auth account to prevent orphan users on failure)
@@ -248,7 +252,7 @@ const CadastroArtistaForm = () => {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         {/* Profile Image */}
         <div className="space-y-3">
-          <Label>Foto de Perfil</Label>
+          <Label>Foto de Perfil <span className="text-destructive">*</span></Label>
           <div className="flex items-center gap-6">
             <label className="relative w-28 h-28 rounded-full bg-secondary border-2 border-dashed border-border hover:border-primary/50 cursor-pointer transition-colors flex items-center justify-center overflow-hidden group">
               {profilePreview ? (

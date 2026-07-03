@@ -144,6 +144,12 @@ const MeuPerfil = () => {
       return;
     }
 
+    // No artist/entrepreneur profile — check if organizer, send to organizer dashboard
+    // instead of /login (which felt like a logout for organizer-only accounts).
+    if ((roles || []).some((r: any) => r.role === "organizer")) {
+      navigate("/organizador");
+      return;
+    }
     navigate("/login");
   };
 
