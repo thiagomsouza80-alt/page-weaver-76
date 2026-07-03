@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Loader2, MapPin, Instagram, Youtube, Globe, Music2, Twitch, Twitter, ArrowRight } from "lucide-react";
+import { Loader2, MapPin, Instagram, Youtube, Globe, Music2, Twitch, Twitter, ArrowRight, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "@/hooks/use-toast";
 import XpProgressBar from "@/components/social/XpProgressBar";
 import RankBadge from "@/components/social/RankBadge";
 import ClassBadge from "@/components/social/ClassBadge";
@@ -48,12 +49,46 @@ const linkMeta: Record<string, { icon: any; label: string; href: (v: string) => 
 
 export default function PerfilPublico() {
   const { username } = useParams<{ username: string }>();
+  const navigate = useNavigate();
   const [profile, setProfile] = useState<PublicProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const { achievements } = useUserProgression(profile?.user_id ?? null);
   const [klass, setKlass] = useState<any>(null);
   const [rank, setRank] = useState<any>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setCurrentUserId(data.session?.user.id ?? null));
+  }, []);
+
+  const startMessage = async () => {
+    if (!profile) return;
+    if (!currentUserId) {
+      toast({ title: "Faça login para enviar mensagem." });
+      navigate("/login");
+      return;
+    }
+    if (currentUserId === profile.user_id) return;
+    const { data: v } = await supabase
+      .from("messenger_verifications" as any)
+      .select("status")
+      .eq("user_id", currentUserId)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if ((v as any)?.status !== "approved") {
+      toast({
+        title: "Verificação necessária",
+        description: "Para enviar mensagens privadas, complete a verificação de identidade em Conta → Verificação Messenger.",
+        variant: "destructive",
+      });
+      navigate("/meu-perfil");
+      return;
+    }
+    navigate(`/mensagens?to=${profile.user_id}`);
+  };
+
 
   useEffect(() => {
     (async () => {
@@ -147,7 +182,16 @@ export default function PerfilPublico() {
             <p className="mt-4 text-sm text-foreground/80 whitespace-pre-wrap">{profile.bio}</p>
           )}
 
+          {currentUserId && currentUserId !== profile.user_id && (
+            <div className="mt-4">
+              <Button onClick={startMessage} variant="secondary" className="gap-2">
+                <MessageCircle className="h-4 w-4" /> Enviar mensagem
+              </Button>
+            </div>
+          )}
+
           <HighlightsRow userId={profile.user_id} />
+
 
           {/* Stats */}
           <div className="grid grid-cols-3 gap-2 mt-6 text-center">

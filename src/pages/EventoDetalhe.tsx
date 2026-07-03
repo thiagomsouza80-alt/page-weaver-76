@@ -3,12 +3,13 @@ import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Loader2, ArrowLeft, CalendarDays, MapPin } from "lucide-react";
+import { Loader2, ArrowLeft, CalendarDays, MapPin, QrCode } from "lucide-react";
 import EuVouButton from "@/components/EuVouButton";
 import ShareButtons from "@/components/ShareButtons";
 import TicketRedeemButton from "@/components/tickets/TicketRedeemButton";
 import EventCheckin from "@/components/events/EventCheckin";
 import EventGallery from "@/components/events/EventGallery";
+import { Button } from "@/components/ui/button";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Event = Tables<"events">;
@@ -17,11 +18,26 @@ const EventoDetalhe = () => {
   const { slug } = useParams();
   const [item, setItem] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isValidator, setIsValidator] = useState(false);
 
   useEffect(() => {
     const fetch = async () => {
       const { data } = await supabase.from("events").select("*").eq("slug", slug).single();
       setItem(data);
+      if (data) {
+        const { data: sess } = await supabase.auth.getSession();
+        const uid = sess.session?.user.id;
+        if (uid) {
+          const { data: v } = await supabase
+            .from("event_validators" as any)
+            .select("id")
+            .eq("event_id", data.id)
+            .eq("user_id", uid)
+            .eq("status", "active")
+            .maybeSingle();
+          setIsValidator(!!v);
+        }
+      }
       setLoading(false);
     };
     fetch();
@@ -79,6 +95,13 @@ const EventoDetalhe = () => {
           <EuVouButton eventId={item.id} />
           {(item as any).tickets_enabled && (
             <TicketRedeemButton eventId={item.id} eventTitle={item.title} eventDate={item.event_date} eventLocation={item.location} />
+          )}
+          {isValidator && (
+            <Link to={`/validador/eventos/${item.id}`}>
+              <Button variant="secondary" className="gap-2">
+                <QrCode className="h-4 w-4" /> Validar Ingressos
+              </Button>
+            </Link>
           )}
           <ShareButtons label="Compartilhar evento" />
         </div>
