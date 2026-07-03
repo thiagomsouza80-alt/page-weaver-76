@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -34,11 +35,32 @@ interface Props {
 }
 
 const PostCard = ({ post, currentUserId, isAdmin, onChanged }: Props) => {
+  const navigate = useNavigate();
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
   const [likes, setLikes] = useState(post.likes_count);
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [activeImg, setActiveImg] = useState(0);
+
+  const goToAuthor = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    // Resolve username lazily from user_profiles, fallback to artist slug.
+    const { data: prof } = await supabase.from("user_profiles" as any).select("username").eq("user_id", post.user_id).maybeSingle();
+    const username = (prof as any)?.username;
+    if (username) { navigate(`/u/${username}`); return; }
+    if (post.author_type === "artist") {
+      const { data: a } = await supabase.from("artists").select("name").eq("user_id", post.user_id).maybeSingle();
+      if (a?.name) {
+        const slug = a.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-");
+        navigate(`/artistas/${slug}`); return;
+      }
+    }
+    if (post.author_type === "entrepreneur") {
+      const { data: e2 } = await supabase.from("entrepreneurs").select("slug").eq("user_id", post.user_id).maybeSingle();
+      if (e2?.slug) { navigate(`/empreendedores/${e2.slug}`); return; }
+    }
+    toast({ title: "Este usuário ainda não tem perfil público." });
+  };
 
   useEffect(() => { setLikes(post.likes_count); }, [post.likes_count]);
 
@@ -108,19 +130,19 @@ const PostCard = ({ post, currentUserId, isAdmin, onChanged }: Props) => {
   return (
     <article id={`post-${post.id}`} className="bg-card border border-border rounded-xl overflow-hidden">
       <header className="flex items-center justify-between p-4">
-        <div className="flex items-center gap-3">
+        <button onClick={goToAuthor} className="flex items-center gap-3 text-left hover:opacity-80 transition-opacity">
           <Avatar className="h-10 w-10">
             {post.author_avatar_url && <AvatarImage src={post.author_avatar_url} />}
             <AvatarFallback className="bg-primary/20 text-primary">{initials}</AvatarFallback>
           </Avatar>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-semibold text-sm text-foreground">{post.author_name}</span>
+              <span className="font-semibold text-sm text-foreground hover:underline">{post.author_name}</span>
               {badge && <Badge variant="secondary" className="text-[10px] py-0 px-1.5">{badge}</Badge>}
             </div>
             <span className="text-xs text-muted-foreground">{time}</span>
           </div>
-        </div>
+        </button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="h-8 w-8"><MoreHorizontal className="h-4 w-4" /></Button>
