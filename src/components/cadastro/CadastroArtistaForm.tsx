@@ -276,6 +276,7 @@ const CadastroArtistaForm = () => {
         <div className="space-y-2">
           <Label htmlFor="artist-password">Senha de Acesso *</Label>
           <PasswordInput id="artist-password" placeholder="Mínimo 6 caracteres" {...register("password")} />
+          <PasswordStrengthBar password={watch("password") || ""} />
           {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
           <p className="text-xs text-muted-foreground">Essa senha será usada para acessar e editar seu perfil</p>
         </div>
