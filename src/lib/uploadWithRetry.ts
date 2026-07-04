@@ -19,12 +19,8 @@ export async function uploadWithRetry(
   const ext = compressed.name.split(".").pop();
   const path = `${folder}/${crypto.randomUUID()}.${ext}`;
 
-  // Warn if file is still large after compression
-  if (compressed.size > 4 * 1024 * 1024) {
-    throw new Error(
-      `A imagem "${originalName}" (${originalSizeMB}MB) é muito grande mesmo após compressão (${compressedSizeMB}MB). Escolha uma imagem menor ou com menor resolução.`
-    );
-  }
+  // No hard size limit — compression already reduces most images; storage handles the rest.
+  void originalName; void originalSizeMB; void compressedSizeMB;
 
   let lastError: Error | null = null;
 

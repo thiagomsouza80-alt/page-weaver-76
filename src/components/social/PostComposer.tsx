@@ -13,7 +13,7 @@ interface Props {
   onPosted: () => void;
 }
 
-const MAX_VIDEO_MB = 25;
+
 
 const PostComposer = ({ author, onPosted }: Props) => {
   const [content, setContent] = useState("");
@@ -44,13 +44,8 @@ const PostComposer = ({ author, onPosted }: Props) => {
 
   const handleVideo = (files: FileList | null) => {
     if (!files || files.length === 0) return;
-    const f = files[0];
-    if (f.size > MAX_VIDEO_MB * 1024 * 1024) {
-      toast({ title: "Vídeo muito grande", description: `Máximo ${MAX_VIDEO_MB}MB.`, variant: "destructive" });
-      return;
-    }
     setImages([]);
-    setVideo(f);
+    setVideo(files[0]);
   };
 
   const submit = async () => {
