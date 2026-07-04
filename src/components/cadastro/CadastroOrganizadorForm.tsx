@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { CheckCircle, Loader2, CalendarCheck } from "lucide-react";
 import { PasswordInput } from "@/components/ui/password-input";
+import { PasswordStrengthBar } from "@/components/ui/password-strength";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { fetchClassByCode } from "./ClassSelector";
 
