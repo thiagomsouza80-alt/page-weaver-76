@@ -44,10 +44,17 @@ const PostCard = ({ post, currentUserId, isAdmin, onChanged }: Props) => {
 
   const goToAuthor = async (e: React.MouseEvent) => {
     e.preventDefault();
-    // Resolve username lazily from user_profiles, fallback to artist slug.
-    const { data: prof } = await supabase.from("user_profiles" as any).select("username").eq("user_id", post.user_id).maybeSingle();
-    const username = (prof as any)?.username;
-    if (username) { navigate(`/u/${username}`); return; }
+    // Prefer the public profile route only if the profile is actually public.
+    const { data: prof } = await supabase
+      .from("user_profiles" as any)
+      .select("username,visibility")
+      .eq("user_id", post.user_id)
+      .maybeSingle();
+    const p = prof as any;
+    if (p?.username && (!p.visibility || p.visibility === "public")) {
+      navigate(`/u/${p.username}`);
+      return;
+    }
     if (post.author_type === "artist") {
       const { data: a } = await supabase.from("artists").select("name").eq("user_id", post.user_id).maybeSingle();
       if (a?.name) {
@@ -59,6 +66,8 @@ const PostCard = ({ post, currentUserId, isAdmin, onChanged }: Props) => {
       const { data: e2 } = await supabase.from("entrepreneurs").select("slug").eq("user_id", post.user_id).maybeSingle();
       if (e2?.slug) { navigate(`/empreendedores/${e2.slug}`); return; }
     }
+    // Last resort: try username anyway (private profiles will show the notFound page with a proper message)
+    if (p?.username) { navigate(`/u/${p.username}`); return; }
     toast({ title: "Este usuário ainda não tem perfil público." });
   };
 
