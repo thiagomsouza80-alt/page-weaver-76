@@ -16,6 +16,7 @@ import AdminTicketValidationPanel from "@/components/admin/AdminTicketValidation
 import OrganizerDashboard from "@/components/organizer/OrganizerDashboard";
 import OrganizerFinancePanel from "@/components/organizer/OrganizerFinancePanel";
 import OrganizerValidatorsPanel from "@/components/organizer/OrganizerValidatorsPanel";
+import ProfileSettingsMenu from "@/components/social/ProfileSettingsMenu";
 import { Plus, Pencil, Trash2, Loader2, Ticket, Clock, CheckCircle2, XCircle, QrCode, LayoutDashboard, Wallet, Users } from "lucide-react";
 import { centsToBRL, brlToCents, formatBRLInput } from "@/lib/money";
 import { usePlatformFee } from "@/lib/platformFee";
