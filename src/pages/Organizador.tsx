@@ -16,6 +16,7 @@ import AdminTicketValidationPanel from "@/components/admin/AdminTicketValidation
 import OrganizerDashboard from "@/components/organizer/OrganizerDashboard";
 import OrganizerFinancePanel from "@/components/organizer/OrganizerFinancePanel";
 import OrganizerValidatorsPanel from "@/components/organizer/OrganizerValidatorsPanel";
+import ProfileSettingsMenu from "@/components/social/ProfileSettingsMenu";
 import { Plus, Pencil, Trash2, Loader2, Ticket, Clock, CheckCircle2, XCircle, QrCode, LayoutDashboard, Wallet, Users } from "lucide-react";
 import { centsToBRL, brlToCents, formatBRLInput } from "@/lib/money";
 import { usePlatformFee } from "@/lib/platformFee";
@@ -186,11 +187,22 @@ const OrganizadorPage = () => {
               <p className="text-sm text-destructive mt-2">Motivo: {organizer.rejection_reason}</p>
             )}
           </div>
-          {organizer.approval_status === "approved" && (
-            <Button onClick={() => { resetForm(); setShowForm(true); }} className="gap-2">
-              <Plus className="h-4 w-4" /> Novo Evento
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {organizer.approval_status === "approved" && (
+              <Button onClick={() => { resetForm(); setShowForm(true); }} className="gap-2">
+                <Plus className="h-4 w-4" /> Novo Evento
+              </Button>
+            )}
+            {organizer.user_id && (
+              <ProfileSettingsMenu
+                userId={organizer.user_id}
+                profileType={null}
+                entrepreneurId={null}
+                isOrganizer
+                onEditProfile={() => navigate("/meu-perfil")}
+              />
+            )}
+          </div>
         </div>
 
         {organizer.approval_status === "pending" && (

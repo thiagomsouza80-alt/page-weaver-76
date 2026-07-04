@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Upload, X, CheckCircle, Loader2, Image, AlertTriangle } from "lucide-react";
 import { PasswordInput } from "@/components/ui/password-input";
+import { PasswordStrengthBar } from "@/components/ui/password-strength";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { fetchClassByCode } from "./ClassSelector";
 
@@ -62,10 +63,6 @@ const CadastroEmpreendedorForm = () => {
   const handleHeroImage = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      toast({ title: "Arquivo muito grande", description: "Máximo 5MB", variant: "destructive" });
-      return;
-    }
     setHeroFile(file);
     setHeroPreview(URL.createObjectURL(file));
   };
@@ -76,15 +73,8 @@ const CadastroEmpreendedorForm = () => {
       toast({ title: "Máximo 20 imagens", description: "Remova algumas para adicionar novas", variant: "destructive" });
       return;
     }
-    const valid = files.filter(f => {
-      if (f.size > 5 * 1024 * 1024) {
-        toast({ title: `${f.name} muito grande`, description: "Máximo 5MB", variant: "destructive" });
-        return false;
-      }
-      return true;
-    });
-    setPortfolioFiles(prev => [...prev, ...valid]);
-    setPortfolioPreviews(prev => [...prev, ...valid.map(f => URL.createObjectURL(f))]);
+    setPortfolioFiles(prev => [...prev, ...files]);
+    setPortfolioPreviews(prev => [...prev, ...files.map(f => URL.createObjectURL(f))]);
   };
 
   const removePortfolioImage = (index: number) => {
@@ -269,6 +259,7 @@ const CadastroEmpreendedorForm = () => {
           <div className="space-y-2">
             <Label htmlFor="emp-password">Senha de Acesso *</Label>
             <PasswordInput id="emp-password" placeholder="Mínimo 6 caracteres" {...register("password")} />
+            <PasswordStrengthBar password={watch("password") || ""} />
             {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
           </div>
         </div>

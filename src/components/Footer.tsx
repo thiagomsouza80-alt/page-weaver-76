@@ -59,8 +59,9 @@ const Footer = () => {
             <PwaInstallButton />
           </div>
         </div>
-        <div className="border-t border-border mt-10 pt-6 text-center">
+        <div className="border-t border-border mt-10 pt-6 text-center space-y-1">
           <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} Amazônia Pop. Todos os direitos reservados.</p>
+          <p className="text-xs text-muted-foreground/80">Idealizado por: <span className="font-medium text-foreground/80">Thiago Moraes</span> — 2026</p>
         </div>
       </div>
     </footer>
