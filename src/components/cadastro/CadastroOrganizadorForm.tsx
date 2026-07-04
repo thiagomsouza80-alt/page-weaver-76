@@ -34,7 +34,7 @@ const CadastroOrganizadorForm = () => {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, formState: { errors }, watch } = useForm<FormData>({
     resolver: zodResolver(schema),
   });
 
@@ -157,6 +157,7 @@ const CadastroOrganizadorForm = () => {
         <div className="space-y-2">
           <Label>Senha *</Label>
           <PasswordInput {...register("password")} />
+          <PasswordStrengthBar password={watch("password") || ""} />
           {errors.password && <p className="text-xs text-destructive">{errors.password.message}</p>}
         </div>
         <div className="space-y-2">

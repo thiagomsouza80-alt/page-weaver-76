@@ -259,6 +259,7 @@ const CadastroEmpreendedorForm = () => {
           <div className="space-y-2">
             <Label htmlFor="emp-password">Senha de Acesso *</Label>
             <PasswordInput id="emp-password" placeholder="Mínimo 6 caracteres" {...register("password")} />
+            <PasswordStrengthBar password={watch("password") || ""} />
             {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
           </div>
         </div>
