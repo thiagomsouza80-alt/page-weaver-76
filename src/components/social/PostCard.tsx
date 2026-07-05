@@ -44,7 +44,23 @@ const PostCard = ({ post, currentUserId, isAdmin, onChanged }: Props) => {
 
   const goToAuthor = async (e: React.MouseEvent) => {
     e.preventDefault();
-    // Prefer the public profile route only if the profile is actually public.
+    // For artists/entrepreneurs, prefer their dedicated public profile pages first.
+    if (post.author_type === "artist") {
+      const { data: a } = await supabase.from("artists").select("name").eq("user_id", post.user_id).maybeSingle();
+      if (a?.name) {
+        const slug = a.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+        navigate(`/artistas/${slug}`); return;
+      }
+    }
+    if (post.author_type === "entrepreneur") {
+      const { data: e2 } = await supabase.from("entrepreneurs").select("slug,name").eq("user_id", post.user_id).maybeSingle();
+      if (e2?.slug) { navigate(`/empreendedores/${e2.slug}`); return; }
+      if (e2?.name) {
+        const slug = e2.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+        navigate(`/empreendedores/${slug}`); return;
+      }
+    }
+    // Fallback: public user profile via username
     const { data: prof } = await supabase
       .from("user_profiles" as any)
       .select("username,visibility")
@@ -55,18 +71,6 @@ const PostCard = ({ post, currentUserId, isAdmin, onChanged }: Props) => {
       navigate(`/u/${p.username}`);
       return;
     }
-    if (post.author_type === "artist") {
-      const { data: a } = await supabase.from("artists").select("name").eq("user_id", post.user_id).maybeSingle();
-      if (a?.name) {
-        const slug = a.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-");
-        navigate(`/artistas/${slug}`); return;
-      }
-    }
-    if (post.author_type === "entrepreneur") {
-      const { data: e2 } = await supabase.from("entrepreneurs").select("slug").eq("user_id", post.user_id).maybeSingle();
-      if (e2?.slug) { navigate(`/empreendedores/${e2.slug}`); return; }
-    }
-    // Last resort: try username anyway (private profiles will show the notFound page with a proper message)
     if (p?.username) { navigate(`/u/${p.username}`); return; }
     toast({ title: "Este usuário ainda não tem perfil público." });
   };
