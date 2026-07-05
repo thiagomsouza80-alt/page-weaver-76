@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Instagram, Youtube, Twitter, Facebook } from "lucide-react";
+import { Instagram, Facebook } from "lucide-react";
 import logoOficial from "@/assets/logo-oficial.png";
 import { PwaInstallButton } from "./PwaInstallButton";
 
