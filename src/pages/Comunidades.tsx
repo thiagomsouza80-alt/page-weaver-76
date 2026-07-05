@@ -166,7 +166,31 @@ export default function Comunidades() {
             <div><Label>Nome *</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} maxLength={80} /></div>
             <div><Label>Categoria</Label><Input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="Ex.: K-Pop, Cosplay, Games" maxLength={40} /></div>
             <div><Label>Descrição</Label><Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} maxLength={400} rows={3} /></div>
-            <div><Label>URL da imagem de capa (opcional)</Label><Input value={form.cover_url} onChange={(e) => setForm({ ...form, cover_url: e.target.value })} placeholder="https://..." /></div>
+            <div>
+              <Label>Imagem de capa (opcional)</Label>
+              <div className="mt-1 flex items-center gap-3">
+                {coverPreview && (
+                  <img src={coverPreview} alt="Prévia" className="w-16 h-16 rounded-lg object-cover border border-border" />
+                )}
+                <label className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-secondary/40 hover:bg-secondary cursor-pointer text-sm">
+                  <Upload className="h-4 w-4" />
+                  {coverFile ? "Trocar imagem" : "Enviar imagem"}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0] || null;
+                      setCoverFile(f);
+                      setCoverPreview(f ? URL.createObjectURL(f) : null);
+                    }}
+                  />
+                </label>
+                {coverFile && (
+                  <Button type="button" variant="ghost" size="sm" onClick={() => { setCoverFile(null); setCoverPreview(null); }}>Remover</Button>
+                )}
+              </div>
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpenCreate(false)}>Cancelar</Button>
