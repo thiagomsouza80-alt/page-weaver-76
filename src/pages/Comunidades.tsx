@@ -66,21 +66,36 @@ export default function Comunidades() {
       toast({ title: "Nome muito curto", variant: "destructive" }); return;
     }
     setSaving(true);
-    const slug = slugify(form.name) + "-" + Math.random().toString(36).slice(2, 6);
-    const { error } = await supabase.from("communities" as any).insert({
-      owner_user_id: me,
-      name: form.name.trim(),
-      slug,
-      description: form.description.trim() || null,
-      category: form.category.trim() || null,
-      cover_url: form.cover_url.trim() || null,
-    } as any);
-    setSaving(false);
-    if (error) { toast({ title: "Erro", description: error.message, variant: "destructive" }); return; }
-    toast({ title: "Comunidade criada!" });
-    setOpenCreate(false);
-    setForm({ name: "", description: "", category: "", cover_url: "" });
-    load();
+    try {
+      let coverUrl: string | null = null;
+      if (coverFile) {
+        const compressed = await compressImage(coverFile);
+        const ext = compressed.name.split(".").pop() || "jpg";
+        const path = `${me}/communities/${crypto.randomUUID()}.${ext}`;
+        const { error: upErr } = await supabase.storage.from("social-media").upload(path, compressed);
+        if (upErr) throw upErr;
+        coverUrl = supabase.storage.from("social-media").getPublicUrl(path).data.publicUrl;
+      }
+      const slug = slugify(form.name) + "-" + Math.random().toString(36).slice(2, 6);
+      const { error } = await supabase.from("communities" as any).insert({
+        owner_user_id: me,
+        name: form.name.trim(),
+        slug,
+        description: form.description.trim() || null,
+        category: form.category.trim() || null,
+        cover_url: coverUrl,
+      } as any);
+      if (error) throw error;
+      toast({ title: "Comunidade criada!" });
+      setOpenCreate(false);
+      setForm({ name: "", description: "", category: "", cover_url: "" });
+      setCoverFile(null); setCoverPreview(null);
+      load();
+    } catch (e: any) {
+      toast({ title: "Erro", description: e.message, variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
   };
 
   const filtered = items.filter((c) =>
