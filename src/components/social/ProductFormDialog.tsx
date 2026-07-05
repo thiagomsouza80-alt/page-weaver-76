@@ -50,7 +50,7 @@ const ProductFormDialog = ({ open, onOpenChange, userId, entrepreneurId, product
     try {
       const uploaded: string[] = [];
       for (const file of newFiles) {
-        const url = await uploadWithRetry(file, "social-media", `products/${userId}`);
+        const url = await uploadWithRetry(file, "social-media", `${userId}/products`);
         uploaded.push(url);
       }
       const payload: any = {
