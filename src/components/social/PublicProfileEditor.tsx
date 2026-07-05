@@ -175,12 +175,45 @@ export default function PublicProfileEditor({ userId }: { userId: string }) {
       </div>
 
       <div>
-        <Label className="text-xs">URL da imagem de capa</Label>
-        <Input
-          value={row.cover_url || ""}
-          onChange={e => set("cover_url", e.target.value)}
-          placeholder="https://..."
-        />
+        <Label className="text-xs">Imagem de capa</Label>
+        <div className="mt-1 flex items-center gap-3">
+          {row.cover_url && (
+            <img src={row.cover_url} alt="Capa" className="w-20 h-14 rounded-lg object-cover border border-border" />
+          )}
+          <label className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-secondary/40 hover:bg-secondary cursor-pointer text-sm">
+            <Upload className="h-4 w-4" />
+            {uploadingCover ? "Enviando..." : (row.cover_url ? "Trocar imagem" : "Enviar imagem")}
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              disabled={uploadingCover}
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                setUploadingCover(true);
+                try {
+                  const compressed = await compressImage(file);
+                  const ext = compressed.name.split(".").pop() || "jpg";
+                  const path = `${userId}/cover/${crypto.randomUUID()}.${ext}`;
+                  const { error: upErr } = await supabase.storage.from("social-media").upload(path, compressed);
+                  if (upErr) throw upErr;
+                  const url = supabase.storage.from("social-media").getPublicUrl(path).data.publicUrl;
+                  set("cover_url", url);
+                  toast({ title: "Imagem enviada", description: "Clique em Salvar para confirmar." });
+                } catch (err: any) {
+                  toast({ title: "Erro ao enviar imagem", description: err.message, variant: "destructive" });
+                } finally {
+                  setUploadingCover(false);
+                  e.target.value = "";
+                }
+              }}
+            />
+          </label>
+          {row.cover_url && (
+            <Button type="button" variant="ghost" size="sm" onClick={() => set("cover_url", null)}>Remover</Button>
+          )}
+        </div>
       </div>
 
       <div>
