@@ -153,6 +153,33 @@ const OrganizadorPage = () => {
     load();
   };
 
+  const uploadOrganizerLogo = async (file: File) => {
+    if (!organizer) return;
+    setUploadingLogo(true);
+    try {
+      const compressed = await compressImage(file);
+      const ext = compressed.name.split(".").pop() || "jpg";
+      const path = `${organizer.user_id}/organizer/${crypto.randomUUID()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("social-media").upload(path, compressed);
+      if (upErr) throw upErr;
+      const url = supabase.storage.from("social-media").getPublicUrl(path).data.publicUrl;
+      const { error } = await supabase.from("organizers").update({ logo_url: url } as any).eq("id", organizer.id);
+      if (error) throw error;
+      toast({ title: "Foto de perfil atualizada!" });
+      load();
+    } catch (err: any) {
+      toast({ title: "Erro ao enviar foto", description: err.message, variant: "destructive" });
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
+
+    const { error } = await supabase.from("events").delete().eq("id", id);
+    if (error) { toast({ title: "Erro", description: error.message, variant: "destructive" }); return; }
+    toast({ title: "Evento excluído" });
+    load();
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
