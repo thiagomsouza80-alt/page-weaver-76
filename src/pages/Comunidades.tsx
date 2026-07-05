@@ -33,6 +33,8 @@ export default function Comunidades() {
   const [openCreate, setOpenCreate] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({ name: "", description: "", category: "", cover_url: "" });
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
