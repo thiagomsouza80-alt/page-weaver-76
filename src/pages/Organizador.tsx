@@ -174,12 +174,6 @@ const OrganizadorPage = () => {
     }
   };
 
-    const { error } = await supabase.from("events").delete().eq("id", id);
-    if (error) { toast({ title: "Erro", description: error.message, variant: "destructive" }); return; }
-    toast({ title: "Evento excluído" });
-    load();
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
