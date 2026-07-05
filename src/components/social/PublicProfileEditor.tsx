@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { compressImage } from "@/lib/imageCompression";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Save, ExternalLink, UserCircle2, Globe, Eye, EyeOff } from "lucide-react";
+import { Loader2, Save, ExternalLink, UserCircle2, Globe, Eye, EyeOff, Upload } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface Row {
@@ -39,6 +40,7 @@ export default function PublicProfileEditor({ userId }: { userId: string }) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
   const [row, setRow] = useState<Row | null>(null);
 
   const load = async () => {
@@ -174,12 +176,45 @@ export default function PublicProfileEditor({ userId }: { userId: string }) {
       </div>
 
       <div>
-        <Label className="text-xs">URL da imagem de capa</Label>
-        <Input
-          value={row.cover_url || ""}
-          onChange={e => set("cover_url", e.target.value)}
-          placeholder="https://..."
-        />
+        <Label className="text-xs">Imagem de capa</Label>
+        <div className="mt-1 flex items-center gap-3">
+          {row.cover_url && (
+            <img src={row.cover_url} alt="Capa" className="w-20 h-14 rounded-lg object-cover border border-border" />
+          )}
+          <label className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-secondary/40 hover:bg-secondary cursor-pointer text-sm">
+            <Upload className="h-4 w-4" />
+            {uploadingCover ? "Enviando..." : (row.cover_url ? "Trocar imagem" : "Enviar imagem")}
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              disabled={uploadingCover}
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                setUploadingCover(true);
+                try {
+                  const compressed = await compressImage(file);
+                  const ext = compressed.name.split(".").pop() || "jpg";
+                  const path = `${userId}/cover/${crypto.randomUUID()}.${ext}`;
+                  const { error: upErr } = await supabase.storage.from("social-media").upload(path, compressed);
+                  if (upErr) throw upErr;
+                  const url = supabase.storage.from("social-media").getPublicUrl(path).data.publicUrl;
+                  set("cover_url", url);
+                  toast({ title: "Imagem enviada", description: "Clique em Salvar para confirmar." });
+                } catch (err: any) {
+                  toast({ title: "Erro ao enviar imagem", description: err.message, variant: "destructive" });
+                } finally {
+                  setUploadingCover(false);
+                  e.target.value = "";
+                }
+              }}
+            />
+          </label>
+          {row.cover_url && (
+            <Button type="button" variant="ghost" size="sm" onClick={() => set("cover_url", null)}>Remover</Button>
+          )}
+        </div>
       </div>
 
       <div>

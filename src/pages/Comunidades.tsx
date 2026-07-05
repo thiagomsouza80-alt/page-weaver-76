@@ -9,7 +9,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Users, Plus, Loader2, Search } from "lucide-react";
+import { Users, Plus, Loader2, Search, Upload } from "lucide-react";
+import { compressImage } from "@/lib/imageCompression";
+
 
 type Community = {
   id: string; name: string; slug: string; description: string | null;
@@ -31,6 +33,8 @@ export default function Comunidades() {
   const [openCreate, setOpenCreate] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({ name: "", description: "", category: "", cover_url: "" });
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -62,21 +66,36 @@ export default function Comunidades() {
       toast({ title: "Nome muito curto", variant: "destructive" }); return;
     }
     setSaving(true);
-    const slug = slugify(form.name) + "-" + Math.random().toString(36).slice(2, 6);
-    const { error } = await supabase.from("communities" as any).insert({
-      owner_user_id: me,
-      name: form.name.trim(),
-      slug,
-      description: form.description.trim() || null,
-      category: form.category.trim() || null,
-      cover_url: form.cover_url.trim() || null,
-    } as any);
-    setSaving(false);
-    if (error) { toast({ title: "Erro", description: error.message, variant: "destructive" }); return; }
-    toast({ title: "Comunidade criada!" });
-    setOpenCreate(false);
-    setForm({ name: "", description: "", category: "", cover_url: "" });
-    load();
+    try {
+      let coverUrl: string | null = null;
+      if (coverFile) {
+        const compressed = await compressImage(coverFile);
+        const ext = compressed.name.split(".").pop() || "jpg";
+        const path = `${me}/communities/${crypto.randomUUID()}.${ext}`;
+        const { error: upErr } = await supabase.storage.from("social-media").upload(path, compressed);
+        if (upErr) throw upErr;
+        coverUrl = supabase.storage.from("social-media").getPublicUrl(path).data.publicUrl;
+      }
+      const slug = slugify(form.name) + "-" + Math.random().toString(36).slice(2, 6);
+      const { error } = await supabase.from("communities" as any).insert({
+        owner_user_id: me,
+        name: form.name.trim(),
+        slug,
+        description: form.description.trim() || null,
+        category: form.category.trim() || null,
+        cover_url: coverUrl,
+      } as any);
+      if (error) throw error;
+      toast({ title: "Comunidade criada!" });
+      setOpenCreate(false);
+      setForm({ name: "", description: "", category: "", cover_url: "" });
+      setCoverFile(null); setCoverPreview(null);
+      load();
+    } catch (e: any) {
+      toast({ title: "Erro", description: e.message, variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
   };
 
   const filtered = items.filter((c) =>
@@ -147,7 +166,31 @@ export default function Comunidades() {
             <div><Label>Nome *</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} maxLength={80} /></div>
             <div><Label>Categoria</Label><Input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="Ex.: K-Pop, Cosplay, Games" maxLength={40} /></div>
             <div><Label>Descrição</Label><Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} maxLength={400} rows={3} /></div>
-            <div><Label>URL da imagem de capa (opcional)</Label><Input value={form.cover_url} onChange={(e) => setForm({ ...form, cover_url: e.target.value })} placeholder="https://..." /></div>
+            <div>
+              <Label>Imagem de capa (opcional)</Label>
+              <div className="mt-1 flex items-center gap-3">
+                {coverPreview && (
+                  <img src={coverPreview} alt="Prévia" className="w-16 h-16 rounded-lg object-cover border border-border" />
+                )}
+                <label className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-secondary/40 hover:bg-secondary cursor-pointer text-sm">
+                  <Upload className="h-4 w-4" />
+                  {coverFile ? "Trocar imagem" : "Enviar imagem"}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0] || null;
+                      setCoverFile(f);
+                      setCoverPreview(f ? URL.createObjectURL(f) : null);
+                    }}
+                  />
+                </label>
+                {coverFile && (
+                  <Button type="button" variant="ghost" size="sm" onClick={() => { setCoverFile(null); setCoverPreview(null); }}>Remover</Button>
+                )}
+              </div>
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpenCreate(false)}>Cancelar</Button>
