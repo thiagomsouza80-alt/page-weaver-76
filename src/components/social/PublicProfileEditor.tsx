@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { compressImage } from "@/lib/imageCompression";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Save, ExternalLink, UserCircle2, Globe, Eye, EyeOff } from "lucide-react";
+import { Loader2, Save, ExternalLink, UserCircle2, Globe, Eye, EyeOff, Upload } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface Row {
