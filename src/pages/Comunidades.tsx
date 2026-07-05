@@ -9,7 +9,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Users, Plus, Loader2, Search } from "lucide-react";
+import { Users, Plus, Loader2, Search, Upload } from "lucide-react";
+import { compressImage } from "@/lib/imageCompression";
+
 
 type Community = {
   id: string; name: string; slug: string; description: string | null;
