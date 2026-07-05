@@ -41,6 +41,7 @@ const OrganizadorPage = () => {
   const [editing, setEditing] = useState<any>(null);
   const [submitting, setSubmitting] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
