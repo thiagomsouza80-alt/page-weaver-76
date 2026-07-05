@@ -40,6 +40,7 @@ export default function PublicProfileEditor({ userId }: { userId: string }) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
   const [row, setRow] = useState<Row | null>(null);
 
   const load = async () => {
