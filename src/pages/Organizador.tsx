@@ -201,13 +201,38 @@ const OrganizadorPage = () => {
       <Navbar />
       <div className="pt-24 pb-16 px-6 max-w-5xl mx-auto">
         <div className="flex items-start justify-between mb-6 gap-4 flex-wrap">
-          <div>
-            <h1 className="text-3xl font-bold mb-1">Painel do Organizador</h1>
-            <p className="text-muted-foreground">{organizer.organization_name}</p>
-            <div className="mt-2"><StatusBadge status={organizer.approval_status} /></div>
-            {organizer.approval_status === "rejected" && organizer.rejection_reason && (
-              <p className="text-sm text-destructive mt-2">Motivo: {organizer.rejection_reason}</p>
-            )}
+          <div className="flex items-start gap-4">
+            <div className="relative">
+              <div className="h-20 w-20 rounded-full overflow-hidden border-2 border-border bg-secondary flex items-center justify-center shrink-0">
+                {organizer.logo_url ? (
+                  <img src={organizer.logo_url} alt={organizer.organization_name} className="w-full h-full object-cover" />
+                ) : (
+                  <LayoutDashboard className="h-8 w-8 text-muted-foreground" />
+                )}
+              </div>
+              <label className="absolute -bottom-1 -right-1 h-8 w-8 rounded-full bg-primary text-primary-foreground border-2 border-background flex items-center justify-center cursor-pointer hover:opacity-90" title="Alterar foto de perfil">
+                {uploadingLogo ? <Loader2 className="h-4 w-4 animate-spin" /> : <Pencil className="h-4 w-4" />}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  disabled={uploadingLogo}
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) uploadOrganizerLogo(f);
+                    e.target.value = "";
+                  }}
+                />
+              </label>
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold mb-1">Painel do Organizador</h1>
+              <p className="text-muted-foreground">{organizer.organization_name}</p>
+              <div className="mt-2"><StatusBadge status={organizer.approval_status} /></div>
+              {organizer.approval_status === "rejected" && organizer.rejection_reason && (
+                <p className="text-sm text-destructive mt-2">Motivo: {organizer.rejection_reason}</p>
+              )}
+            </div>
           </div>
           <div className="flex items-center gap-2">
             {organizer.approval_status === "approved" && (
