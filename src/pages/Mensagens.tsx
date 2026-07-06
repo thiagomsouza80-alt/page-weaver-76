@@ -110,7 +110,7 @@ const Mensagens = () => {
       setParams({}, { replace: true });
       loadConvs(userId);
     })();
-  }, [userId, verified, params]);
+  }, [userId, params]);
 
   // Load messages for active
   useEffect(() => {
@@ -153,13 +153,6 @@ const Mensagens = () => {
 
         {loading ? (
           <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin" /></div>
-        ) : verified !== true ? (
-          <div className="bg-card border border-border rounded-xl p-6 text-center space-y-3">
-            <ShieldAlert className="h-10 w-10 mx-auto text-amber-500" />
-            <h2 className="font-semibold">Verificação necessária</h2>
-            <p className="text-sm text-muted-foreground">Para usar o Messenger envie sua selfie + documento na aba de verificação do seu perfil.</p>
-            <Link to="/meu-perfil"><Button>Ir para Meu Perfil</Button></Link>
-          </div>
         ) : (
           <div className="grid md:grid-cols-[280px_1fr] gap-4 bg-card border border-border rounded-xl overflow-hidden min-h-[60vh]">
             {/* Conv list */}
