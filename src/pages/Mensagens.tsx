@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Send, ShieldAlert, MessageCircle, ArrowLeft } from "lucide-react";
+import { Loader2, Send, MessageCircle, ArrowLeft } from "lucide-react";
 
 type Conversation = {
   id: string;
@@ -30,7 +30,6 @@ const Mensagens = () => {
   const { toast } = useToast();
   const [params, setParams] = useSearchParams();
   const [userId, setUserId] = useState<string | null>(null);
-  const [verified, setVerified] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
   const [convs, setConvs] = useState<Conversation[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -46,10 +45,6 @@ const Mensagens = () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { navigate("/login"); return; }
       setUserId(session.user.id);
-      const { data: v } = await (supabase as any)
-        .from("messenger_verifications").select("status").eq("user_id", session.user.id)
-        .order("created_at", { ascending: false }).limit(1).maybeSingle();
-      setVerified(v?.status === "approved");
       setLoading(false);
     })();
   }, [navigate]);
@@ -63,16 +58,28 @@ const Mensagens = () => {
       .limit(100);
     const list: Conversation[] = data || [];
     setConvs(list);
-    // fetch peer profiles
     const peerIds = Array.from(new Set(list.map((c) => c.user_a === uid ? c.user_b : c.user_a)));
     if (peerIds.length) {
-      const [{ data: artists }, { data: ents }] = await Promise.all([
+      const [{ data: artists }, { data: ents }, { data: orgs }, { data: profs }] = await Promise.all([
         (supabase as any).from("artists_public").select("user_id,name,profile_image_url").in("user_id", peerIds),
         (supabase as any).from("entrepreneurs_public").select("user_id,name,logo_url").in("user_id", peerIds),
+        (supabase as any).from("organizers").select("user_id,organization_name,name,logo_url").in("user_id", peerIds),
+        (supabase as any).from("user_profiles").select("user_id,display_name,username,avatar_url").in("user_id", peerIds),
       ]);
       const map: Record<string, { name: string; avatar: string | null }> = {};
-      (artists || []).forEach((a: any) => { map[a.user_id] = { name: a.name, avatar: a.profile_image_url }; });
-      (ents || []).forEach((e: any) => { if (!map[e.user_id]) map[e.user_id] = { name: e.name, avatar: e.logo_url }; });
+      (profs || []).forEach((p: any) => { map[p.user_id] = { name: p.display_name || p.username || "Usuário", avatar: p.avatar_url || null }; });
+      (orgs || []).forEach((o: any) => {
+        const cur = map[o.user_id] || { name: "Organizador", avatar: null };
+        map[o.user_id] = { name: o.organization_name || o.name || cur.name, avatar: cur.avatar || o.logo_url || null };
+      });
+      (artists || []).forEach((a: any) => {
+        const cur = map[a.user_id] || { name: a.name, avatar: null };
+        map[a.user_id] = { name: cur.name || a.name, avatar: cur.avatar || a.profile_image_url || null };
+      });
+      (ents || []).forEach((e: any) => {
+        const cur = map[e.user_id] || { name: e.name, avatar: null };
+        map[e.user_id] = { name: cur.name || e.name, avatar: cur.avatar || e.logo_url || null };
+      });
       setPeers(map);
     }
   };
@@ -81,7 +88,7 @@ const Mensagens = () => {
 
   // Auto-start conversation from ?to=&product=
   useEffect(() => {
-    if (!userId || verified !== true) return;
+    if (!userId) return;
     const to = params.get("to");
     const product = params.get("product");
     if (!to || to === userId) return;
