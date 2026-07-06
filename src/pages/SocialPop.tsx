@@ -9,6 +9,7 @@ import VitrineTab from "@/components/social/VitrineTab";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import StoriesBar from "@/components/social/StoriesBar";
 import ArtistSearchBar from "@/components/social/ArtistSearchBar";
+import MessengerBellIcon from "@/components/social/MessengerBellIcon";
 import { Loader2, MessageSquare, ShoppingBag, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -50,12 +51,15 @@ const SocialPop = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       <main className="max-w-3xl mx-auto px-4 pt-24 pb-16">
-        <header className="mb-6">
-          <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
-            <MessageSquare className="h-7 w-7 text-primary" />
-            Social Pop
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">A comunidade da cultura pop paraense.</p>
+        <header className="mb-6 flex items-start justify-between gap-3">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
+              <MessageSquare className="h-7 w-7 text-primary" />
+              Social Pop
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1">A comunidade da cultura pop paraense.</p>
+          </div>
+          {author?.userId && <MessengerBellIcon userId={author.userId} />}
         </header>
 
         <div className="mb-4 flex items-center gap-2">
