@@ -42,6 +42,7 @@ const OrganizadorPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [tab, setTab] = useState<string>("dashboard");
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -236,7 +237,7 @@ const OrganizadorPage = () => {
           </div>
           <div className="flex items-center gap-2">
             {organizer.approval_status === "approved" && (
-              <Button onClick={() => { resetForm(); setShowForm(true); }} className="gap-2">
+              <Button onClick={() => { resetForm(); setShowForm(true); setTab("eventos"); }} className="gap-2">
                 <Plus className="h-4 w-4" /> Novo Evento
               </Button>
             )}
@@ -261,7 +262,7 @@ const OrganizadorPage = () => {
         )}
 
         {organizer.approval_status === "approved" && (
-          <Tabs defaultValue="dashboard" className="mt-6">
+          <Tabs value={tab} onValueChange={setTab} className="mt-6">
             <TabsList className="flex-wrap h-auto">
               <TabsTrigger value="dashboard" className="gap-2"><LayoutDashboard className="h-4 w-4" />Dashboard</TabsTrigger>
               <TabsTrigger value="eventos" className="gap-2"><Ticket className="h-4 w-4" />Meus Eventos</TabsTrigger>
