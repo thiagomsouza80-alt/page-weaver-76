@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
   Loader2, Newspaper, CalendarDays, Users, LogOut, ExternalLink, Store,
-  ClipboardCheck, Handshake, UserX, Bell, Trophy, Crown, Gift, Shield, ShieldCheck,
+  ClipboardCheck, Handshake, UserX, Bell, Trophy, Crown, Gift, Shield,
   Images, Database, Ticket, CalendarCheck, Wallet, BarChart3, CreditCard,
   Settings, FileText, Menu, X, ChevronDown, Globe2, RotateCcw,
 } from "lucide-react";
@@ -32,13 +32,13 @@ import AdminGatewayConfigPanel from "@/components/admin/AdminGatewayConfigPanel"
 import AdminSettingsPanel from "@/components/admin/AdminSettingsPanel";
 import AdminLogsPanel from "@/components/admin/AdminLogsPanel";
 import AdminRefundsPanel from "@/components/admin/AdminRefundsPanel";
-import AdminMessengerVerificationsPanel from "@/components/admin/AdminMessengerVerificationsPanel";
+
 import AdminSocialPopPanel from "@/components/admin/AdminSocialPopPanel";
 import logoOficial from "@/assets/logo-oficial.png";
 
 type Tab =
   | "news" | "events" | "artists" | "entrepreneurs" | "pending" | "sponsors" | "banners"
-  | "ranking" | "members" | "raffle" | "social" | "moderation" | "messenger_verif" | "gamification"
+  | "ranking" | "members" | "raffle" | "social" | "moderation" | "gamification"
   | "tickets" | "organizers" | "database"
   | "withdrawals" | "refunds" | "finance" | "gateway"
   | "settings" | "orphans" | "logs";
@@ -123,7 +123,7 @@ const AdminDashboard = () => {
         { key: "raffle", label: "Sorteios", icon: Gift },
         { key: "social", label: "Social Pop", icon: Globe2 },
         { key: "moderation", label: "Moderação Social", icon: Shield, badge: reportsCount },
-        { key: "messenger_verif", label: "Verif. Messenger", icon: ShieldCheck },
+        
         { key: "gamification", label: "Gamificação (XP/Ranks)", icon: Trophy },
       ],
     },
@@ -298,7 +298,7 @@ const AdminDashboard = () => {
         {tab === "gateway" && <AdminGatewayConfigPanel />}
         {tab === "settings" && <AdminSettingsPanel />}
         {tab === "logs" && <AdminLogsPanel />}
-        {tab === "messenger_verif" && <AdminMessengerVerificationsPanel />}
+        
         {tab === "gamification" && <AdminSocialPopPanel />}
       </main>
     </div>

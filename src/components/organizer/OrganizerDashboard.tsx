@@ -263,58 +263,6 @@ const OrganizerDashboard = ({ organizerId }: Props) => {
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">📋 Meus Eventos</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {events.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-8">Você ainda não criou nenhum evento.</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Evento</TableHead>
-                    <TableHead>Data</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Disponíveis</TableHead>
-                    <TableHead className="text-right">Resgatados</TableHead>
-                    <TableHead className="text-right">Ocupação</TableHead>
-                    <TableHead className="text-right">Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {events.map((e) => {
-                    const redeemed = (ticketsByEvent.get(e.id) || []).filter((t) => t.status !== "cancelled").length;
-                    const total = e.tickets_total || 0;
-                    const available = total ? Math.max(total - redeemed, 0) : null;
-                    const occupancy = total ? Math.min(Math.round((redeemed / total) * 100), 100) : null;
-                    const s = statusOf(e, redeemed);
-                    return (
-                      <TableRow key={e.id}>
-                        <TableCell className="font-medium max-w-[220px] truncate">{e.title}</TableCell>
-                        <TableCell className="text-sm">{new Date(e.event_date).toLocaleDateString("pt-BR")}</TableCell>
-                        <TableCell><Badge className={s.color} variant="outline">{s.label}</Badge></TableCell>
-                        <TableCell className="text-right text-sm">{available ?? "—"}</TableCell>
-                        <TableCell className="text-right text-sm">{redeemed}</TableCell>
-                        <TableCell className="text-right text-sm">{occupancy !== null ? `${occupancy}%` : "—"}</TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex gap-1 justify-end">
-                            <Link to={`/organizador/eventos/${e.id}`}>
-                              <Button variant="ghost" size="icon" title="Ver detalhes"><Eye className="h-4 w-4" /></Button>
-                            </Link>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
     </div>
   );
 };

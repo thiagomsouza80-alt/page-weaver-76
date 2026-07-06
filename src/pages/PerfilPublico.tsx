@@ -70,22 +70,6 @@ export default function PerfilPublico() {
       return;
     }
     if (currentUserId === profile.user_id) return;
-    const { data: v } = await supabase
-      .from("messenger_verifications" as any)
-      .select("status")
-      .eq("user_id", currentUserId)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    if ((v as any)?.status !== "approved") {
-      toast({
-        title: "Verificação necessária",
-        description: "Para enviar mensagens privadas, complete a verificação de identidade em Conta → Verificação Messenger.",
-        variant: "destructive",
-      });
-      navigate("/meu-perfil");
-      return;
-    }
     navigate(`/mensagens?to=${profile.user_id}`);
   };
 
