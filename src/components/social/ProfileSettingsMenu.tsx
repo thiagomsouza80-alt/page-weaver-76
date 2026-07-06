@@ -8,7 +8,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Menu, User, Ticket, Store, CalendarDays, ShieldCheck, Bell, Lock, FileText, LogOut, ChevronRight, Pencil, Trash2, Download } from "lucide-react";
 import PublicProfileEditor from "@/components/social/PublicProfileEditor";
 import NotificationSettingsCard from "@/components/notifications/NotificationSettingsCard";
-import MessengerVerificationCard from "@/components/messenger/MessengerVerificationCard";
+
 import MyProductsSection from "@/components/social/MyProductsSection";
 import MeusIngressosSection from "@/components/tickets/MeusIngressosSection";
 import ClassPicker from "@/components/social/ClassPicker";
@@ -101,7 +101,6 @@ export default function ProfileSettingsMenu({ userId, profileType, entrepreneurI
 
             <Section value="privacidade" icon={Lock} label="Privacidade">
               <Item label="Visibilidade do perfil & dados" onClick={() => openItem("editar")} />
-              <Item label="Verificação do Messenger" onClick={() => openItem("messenger")} />
             </Section>
 
             <Section value="notificacoes" icon={Bell} label="Notificações">
@@ -160,12 +159,6 @@ export default function ProfileSettingsMenu({ userId, profileType, entrepreneurI
         </Dialog>
       )}
 
-      <Dialog open={dialog === "messenger"} onOpenChange={(o) => !o && setDialog(null)}>
-        <DialogContent className="max-w-xl max-h-[85vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>Verificação do Messenger</DialogTitle></DialogHeader>
-          <MessengerVerificationCard userId={userId} />
-        </DialogContent>
-      </Dialog>
 
       <Dialog open={dialog === "notificacoes"} onOpenChange={(o) => !o && setDialog(null)}>
         <DialogContent className="max-w-xl max-h-[85vh] overflow-y-auto">
