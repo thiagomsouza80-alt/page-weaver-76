@@ -2,13 +2,13 @@ import { useParams, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { ArrowLeft, Instagram, Loader2 } from "lucide-react";
-import FanButton from "@/components/FanButton";
-import FollowButton from "@/components/social/FollowButton";
+import { ArrowLeft, Instagram, Loader2, MapPin } from "lucide-react";
 import ShareButtons from "@/components/ShareButtons";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { getMembershipBadge } from "@/lib/membership";
+import ProfileHeaderCard from "@/components/social/ProfileHeaderCard";
+import UserRecentPosts from "@/components/social/UserRecentPosts";
 
 import artistIlustrador from "@/assets/artist-ilustrador.jpg";
 import artistCosplayer from "@/assets/artist-cosplayer.jpg";
