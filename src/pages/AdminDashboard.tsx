@@ -126,6 +126,7 @@ const AdminDashboard = () => {
         { key: "moderation", label: "Moderação Social", icon: Shield, badge: reportsCount },
         
         { key: "gamification", label: "Gamificação (XP/Ranks)", icon: Trophy },
+        { key: "game_devs", label: "Pop Games — Devs", icon: Gamepad2 },
       ],
     },
     {
