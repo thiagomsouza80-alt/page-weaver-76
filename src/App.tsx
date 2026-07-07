@@ -34,6 +34,10 @@ import Mensagens from "./pages/Mensagens.tsx";
 import PerfilPublico from "./pages/PerfilPublico.tsx";
 import Comunidades from "./pages/Comunidades.tsx";
 import ComunidadeDetalhe from "./pages/ComunidadeDetalhe.tsx";
+import PopGames from "./pages/PopGames.tsx";
+import BeDeveloper from "./pages/pop-games/BeDeveloper.tsx";
+import DevPanel from "./pages/pop-games/DevPanel.tsx";
+import GameDetail from "./pages/pop-games/GameDetail.tsx";
 import MobileBottomNav from "./components/MobileBottomNav";
 
 const queryClient = new QueryClient();
