@@ -42,18 +42,33 @@ const GameDetail = () => {
         .select("*").eq("game_id", (data as any).id).eq("published", true)
         .order("created_at", { ascending: false }).limit(10);
       setNews((n as any) || []);
+      const { data: pk } = await (supabase as any).from("game_packs")
+        .select("*").eq("game_id", (data as any).id).eq("is_active", true).eq("is_free", true);
+      setPacks((pk as any) || []);
+      const starter = ((pk as any) || []).find((p: any) => p.pack_type === "starter");
+      setHasStarter(!!starter);
       if (author?.userId) {
-        const [{ data: fav }, { data: pl }] = await Promise.all([
+        const [{ data: fav }, { data: pl }, { data: opened }] = await Promise.all([
           (supabase as any).from("game_favorites").select("id").eq("user_id", author.userId).eq("game_id", (data as any).id).maybeSingle(),
           (supabase as any).from("game_players").select("id").eq("user_id", author.userId).eq("game_id", (data as any).id).maybeSingle(),
+          starter ? (supabase as any).from("game_pack_openings").select("id").eq("user_id", author.userId).eq("pack_id", starter.id).maybeSingle() : Promise.resolve({ data: null } as any),
         ]);
-        setFavorited(!!fav); setJoined(!!pl);
+        setFavorited(!!fav); setJoined(!!pl); setStarterClaimed(!!opened);
       }
     }
     setLoading(false);
   };
 
   useEffect(() => { load(); }, [slug, author?.userId]);
+
+  const claimStarter = async () => {
+    if (!game) return;
+    const { error } = await (supabase as any).rpc("game_claim_starter", { _game_id: game.id });
+    if (error) { toast({ title: "Não foi possível", description: error.message, variant: "destructive" }); return; }
+    toast({ title: "Deck inicial recebido!" });
+    setStarterClaimed(true);
+    load();
+  };
 
   const toggleFav = async () => {
     if (!author?.userId || !game) { toast({ title: "Entre para favoritar" }); return; }
