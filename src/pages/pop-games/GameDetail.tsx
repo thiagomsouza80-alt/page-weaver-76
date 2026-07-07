@@ -226,6 +226,8 @@ const GameDetail = () => {
           )}
         </div>
       </main>
+      <PackOpenDialog packId={openPackId} packName={openPackName}
+        open={!!openPackId} onOpenChange={(o) => { if (!o) setOpenPackId(null); }} onOpened={load} />
       <Footer />
     </div>
   );
