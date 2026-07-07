@@ -10,6 +10,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import StoriesBar from "@/components/social/StoriesBar";
 import ArtistSearchBar from "@/components/social/ArtistSearchBar";
 import MessengerBellIcon from "@/components/social/MessengerBellIcon";
+import GamesBellIcon from "@/components/social/GamesBellIcon";
 import { Loader2, MessageSquare, ShoppingBag, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
