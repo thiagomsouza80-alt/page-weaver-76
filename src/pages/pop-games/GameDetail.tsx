@@ -6,7 +6,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, Gamepad2, Heart, Users, Star, Play, Calendar } from "lucide-react";
+import { Loader2, Gamepad2, Heart, Users, Star, Play, Calendar, Library, Package, Gift } from "lucide-react";
+import PackOpenDialog from "@/components/pop-games/PackOpenDialog";
 
 interface Game {
   id: string; slug: string; name: string; category: string; description: string | null;
