@@ -82,6 +82,10 @@ const App = () => (
           <Route path="/u/:username" element={<PerfilPublico />} />
           <Route path="/comunidades" element={<Comunidades />} />
           <Route path="/comunidades/:slug" element={<ComunidadeDetalhe />} />
+          <Route path="/pop-games" element={<PopGames />} />
+          <Route path="/pop-games/dev/solicitar" element={<BeDeveloper />} />
+          <Route path="/pop-games/dev" element={<DevPanel />} />
+          <Route path="/pop-games/jogos/:slug" element={<GameDetail />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <MobileBottomNav />
