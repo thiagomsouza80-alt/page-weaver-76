@@ -140,16 +140,45 @@ const GameDetail = () => {
                 <span className="inline-flex items-center gap-1"><Calendar className="h-4 w-4" />Atualizado {new Date(game.last_update_at).toLocaleDateString("pt-BR")}</span>
               </div>
             </div>
-            <div className="flex gap-2 w-full sm:w-auto">
-              <Button onClick={play} className="gap-2 flex-1 sm:flex-none">
+            <div className="flex gap-2 w-full sm:w-auto flex-wrap">
+              <Button onClick={play} className="gap-2">
                 <Play className="h-4 w-4" />{joined ? "Continuar" : "Jogar"}
               </Button>
               <Button variant="outline" onClick={toggleFav} className="gap-2">
                 <Heart className={`h-4 w-4 ${favorited ? "fill-primary text-primary" : ""}`} />
                 {favorited ? "Favorito" : "Favoritar"}
               </Button>
+              <Link to={`/pop-games/jogos/${game.slug}/colecao`}>
+                <Button variant="outline" className="gap-2"><Library className="h-4 w-4" />Coleção</Button>
+              </Link>
             </div>
           </div>
+
+          {hasStarter && author?.userId && !starterClaimed && (
+            <div className="mt-6 p-4 rounded-xl bg-primary/10 border border-primary/40 flex items-center justify-between gap-3 flex-wrap">
+              <div className="flex items-center gap-2 text-sm">
+                <Gift className="h-5 w-5 text-primary" />
+                <span>Você ainda não pegou seu <strong>deck inicial gratuito</strong>!</span>
+              </div>
+              <Button size="sm" onClick={claimStarter}>Resgatar</Button>
+            </div>
+          )}
+
+          {packs.length > 0 && (
+            <section className="mt-8">
+              <h2 className="text-lg font-bold mb-3 flex items-center gap-2"><Package className="h-5 w-5 text-primary" />Pacotes disponíveis</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {packs.filter(p => p.pack_type !== "starter" || starterClaimed).map(p => (
+                  <button key={p.id} onClick={() => { setOpenPackId(p.id); setOpenPackName(p.name); }}
+                    className="p-4 bg-card border border-border rounded-xl hover:border-primary transition text-left">
+                    <Package className="h-8 w-8 text-primary mb-2" />
+                    <p className="font-bold text-sm">{p.name}</p>
+                    <p className="text-xs text-muted-foreground">{p.cards_per_pack} cartas · {p.is_free ? "grátis" : `${p.price_coins} moedas`}</p>
+                  </button>
+                ))}
+              </div>
+            </section>
+          )}
 
           {game.is_in_development && (
             <div className="mt-6 p-3 rounded-lg bg-amber-500/10 border border-amber-500/40 text-sm">
