@@ -18,7 +18,7 @@ export const uploadMessengerAttachment = async (
   const kind = detectKind(file);
   let toUpload: Blob = file;
   if (kind === "image") {
-    try { toUpload = await compressImage(file, { maxSize: 1600, quality: 0.85 }); } catch { toUpload = file; }
+    try { toUpload = await compressImage(file, 1600, 1600, 0.85); } catch { toUpload = file; }
   }
   const ext = (file.name.split(".").pop() || "bin").toLowerCase();
   const path = `${userId}/messenger/${crypto.randomUUID()}.${ext}`;
