@@ -241,44 +241,40 @@ const ArtistaDetalhe = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="pt-24 pb-16 px-6 max-w-5xl mx-auto">
-        <Link to="/artistas" className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline mb-8">
+      <div className="pt-24 pb-16 px-4 sm:px-6 max-w-3xl mx-auto">
+        <Link to="/artistas" className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline mb-6">
           <ArrowLeft className="h-4 w-4" /> Voltar aos artistas
         </Link>
 
-        <div className="flex flex-col md:flex-row gap-8 mb-12 animate-fade-up">
-          <div className="w-48 h-48 md:w-56 md:h-56 rounded-2xl overflow-hidden shrink-0">
-            {dbArtist.profile_image_url ? (
-              <img src={dbArtist.profile_image_url} alt={dbArtist.name} className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full bg-secondary flex items-center justify-center">
-                <span className="text-5xl font-bold text-muted-foreground/40">{dbArtist.name[0]}</span>
-              </div>
-            )}
-          </div>
-          <div className="flex-1">
-            <span className="text-xs font-semibold px-3 py-1 rounded-md bg-primary/10 text-primary mb-3 inline-block">
-              {segmentLabels[dbArtist.segment] || dbArtist.segment}
-            </span>
-            <h1 className="text-3xl md:text-4xl font-bold mb-1">{dbArtist.name}</h1>
-            {getMembershipBadge((dbArtist as any).membership_type) && (
-              <p className="text-base font-semibold mb-1">{getMembershipBadge((dbArtist as any).membership_type)}</p>
-            )}
-            <p className="text-primary font-medium mb-3">{segmentLabels[dbArtist.segment] || dbArtist.segment}</p>
-            {dbArtist.instagram && (
-              <p className="flex items-center gap-1.5 text-sm text-muted-foreground mb-4">
-                <Instagram className="h-4 w-4" /> {dbArtist.instagram}
-              </p>
-            )}
-            {dbArtist.city && (
-              <p className="text-sm text-muted-foreground mb-4">📍 {dbArtist.city}</p>
-            )}
-            <div className="flex flex-wrap items-center gap-2 mb-2">
-              <FanButton artistId={dbArtist.id} initialCount={(dbArtist as any).fan_count || 0} />
-              <FollowButton targetType="artist" targetId={dbArtist.id} initialCount={(dbArtist as any).followers_count || 0} />
-            </div>
-            <ShareButtons label="Compartilhar link do perfil" hint="Compartilhe seu perfil e ganhe mais fans!" />
-          </div>
+        <ProfileHeaderCard
+          userId={(dbArtist as any).user_id}
+          displayName={dbArtist.name}
+          fallbackUsername={null}
+          avatarUrl={dbArtist.profile_image_url}
+          followersCount={(dbArtist as any).followers_count || 0}
+          postsCount={(dbArtist as any).posts_count || 0}
+          artistId={dbArtist.id}
+          fanCount={(dbArtist as any).fan_count || 0}
+          followTarget={{ type: "artist", id: dbArtist.id, count: (dbArtist as any).followers_count || 0 }}
+        />
+
+        <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+          <span className="text-xs font-semibold px-3 py-1 rounded-md bg-primary/10 text-primary">
+            {segmentLabels[dbArtist.segment] || dbArtist.segment}
+          </span>
+          {getMembershipBadge((dbArtist as any).membership_type) && (
+            <span className="font-semibold text-foreground">{getMembershipBadge((dbArtist as any).membership_type)}</span>
+          )}
+          {dbArtist.city && (
+            <span className="inline-flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /> {dbArtist.city}</span>
+          )}
+          {dbArtist.instagram && (
+            <span className="inline-flex items-center gap-1"><Instagram className="h-3.5 w-3.5" /> {dbArtist.instagram}</span>
+          )}
+        </div>
+
+        <div className="mt-4">
+          <ShareButtons label="Compartilhar link do perfil" hint="Compartilhe seu perfil e ganhe mais fans!" />
         </div>
 
         {dbArtist.bio && (
