@@ -88,6 +88,8 @@ const App = () => (
           <Route path="/pop-games/dev/solicitar" element={<BeDeveloper />} />
           <Route path="/pop-games/dev" element={<DevPanel />} />
           <Route path="/pop-games/jogos/:slug" element={<GameDetail />} />
+          <Route path="/pop-games/jogos/:slug/colecao" element={<Collection />} />
+          <Route path="/pop-games/dev/jogos/:slug" element={<DevGameManage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <MobileBottomNav />
