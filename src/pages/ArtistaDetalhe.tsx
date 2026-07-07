@@ -318,6 +318,8 @@ const ArtistaDetalhe = () => {
             </div>
           </section>
         )}
+
+        <UserRecentPosts userId={(dbArtist as any).user_id} />
       </div>
 
       {/* Lightbox */}
