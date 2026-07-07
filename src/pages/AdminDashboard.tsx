@@ -6,7 +6,7 @@ import {
   Loader2, Newspaper, CalendarDays, Users, LogOut, ExternalLink, Store,
   ClipboardCheck, Handshake, UserX, Bell, Trophy, Crown, Gift, Shield,
   Images, Database, Ticket, CalendarCheck, Wallet, BarChart3, CreditCard,
-  Settings, FileText, Menu, X, ChevronDown, Globe2, RotateCcw,
+  Settings, FileText, Menu, X, ChevronDown, Globe2, RotateCcw, Gamepad2,
 } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import { usePersistentBool } from "@/hooks/useSidebarState";
