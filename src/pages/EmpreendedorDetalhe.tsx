@@ -6,7 +6,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { MapPin, Phone, Instagram } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import FollowButton from "@/components/social/FollowButton";
 import ProfileHeaderCard from "@/components/social/ProfileHeaderCard";
 import UserRecentPosts from "@/components/social/UserRecentPosts";
 
