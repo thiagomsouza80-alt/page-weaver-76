@@ -1252,6 +1252,319 @@ export type Database = {
         }
         Relationships: []
       }
+      game_developer_requests: {
+        Row: {
+          admin_notes: string | null
+          banner_url: string | null
+          category: string | null
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          description: string | null
+          developer_id: string
+          id: string
+          links: Json
+          logo_url: string | null
+          proposed_game_name: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          banner_url?: string | null
+          category?: string | null
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          description?: string | null
+          developer_id: string
+          id?: string
+          links?: Json
+          logo_url?: string | null
+          proposed_game_name?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          banner_url?: string | null
+          category?: string | null
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          description?: string | null
+          developer_id?: string
+          id?: string
+          links?: Json
+          logo_url?: string | null
+          proposed_game_name?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_developer_requests_developer_id_fkey"
+            columns: ["developer_id"]
+            isOneToOne: false
+            referencedRelation: "game_developers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      game_developers: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          banner_url: string | null
+          bio: string | null
+          created_at: string
+          id: string
+          links: Json
+          logo_url: string | null
+          status: string
+          studio_name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          banner_url?: string | null
+          bio?: string | null
+          created_at?: string
+          id?: string
+          links?: Json
+          logo_url?: string | null
+          status?: string
+          studio_name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          banner_url?: string | null
+          bio?: string | null
+          created_at?: string
+          id?: string
+          links?: Json
+          logo_url?: string | null
+          status?: string
+          studio_name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      game_favorites: {
+        Row: {
+          created_at: string
+          game_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          game_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          game_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_favorites_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      game_news: {
+        Row: {
+          body: string | null
+          cover_url: string | null
+          created_at: string
+          created_by: string | null
+          game_id: string
+          id: string
+          published: boolean
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          body?: string | null
+          cover_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          game_id: string
+          id?: string
+          published?: boolean
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string | null
+          cover_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          game_id?: string
+          id?: string
+          published?: boolean
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_news_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      game_players: {
+        Row: {
+          created_at: string
+          game_id: string
+          id: string
+          joined_at: string
+          last_played_at: string | null
+          level: number
+          matches: number
+          updated_at: string
+          user_id: string
+          wins: number
+          xp: number
+        }
+        Insert: {
+          created_at?: string
+          game_id: string
+          id?: string
+          joined_at?: string
+          last_played_at?: string | null
+          level?: number
+          matches?: number
+          updated_at?: string
+          user_id: string
+          wins?: number
+          xp?: number
+        }
+        Update: {
+          created_at?: string
+          game_id?: string
+          id?: string
+          joined_at?: string
+          last_played_at?: string | null
+          level?: number
+          matches?: number
+          updated_at?: string
+          user_id?: string
+          wins?: number
+          xp?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_players_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      games: {
+        Row: {
+          banner_url: string | null
+          category: string
+          created_at: string
+          description: string | null
+          developer_id: string
+          id: string
+          is_featured: boolean
+          is_in_development: boolean
+          is_new: boolean
+          last_update_at: string
+          logo_url: string | null
+          name: string
+          players_count: number
+          rating_avg: number
+          ratings_count: number
+          screenshots: string[]
+          short_description: string | null
+          slug: string
+          status: string
+          trailer_url: string | null
+          updated_at: string
+          version: string | null
+        }
+        Insert: {
+          banner_url?: string | null
+          category?: string
+          created_at?: string
+          description?: string | null
+          developer_id: string
+          id?: string
+          is_featured?: boolean
+          is_in_development?: boolean
+          is_new?: boolean
+          last_update_at?: string
+          logo_url?: string | null
+          name: string
+          players_count?: number
+          rating_avg?: number
+          ratings_count?: number
+          screenshots?: string[]
+          short_description?: string | null
+          slug: string
+          status?: string
+          trailer_url?: string | null
+          updated_at?: string
+          version?: string | null
+        }
+        Update: {
+          banner_url?: string | null
+          category?: string
+          created_at?: string
+          description?: string | null
+          developer_id?: string
+          id?: string
+          is_featured?: boolean
+          is_in_development?: boolean
+          is_new?: boolean
+          last_update_at?: string
+          logo_url?: string | null
+          name?: string
+          players_count?: number
+          rating_avg?: number
+          ratings_count?: number
+          screenshots?: string[]
+          short_description?: string | null
+          slug?: string
+          status?: string
+          trailer_url?: string | null
+          updated_at?: string
+          version?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "games_developer_id_fkey"
+            columns: ["developer_id"]
+            isOneToOne: false
+            referencedRelation: "game_developers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       homepage_banners: {
         Row: {
           active: boolean
@@ -3523,7 +3836,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "user" | "organizer"
+      app_role: "admin" | "user" | "organizer" | "game_developer"
       artist_segment:
         | "cosplayer"
         | "cosmaker"
@@ -3669,7 +3982,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user", "organizer"],
+      app_role: ["admin", "user", "organizer", "game_developer"],
       artist_segment: [
         "cosplayer",
         "cosmaker",

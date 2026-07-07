@@ -34,6 +34,10 @@ import Mensagens from "./pages/Mensagens.tsx";
 import PerfilPublico from "./pages/PerfilPublico.tsx";
 import Comunidades from "./pages/Comunidades.tsx";
 import ComunidadeDetalhe from "./pages/ComunidadeDetalhe.tsx";
+import PopGames from "./pages/PopGames.tsx";
+import BeDeveloper from "./pages/pop-games/BeDeveloper.tsx";
+import DevPanel from "./pages/pop-games/DevPanel.tsx";
+import GameDetail from "./pages/pop-games/GameDetail.tsx";
 import MobileBottomNav from "./components/MobileBottomNav";
 
 const queryClient = new QueryClient();
@@ -78,6 +82,10 @@ const App = () => (
           <Route path="/u/:username" element={<PerfilPublico />} />
           <Route path="/comunidades" element={<Comunidades />} />
           <Route path="/comunidades/:slug" element={<ComunidadeDetalhe />} />
+          <Route path="/pop-games" element={<PopGames />} />
+          <Route path="/pop-games/dev/solicitar" element={<BeDeveloper />} />
+          <Route path="/pop-games/dev" element={<DevPanel />} />
+          <Route path="/pop-games/jogos/:slug" element={<GameDetail />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <MobileBottomNav />

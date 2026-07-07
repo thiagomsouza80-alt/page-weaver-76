@@ -10,6 +10,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import StoriesBar from "@/components/social/StoriesBar";
 import ArtistSearchBar from "@/components/social/ArtistSearchBar";
 import MessengerBellIcon from "@/components/social/MessengerBellIcon";
+import GamesBellIcon from "@/components/social/GamesBellIcon";
 import { Loader2, MessageSquare, ShoppingBag, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -59,7 +60,12 @@ const SocialPop = () => {
             </h1>
             <p className="text-sm text-muted-foreground mt-1">A comunidade da cultura pop paraense.</p>
           </div>
-          {author?.userId && <MessengerBellIcon userId={author.userId} />}
+          {author?.userId && (
+            <div className="flex items-center gap-2">
+              <GamesBellIcon userId={author.userId} />
+              <MessengerBellIcon userId={author.userId} />
+            </div>
+          )}
         </header>
 
         <div className="mb-4 flex items-center gap-2">
