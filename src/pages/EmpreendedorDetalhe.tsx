@@ -87,104 +87,64 @@ const EmpreendedorDetalhe = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      {/* Hero */}
-      <section className="relative pt-20">
-        <div className="relative h-64 md:h-96 overflow-hidden">
-          {heroImg ? (
-            <img src={heroImg} alt={item.name} className="w-full h-full object-cover" />
+      <div className="pt-24 pb-16 px-4 sm:px-6 max-w-3xl mx-auto">
+        <ProfileHeaderCard
+          userId={(item as any).user_id}
+          displayName={item.name}
+          avatarUrl={item.image_url}
+          coverUrl={item.hero_image_url}
+          followersCount={(item as any).followers_count || 0}
+          postsCount={(item as any).posts_count || 0}
+          followTarget={{ type: "entrepreneur", id: item.id, count: (item as any).followers_count || 0 }}
+        />
+
+        <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+          <span className={`${badgeColors[item.badge] || "bg-primary"} text-primary-foreground text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-md`}>
+            {item.badge}
+          </span>
+          {item.address && (
+            <span className="inline-flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /> {item.address}</span>
+          )}
+          {item.phone && (
+            <span className="inline-flex items-center gap-1"><Phone className="h-3.5 w-3.5" /> {item.phone}</span>
+          )}
+          {item.instagram && (
+            <span className="inline-flex items-center gap-1"><Instagram className="h-3.5 w-3.5" /> {item.instagram}</span>
+          )}
+        </div>
+
+        <section className="mt-8 animate-fade-up">
+          <h2 className="text-2xl font-bold mb-4">Sobre</h2>
+          {item.full_description ? (
+            <div className="space-y-4">
+              {item.full_description.split("\n").filter(Boolean).map((p, i) => (
+                <p key={i} className="text-muted-foreground leading-relaxed">{p}</p>
+              ))}
+            </div>
           ) : (
-            <div className="w-full h-full bg-muted" />
+            <p className="text-muted-foreground leading-relaxed">{item.description}</p>
           )}
-          <div className="absolute inset-0 hero-overlay" />
-          <div className="absolute inset-0 flex items-end p-8 md:p-12">
-            <div className="animate-fade-up">
-              <span className={`${badgeColors[item.badge] || "bg-primary"} text-primary-foreground text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-md`}>
-                {item.badge}
-              </span>
-              <h1 className="text-3xl md:text-5xl font-bold mt-3 leading-tight" style={{ lineHeight: "1.1" }}>
-                {item.name}
-              </h1>
-              <p className="text-foreground/70 mt-2 max-w-lg">{item.description}</p>
-              <div className="mt-4">
-                <FollowButton targetType="entrepreneur" targetId={item.id} initialCount={(item as any).followers_count || 0} />
-              </div>
+        </section>
+
+        {portfolio.length > 0 && (
+          <section className="mt-8 animate-fade-up">
+            <h2 className="text-2xl font-bold mb-4">Galeria</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              {portfolio.map((url, i) => (
+                <button
+                  key={i}
+                  onClick={() => setLightboxImg(url)}
+                  className="aspect-square overflow-hidden rounded-lg border border-border hover:border-primary/50 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  <img src={url} alt={`${item.name} - foto ${i + 1}`} className="w-full h-full object-cover" />
+                </button>
+              ))}
             </div>
-          </div>
-        </div>
-      </section>
+          </section>
+        )}
 
-      {/* Content */}
-      <section className="px-6 md:px-12 py-12 max-w-6xl mx-auto">
-        <div className={`grid grid-cols-1 ${hasContactInfo ? "md:grid-cols-3" : ""} gap-8`}>
-          <div className={hasContactInfo ? "md:col-span-2" : ""}>
-            <div className="animate-fade-up">
-              <h2 className="text-2xl font-bold mb-4">Sobre</h2>
-              {item.full_description ? (
-                <div className="space-y-4">
-                  {item.full_description.split("\n").filter(Boolean).map((p, i) => (
-                    <p key={i} className="text-muted-foreground leading-relaxed">{p}</p>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-muted-foreground leading-relaxed">{item.description}</p>
-              )}
-            </div>
-
-            {/* Portfolio Gallery */}
-            {portfolio.length > 0 && (
-              <div className="mt-10 animate-fade-up">
-                <h2 className="text-2xl font-bold mb-4">Galeria</h2>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                  {portfolio.map((url, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setLightboxImg(url)}
-                      className="aspect-square overflow-hidden rounded-lg border border-border hover:border-primary/50 transition-all hover:scale-[1.02] active:scale-[0.98]"
-                    >
-                      <img src={url} alt={`${item.name} - foto ${i + 1}`} className="w-full h-full object-cover" />
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Sidebar */}
-          {hasContactInfo && (
-            <div className="space-y-6 animate-fade-up-delay-2">
-              <div className="bg-card rounded-xl overflow-hidden">
-                {thumbImg && (
-                  <img src={thumbImg} alt={item.name} className="w-full aspect-video object-cover" />
-                )}
-                <div className="p-5 space-y-4">
-                  <h3 className="font-bold text-base">Informações</h3>
-                  <div className="space-y-3">
-                    {item.address && (
-                      <div className="flex items-start gap-2">
-                        <MapPin className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                        <p className="text-sm text-muted-foreground">{item.address}</p>
-                      </div>
-                    )}
-                    {item.phone && (
-                      <div className="flex items-start gap-2">
-                        <Phone className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                        <p className="text-sm text-muted-foreground">{item.phone}</p>
-                      </div>
-                    )}
-                    {item.instagram && (
-                      <div className="flex items-start gap-2">
-                        <Instagram className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                        <p className="text-sm text-muted-foreground">{item.instagram}</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          )}
-        </div>
-      </section>
+        <UserRecentPosts userId={(item as any).user_id} />
+      </div>
 
       {/* Lightbox */}
       {lightboxImg && (
