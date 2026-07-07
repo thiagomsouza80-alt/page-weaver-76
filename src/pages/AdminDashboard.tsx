@@ -42,7 +42,7 @@ type Tab =
   | "ranking" | "members" | "raffle" | "social" | "moderation" | "gamification"
   | "tickets" | "organizers" | "database"
   | "withdrawals" | "refunds" | "finance" | "gateway"
-  | "settings" | "orphans" | "logs";
+  | "settings" | "orphans" | "logs" | "game_devs";
 
 interface NavItem {
   key: Tab;
