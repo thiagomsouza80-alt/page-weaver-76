@@ -25,6 +25,11 @@ const GameDetail = () => {
   const [favorited, setFavorited] = useState(false);
   const [joined, setJoined] = useState(false);
   const [news, setNews] = useState<any[]>([]);
+  const [packs, setPacks] = useState<any[]>([]);
+  const [hasStarter, setHasStarter] = useState(false);
+  const [starterClaimed, setStarterClaimed] = useState(false);
+  const [openPackId, setOpenPackId] = useState<string | null>(null);
+  const [openPackName, setOpenPackName] = useState<string>("");
 
   const load = async () => {
     setLoading(true);
