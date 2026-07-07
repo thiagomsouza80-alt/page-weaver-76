@@ -4,38 +4,23 @@ import { supabase } from "@/integrations/supabase/client";
 import { MessageCircle } from "lucide-react";
 
 /**
- * Ícone de mensageiro exibido no topo do Social Pop.
- * Mostra badge com quantidade de conversas com mensagens novas
- * (baseado em last_message_at posterior ao último read do usuário).
- * Para simplicidade e escalabilidade, contamos conversas com
- * mensagens não enviadas por você criadas nas últimas 24h.
+ * Ícone de mensageiro. Badge = conversas com mensagens mais novas que o last_read_at do usuário.
  */
 const MessengerBellIcon = ({ userId }: { userId: string | null }) => {
   const [unread, setUnread] = useState(0);
 
   const load = async (uid: string) => {
-    // Conversas do usuário
+    const { data: memberships } = await (supabase as any)
+      .from("conversation_members").select("conversation_id,last_read_at").eq("user_id", uid);
+    if (!memberships || memberships.length === 0) { setUnread(0); return; }
+    const ids = memberships.map((m: any) => m.conversation_id);
     const { data: convs } = await (supabase as any)
-      .from("conversations")
-      .select("id, last_message_at, user_a, user_b")
-      .or(`user_a.eq.${uid},user_b.eq.${uid}`)
-      .order("last_message_at", { ascending: false })
-      .limit(50);
-    if (!convs || convs.length === 0) { setUnread(0); return; }
-    const ids = convs.map((c: any) => c.id);
-    // Última mensagem de cada conversa; se sender != uid conta como não lida
-    const { data: msgs } = await (supabase as any)
-      .from("messages")
-      .select("conversation_id, sender_id, created_at")
-      .in("conversation_id", ids)
-      .order("created_at", { ascending: false })
-      .limit(200);
-    const seen = new Set<string>();
+      .from("conversations").select("id,last_message_at").in("id", ids);
     let count = 0;
-    (msgs || []).forEach((m: any) => {
-      if (seen.has(m.conversation_id)) return;
-      seen.add(m.conversation_id);
-      if (m.sender_id !== uid) count++;
+    (convs || []).forEach((c: any) => {
+      const mem = memberships.find((m: any) => m.conversation_id === c.id);
+      if (!c.last_message_at) return;
+      if (!mem?.last_read_at || new Date(c.last_message_at) > new Date(mem.last_read_at)) count++;
     });
     setUnread(count);
   };
@@ -46,6 +31,7 @@ const MessengerBellIcon = ({ userId }: { userId: string | null }) => {
     const ch = supabase
       .channel(`mb-${userId}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, () => load(userId))
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "conversation_members", filter: `user_id=eq.${userId}` }, () => load(userId))
       .subscribe();
     return () => { supabase.removeChannel(ch); };
   }, [userId]);
