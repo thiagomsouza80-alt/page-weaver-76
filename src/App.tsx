@@ -37,7 +37,9 @@ import ComunidadeDetalhe from "./pages/ComunidadeDetalhe.tsx";
 import PopGames from "./pages/PopGames.tsx";
 import BeDeveloper from "./pages/pop-games/BeDeveloper.tsx";
 import DevPanel from "./pages/pop-games/DevPanel.tsx";
+import DevGameManage from "./pages/pop-games/DevGameManage.tsx";
 import GameDetail from "./pages/pop-games/GameDetail.tsx";
+import Collection from "./pages/pop-games/Collection.tsx";
 import MobileBottomNav from "./components/MobileBottomNav";
 
 const queryClient = new QueryClient();
@@ -86,6 +88,8 @@ const App = () => (
           <Route path="/pop-games/dev/solicitar" element={<BeDeveloper />} />
           <Route path="/pop-games/dev" element={<DevPanel />} />
           <Route path="/pop-games/jogos/:slug" element={<GameDetail />} />
+          <Route path="/pop-games/jogos/:slug/colecao" element={<Collection />} />
+          <Route path="/pop-games/dev/jogos/:slug" element={<DevGameManage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <MobileBottomNav />

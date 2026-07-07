@@ -1252,6 +1252,116 @@ export type Database = {
         }
         Relationships: []
       }
+      game_card_collections: {
+        Row: {
+          code: string
+          cover_url: string | null
+          created_at: string
+          description: string | null
+          game_id: string
+          id: string
+          is_active: boolean
+          name: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          game_id: string
+          id?: string
+          is_active?: boolean
+          name: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          game_id?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_card_collections_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      game_cards: {
+        Row: {
+          category: string | null
+          code: string
+          collection_id: string | null
+          created_at: string
+          custom_attrs: Json
+          description: string | null
+          game_id: string
+          id: string
+          image_url: string | null
+          name: string
+          rarity: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          code: string
+          collection_id?: string | null
+          created_at?: string
+          custom_attrs?: Json
+          description?: string | null
+          game_id: string
+          id?: string
+          image_url?: string | null
+          name: string
+          rarity?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          code?: string
+          collection_id?: string | null
+          created_at?: string
+          custom_attrs?: Json
+          description?: string | null
+          game_id?: string
+          id?: string
+          image_url?: string | null
+          name?: string
+          rarity?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_cards_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "game_card_collections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_cards_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       game_developer_requests: {
         Row: {
           admin_notes: string | null
@@ -1432,6 +1542,113 @@ export type Database = {
           },
         ]
       }
+      game_pack_openings: {
+        Row: {
+          cards: Json
+          game_id: string
+          id: string
+          opened_at: string
+          pack_id: string
+          user_id: string
+        }
+        Insert: {
+          cards?: Json
+          game_id: string
+          id?: string
+          opened_at?: string
+          pack_id: string
+          user_id: string
+        }
+        Update: {
+          cards?: Json
+          game_id?: string
+          id?: string
+          opened_at?: string
+          pack_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_pack_openings_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_pack_openings_pack_id_fkey"
+            columns: ["pack_id"]
+            isOneToOne: false
+            referencedRelation: "game_packs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      game_packs: {
+        Row: {
+          cards_per_pack: number
+          code: string
+          cover_url: string | null
+          created_at: string
+          description: string | null
+          ends_at: string | null
+          game_id: string
+          id: string
+          is_active: boolean
+          is_free: boolean
+          name: string
+          pack_type: string
+          price_coins: number
+          rarity_odds: Json
+          starts_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          cards_per_pack?: number
+          code: string
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          ends_at?: string | null
+          game_id: string
+          id?: string
+          is_active?: boolean
+          is_free?: boolean
+          name: string
+          pack_type?: string
+          price_coins?: number
+          rarity_odds?: Json
+          starts_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          cards_per_pack?: number
+          code?: string
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          ends_at?: string | null
+          game_id?: string
+          id?: string
+          is_active?: boolean
+          is_free?: boolean
+          name?: string
+          pack_type?: string
+          price_coins?: number
+          rarity_odds?: Json
+          starts_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_packs_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       game_players: {
         Row: {
           created_at: string
@@ -1475,6 +1692,57 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "game_players_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      game_user_cards: {
+        Row: {
+          card_id: string
+          created_at: string
+          first_obtained_at: string
+          game_id: string
+          id: string
+          last_obtained_at: string
+          origin: string
+          quantity: number
+          user_id: string
+        }
+        Insert: {
+          card_id: string
+          created_at?: string
+          first_obtained_at?: string
+          game_id: string
+          id?: string
+          last_obtained_at?: string
+          origin?: string
+          quantity?: number
+          user_id: string
+        }
+        Update: {
+          card_id?: string
+          created_at?: string
+          first_obtained_at?: string
+          game_id?: string
+          id?: string
+          last_obtained_at?: string
+          origin?: string
+          quantity?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_user_cards_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "game_cards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_user_cards_game_id_fkey"
             columns: ["game_id"]
             isOneToOne: false
             referencedRelation: "games"
@@ -3631,6 +3899,8 @@ export type Database = {
       }
       event_current_batch: { Args: { _event_id: string }; Returns: string }
       event_tickets_count: { Args: { _event_id: string }; Returns: number }
+      game_claim_starter: { Args: { _game_id: string }; Returns: Json }
+      game_open_pack: { Args: { _pack_id: string }; Returns: Json }
       generate_courtesy_codes: {
         Args: { _category_id: string; _count: number; _expires_at?: string }
         Returns: {
