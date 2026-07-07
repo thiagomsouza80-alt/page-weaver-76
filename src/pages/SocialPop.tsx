@@ -60,7 +60,12 @@ const SocialPop = () => {
             </h1>
             <p className="text-sm text-muted-foreground mt-1">A comunidade da cultura pop paraense.</p>
           </div>
-          {author?.userId && <MessengerBellIcon userId={author.userId} />}
+          {author?.userId && (
+            <div className="flex items-center gap-2">
+              <GamesBellIcon userId={author.userId} />
+              <MessengerBellIcon userId={author.userId} />
+            </div>
+          )}
         </header>
 
         <div className="mb-4 flex items-center gap-2">
