@@ -34,6 +34,7 @@ import AdminLogsPanel from "@/components/admin/AdminLogsPanel";
 import AdminRefundsPanel from "@/components/admin/AdminRefundsPanel";
 
 import AdminSocialPopPanel from "@/components/admin/AdminSocialPopPanel";
+import AdminGameDevelopersPanel from "@/components/admin/AdminGameDevelopersPanel";
 import logoOficial from "@/assets/logo-oficial.png";
 
 type Tab =
