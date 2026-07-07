@@ -302,6 +302,7 @@ const AdminDashboard = () => {
         {tab === "logs" && <AdminLogsPanel />}
         
         {tab === "gamification" && <AdminSocialPopPanel />}
+        {tab === "game_devs" && <AdminGameDevelopersPanel />}
       </main>
     </div>
   );
