@@ -395,33 +395,80 @@ export type Database = {
           },
         ]
       }
+      conversation_members: {
+        Row: {
+          conversation_id: string
+          id: string
+          joined_at: string
+          last_read_at: string | null
+          role: string
+          user_id: string
+        }
+        Insert: {
+          conversation_id: string
+          id?: string
+          joined_at?: string
+          last_read_at?: string | null
+          role?: string
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string
+          id?: string
+          joined_at?: string
+          last_read_at?: string | null
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_members_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       conversations: {
         Row: {
+          avatar_url: string | null
           created_at: string
+          created_by: string | null
           id: string
+          is_group: boolean
           last_message_at: string
           last_preview: string | null
           product_id: string | null
-          user_a: string
-          user_b: string
+          title: string | null
+          user_a: string | null
+          user_b: string | null
         }
         Insert: {
+          avatar_url?: string | null
           created_at?: string
+          created_by?: string | null
           id?: string
+          is_group?: boolean
           last_message_at?: string
           last_preview?: string | null
           product_id?: string | null
-          user_a: string
-          user_b: string
+          title?: string | null
+          user_a?: string | null
+          user_b?: string | null
         }
         Update: {
+          avatar_url?: string | null
           created_at?: string
+          created_by?: string | null
           id?: string
+          is_group?: boolean
           last_message_at?: string
           last_preview?: string | null
           product_id?: string | null
-          user_a?: string
-          user_b?: string
+          title?: string | null
+          user_a?: string | null
+          user_b?: string | null
         }
         Relationships: [
           {
@@ -1259,29 +1306,82 @@ export type Database = {
         }
         Relationships: []
       }
+      message_reactions: {
+        Row: {
+          created_at: string
+          emoji: string
+          id: string
+          message_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          emoji: string
+          id?: string
+          message_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          emoji?: string
+          id?: string
+          message_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_reactions_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
-          content: string
+          attachment_meta: Json | null
+          attachment_type: string | null
+          attachment_url: string | null
+          content: string | null
           conversation_id: string
           created_at: string
+          deleted: boolean
+          edited_at: string | null
+          forwarded_from_id: string | null
           id: string
           read_at: string | null
+          reply_to_id: string | null
           sender_id: string
         }
         Insert: {
-          content: string
+          attachment_meta?: Json | null
+          attachment_type?: string | null
+          attachment_url?: string | null
+          content?: string | null
           conversation_id: string
           created_at?: string
+          deleted?: boolean
+          edited_at?: string | null
+          forwarded_from_id?: string | null
           id?: string
           read_at?: string | null
+          reply_to_id?: string | null
           sender_id: string
         }
         Update: {
-          content?: string
+          attachment_meta?: Json | null
+          attachment_type?: string | null
+          attachment_url?: string | null
+          content?: string | null
           conversation_id?: string
           created_at?: string
+          deleted?: boolean
+          edited_at?: string | null
+          forwarded_from_id?: string | null
           id?: string
           read_at?: string | null
+          reply_to_id?: string | null
           sender_id?: string
         }
         Relationships: [
@@ -1290,6 +1390,20 @@ export type Database = {
             columns: ["conversation_id"]
             isOneToOne: false
             referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_forwarded_from_id_fkey"
+            columns: ["forwarded_from_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_reply_to_id_fkey"
+            columns: ["reply_to_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
             referencedColumns: ["id"]
           },
         ]
@@ -2579,6 +2693,27 @@ export type Database = {
           },
         ]
       }
+      user_presence: {
+        Row: {
+          is_online: boolean
+          last_seen_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          is_online?: boolean
+          last_seen_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          is_online?: boolean
+          last_seen_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_profiles: {
         Row: {
           avatar_url: string | null
@@ -3260,6 +3395,14 @@ export type Database = {
       increment_fan_count: { Args: { _artist_id: string }; Returns: number }
       is_community_member: {
         Args: { _community: string; _user: string }
+        Returns: boolean
+      }
+      is_conversation_admin: {
+        Args: { _conv: string; _user: string }
+        Returns: boolean
+      }
+      is_conversation_member: {
+        Args: { _conv: string; _user: string }
         Returns: boolean
       }
       is_event_validator: {
