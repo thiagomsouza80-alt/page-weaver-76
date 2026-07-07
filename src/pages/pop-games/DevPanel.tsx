@@ -203,6 +203,7 @@ const DevPanel = () => {
                 <div className="flex flex-wrap gap-2">
                   <Button size="sm" variant="outline" className="gap-1" onClick={() => { setEditingGame(g); setDialogOpen(true); }}><Edit className="h-3 w-3" />Editar</Button>
                   <Button size="sm" variant="outline" className="gap-1" onClick={() => setNewsOpen(g)}><Newspaper className="h-3 w-3" />Notícia</Button>
+                  <Link to={`/pop-games/dev/jogos/${g.slug}`}><Button size="sm" variant="outline" className="gap-1"><Wrench className="h-3 w-3" />Cartas &amp; Pacotes</Button></Link>
                   <Link to={`/pop-games/jogos/${g.slug}`} target="_blank"><Button size="sm" variant="ghost" className="gap-1"><ExternalLink className="h-3 w-3" />Ver</Button></Link>
                 </div>
               </div>
