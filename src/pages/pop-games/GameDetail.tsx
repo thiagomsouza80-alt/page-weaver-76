@@ -6,8 +6,13 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, Gamepad2, Heart, Users, Star, Play, Calendar, Library, Package, Gift } from "lucide-react";
+import { Loader2, Gamepad2, Heart, Users, Star, Play, Calendar, Library, Package, Gift, Target, Award, Trophy } from "lucide-react";
 import PackOpenDialog from "@/components/pop-games/PackOpenDialog";
+import DailyRewardCard from "@/components/pop-games/DailyRewardCard";
+import MissionsList from "@/components/pop-games/MissionsList";
+import AchievementsList from "@/components/pop-games/AchievementsList";
+import GameRanking from "@/components/pop-games/GameRanking";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 interface Game {
   id: string; slug: string; name: string; category: string; description: string | null;
@@ -186,13 +191,39 @@ const GameDetail = () => {
             </div>
           )}
 
-          {game.short_description && <p className="mt-6 text-muted-foreground">{game.short_description}</p>}
-          {game.description && (
-            <section className="mt-6">
-              <h2 className="text-lg font-bold mb-2">Sobre o jogo</h2>
-              <p className="text-sm whitespace-pre-wrap">{game.description}</p>
-            </section>
+          {author?.userId && (
+            <div className="mt-6">
+              <DailyRewardCard gameId={game.id} userId={author.userId} />
+            </div>
           )}
+
+          <Tabs defaultValue="sobre" className="mt-8">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="sobre">Sobre</TabsTrigger>
+              <TabsTrigger value="missoes" className="gap-1"><Target className="h-3.5 w-3.5" />Missões</TabsTrigger>
+              <TabsTrigger value="conquistas" className="gap-1"><Award className="h-3.5 w-3.5" />Conquistas</TabsTrigger>
+              <TabsTrigger value="ranking" className="gap-1"><Trophy className="h-3.5 w-3.5" />Ranking</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="sobre" className="mt-4">
+              {game.short_description && <p className="text-muted-foreground">{game.short_description}</p>}
+              {game.description && <p className="text-sm whitespace-pre-wrap mt-3">{game.description}</p>}
+            </TabsContent>
+
+            <TabsContent value="missoes" className="mt-4">
+              <MissionsList gameId={game.id} userId={author?.userId ?? null} />
+            </TabsContent>
+
+            <TabsContent value="conquistas" className="mt-4">
+              <AchievementsList gameId={game.id} userId={author?.userId ?? null} />
+            </TabsContent>
+
+            <TabsContent value="ranking" className="mt-4">
+              <GameRanking gameId={game.id} />
+            </TabsContent>
+          </Tabs>
+
+
 
           {game.trailer_url && (
             <section className="mt-8">

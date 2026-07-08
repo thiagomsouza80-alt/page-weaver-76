@@ -1252,6 +1252,59 @@ export type Database = {
         }
         Relationships: []
       }
+      game_achievements: {
+        Row: {
+          code: string
+          coin_reward: number
+          created_at: string
+          description: string | null
+          game_id: string
+          icon: string | null
+          id: string
+          is_active: boolean
+          rarity: string
+          title: string
+          updated_at: string
+          xp_reward: number
+        }
+        Insert: {
+          code: string
+          coin_reward?: number
+          created_at?: string
+          description?: string | null
+          game_id: string
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          rarity?: string
+          title: string
+          updated_at?: string
+          xp_reward?: number
+        }
+        Update: {
+          code?: string
+          coin_reward?: number
+          created_at?: string
+          description?: string | null
+          game_id?: string
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          rarity?: string
+          title?: string
+          updated_at?: string
+          xp_reward?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_achievements_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       game_card_collections: {
         Row: {
           code: string
@@ -1355,6 +1408,47 @@ export type Database = {
           },
           {
             foreignKeyName: "game_cards_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      game_daily_claims: {
+        Row: {
+          claim_date: string
+          coins_awarded: number
+          created_at: string
+          game_id: string
+          id: string
+          streak: number
+          user_id: string
+          xp_awarded: number
+        }
+        Insert: {
+          claim_date?: string
+          coins_awarded?: number
+          created_at?: string
+          game_id: string
+          id?: string
+          streak?: number
+          user_id: string
+          xp_awarded?: number
+        }
+        Update: {
+          claim_date?: string
+          coins_awarded?: number
+          created_at?: string
+          game_id?: string
+          id?: string
+          streak?: number
+          user_id?: string
+          xp_awarded?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_daily_claims_game_id_fkey"
             columns: ["game_id"]
             isOneToOne: false
             referencedRelation: "games"
@@ -1491,6 +1585,59 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "game_favorites_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      game_missions: {
+        Row: {
+          code: string
+          coin_reward: number
+          created_at: string
+          description: string | null
+          game_id: string
+          id: string
+          is_active: boolean
+          mission_type: string
+          target_value: number
+          title: string
+          updated_at: string
+          xp_reward: number
+        }
+        Insert: {
+          code: string
+          coin_reward?: number
+          created_at?: string
+          description?: string | null
+          game_id: string
+          id?: string
+          is_active?: boolean
+          mission_type?: string
+          target_value?: number
+          title: string
+          updated_at?: string
+          xp_reward?: number
+        }
+        Update: {
+          code?: string
+          coin_reward?: number
+          created_at?: string
+          description?: string | null
+          game_id?: string
+          id?: string
+          is_active?: boolean
+          mission_type?: string
+          target_value?: number
+          title?: string
+          updated_at?: string
+          xp_reward?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_missions_game_id_fkey"
             columns: ["game_id"]
             isOneToOne: false
             referencedRelation: "games"
@@ -1658,6 +1805,7 @@ export type Database = {
           last_played_at: string | null
           level: number
           matches: number
+          pop_coins: number
           updated_at: string
           user_id: string
           wins: number
@@ -1671,6 +1819,7 @@ export type Database = {
           last_played_at?: string | null
           level?: number
           matches?: number
+          pop_coins?: number
           updated_at?: string
           user_id: string
           wins?: number
@@ -1684,6 +1833,7 @@ export type Database = {
           last_played_at?: string | null
           level?: number
           matches?: number
+          pop_coins?: number
           updated_at?: string
           user_id?: string
           wins?: number
@@ -1695,6 +1845,35 @@ export type Database = {
             columns: ["game_id"]
             isOneToOne: false
             referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      game_user_achievements: {
+        Row: {
+          achievement_id: string
+          id: string
+          unlocked_at: string
+          user_id: string
+        }
+        Insert: {
+          achievement_id: string
+          id?: string
+          unlocked_at?: string
+          user_id: string
+        }
+        Update: {
+          achievement_id?: string
+          id?: string
+          unlocked_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_user_achievements_achievement_id_fkey"
+            columns: ["achievement_id"]
+            isOneToOne: false
+            referencedRelation: "game_achievements"
             referencedColumns: ["id"]
           },
         ]
@@ -1746,6 +1925,50 @@ export type Database = {
             columns: ["game_id"]
             isOneToOne: false
             referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      game_user_mission_progress: {
+        Row: {
+          claimed_at: string | null
+          completed_at: string | null
+          created_at: string
+          id: string
+          mission_id: string
+          period_key: string
+          progress: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          claimed_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          mission_id: string
+          period_key?: string
+          progress?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          claimed_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          mission_id?: string
+          period_key?: string
+          progress?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_user_mission_progress_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "game_missions"
             referencedColumns: ["id"]
           },
         ]
@@ -3899,8 +4122,21 @@ export type Database = {
       }
       event_current_batch: { Args: { _event_id: string }; Returns: string }
       event_tickets_count: { Args: { _event_id: string }; Returns: number }
+      game_add_xp: {
+        Args: { _coins: number; _game_id: string; _xp: number }
+        Returns: undefined
+      }
+      game_claim_daily: { Args: { _game_id: string }; Returns: Json }
       game_claim_starter: { Args: { _game_id: string }; Returns: Json }
+      game_grant_achievement: {
+        Args: { _achievement_id: string }
+        Returns: Json
+      }
       game_open_pack: { Args: { _pack_id: string }; Returns: Json }
+      game_progress_mission: {
+        Args: { _delta?: number; _mission_id: string }
+        Returns: Json
+      }
       generate_courtesy_codes: {
         Args: { _category_id: string; _count: number; _expires_at?: string }
         Returns: {

@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 import { uploadGameAsset } from "@/lib/popGames";
-import { Loader2, Plus, Trash2, Wrench, Package, Album } from "lucide-react";
+import { Loader2, Plus, Trash2, Wrench, Package, Album, Target, Award } from "lucide-react";
 
 const RARITIES = ["common", "uncommon", "rare", "epic", "legendary", "mythic"];
 const PACK_TYPES = [
@@ -33,7 +33,12 @@ const DevGameManage = () => {
   const [collections, setCollections] = useState<any[]>([]);
   const [cards, setCards] = useState<any[]>([]);
   const [packs, setPacks] = useState<any[]>([]);
+  const [missions, setMissions] = useState<any[]>([]);
+  const [achievements, setAchievements] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const [missionForm, setMissionForm] = useState({ code: "", title: "", description: "", mission_type: "daily", target_value: 1, xp_reward: 10, coin_reward: 20 });
+  const [achForm, setAchForm] = useState({ code: "", title: "", description: "", rarity: "common", xp_reward: 50, coin_reward: 100 });
 
   const [cardOpen, setCardOpen] = useState(false);
   const [cardForm, setCardForm] = useState<any>({ code: "", name: "", rarity: "common", collection_id: null });
@@ -49,14 +54,18 @@ const DevGameManage = () => {
     const { data: g } = await (supabase as any).from("games").select("*").eq("slug", slug).maybeSingle();
     if (!g) { setLoading(false); return; }
     setGame(g);
-    const [{ data: cols }, { data: cs }, { data: ps }] = await Promise.all([
+    const [{ data: cols }, { data: cs }, { data: ps }, { data: ms }, { data: ac }] = await Promise.all([
       (supabase as any).from("game_card_collections").select("*").eq("game_id", g.id).order("sort_order"),
       (supabase as any).from("game_cards").select("*").eq("game_id", g.id).order("rarity").order("name"),
       (supabase as any).from("game_packs").select("*").eq("game_id", g.id).order("created_at", { ascending: false }),
+      (supabase as any).from("game_missions").select("*").eq("game_id", g.id).order("created_at", { ascending: false }),
+      (supabase as any).from("game_achievements").select("*").eq("game_id", g.id).order("created_at", { ascending: false }),
     ]);
     setCollections((cols as any) || []);
     setCards((cs as any) || []);
     setPacks((ps as any) || []);
+    setMissions((ms as any) || []);
+    setAchievements((ac as any) || []);
     setLoading(false);
   };
 
@@ -115,6 +124,30 @@ const DevGameManage = () => {
     await (supabase as any).from("game_packs").delete().eq("id", id); load();
   };
 
+  const saveMission = async () => {
+    if (!missionForm.code || !missionForm.title) { toast({ title: "Código e título obrigatórios", variant: "destructive" }); return; }
+    const { error } = await (supabase as any).from("game_missions").insert({ ...missionForm, game_id: game.id });
+    if (error) { toast({ title: "Erro", description: error.message, variant: "destructive" }); return; }
+    setMissionForm({ code: "", title: "", description: "", mission_type: "daily", target_value: 1, xp_reward: 10, coin_reward: 20 });
+    toast({ title: "Missão criada" }); load();
+  };
+  const deleteMission = async (id: string) => {
+    if (!confirm("Excluir missão?")) return;
+    await (supabase as any).from("game_missions").delete().eq("id", id); load();
+  };
+
+  const saveAchievement = async () => {
+    if (!achForm.code || !achForm.title) { toast({ title: "Código e título obrigatórios", variant: "destructive" }); return; }
+    const { error } = await (supabase as any).from("game_achievements").insert({ ...achForm, game_id: game.id });
+    if (error) { toast({ title: "Erro", description: error.message, variant: "destructive" }); return; }
+    setAchForm({ code: "", title: "", description: "", rarity: "common", xp_reward: 50, coin_reward: 100 });
+    toast({ title: "Conquista criada" }); load();
+  };
+  const deleteAchievement = async (id: string) => {
+    if (!confirm("Excluir conquista?")) return;
+    await (supabase as any).from("game_achievements").delete().eq("id", id); load();
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -122,17 +155,20 @@ const DevGameManage = () => {
         <header className="mb-6 flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold flex items-center gap-2"><Wrench className="h-6 w-6 text-primary" />Gerenciar · {game.name}</h1>
-            <p className="text-sm text-muted-foreground">Coleções, cartas e pacotes</p>
+            <p className="text-sm text-muted-foreground">Coleções, cartas, pacotes, missões e conquistas</p>
           </div>
           <Link to="/pop-games/dev"><Button variant="outline" size="sm">Voltar</Button></Link>
         </header>
 
         <Tabs defaultValue="cards">
-          <TabsList className="grid w-full grid-cols-3 mb-4">
-            <TabsTrigger value="collections" className="gap-2"><Album className="h-4 w-4" />Coleções</TabsTrigger>
-            <TabsTrigger value="cards" className="gap-2"><Album className="h-4 w-4" />Cartas</TabsTrigger>
-            <TabsTrigger value="packs" className="gap-2"><Package className="h-4 w-4" />Pacotes</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-5 mb-4">
+            <TabsTrigger value="collections" className="gap-1"><Album className="h-4 w-4" />Coleções</TabsTrigger>
+            <TabsTrigger value="cards" className="gap-1"><Album className="h-4 w-4" />Cartas</TabsTrigger>
+            <TabsTrigger value="packs" className="gap-1"><Package className="h-4 w-4" />Pacotes</TabsTrigger>
+            <TabsTrigger value="missions" className="gap-1"><Target className="h-4 w-4" />Missões</TabsTrigger>
+            <TabsTrigger value="achievements" className="gap-1"><Award className="h-4 w-4" />Conquistas</TabsTrigger>
           </TabsList>
+
 
           <TabsContent value="collections" className="space-y-3">
             <div className="flex gap-2">
@@ -257,6 +293,71 @@ const DevGameManage = () => {
                   </div>
                 ))}
               </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="missions" className="space-y-3">
+            <div className="p-3 rounded-lg border border-border bg-card space-y-2">
+              <p className="font-medium text-sm">Nova missão</p>
+              <div className="grid grid-cols-2 gap-2">
+                <Input placeholder="Código" value={missionForm.code} onChange={e => setMissionForm({ ...missionForm, code: e.target.value })} />
+                <Input placeholder="Título" value={missionForm.title} onChange={e => setMissionForm({ ...missionForm, title: e.target.value })} />
+              </div>
+              <Textarea rows={2} placeholder="Descrição" value={missionForm.description} onChange={e => setMissionForm({ ...missionForm, description: e.target.value })} />
+              <div className="grid grid-cols-4 gap-2">
+                <select className="h-10 rounded-md border border-input bg-background px-2 text-sm" value={missionForm.mission_type} onChange={e => setMissionForm({ ...missionForm, mission_type: e.target.value })}>
+                  <option value="daily">Diária</option><option value="weekly">Semanal</option><option value="one_off">Única</option>
+                </select>
+                <Input type="number" min={1} placeholder="Meta" value={missionForm.target_value} onChange={e => setMissionForm({ ...missionForm, target_value: Number(e.target.value) })} />
+                <Input type="number" min={0} placeholder="XP" value={missionForm.xp_reward} onChange={e => setMissionForm({ ...missionForm, xp_reward: Number(e.target.value) })} />
+                <Input type="number" min={0} placeholder="Moedas" value={missionForm.coin_reward} onChange={e => setMissionForm({ ...missionForm, coin_reward: Number(e.target.value) })} />
+              </div>
+              <Button onClick={saveMission} className="w-full gap-1"><Plus className="h-4 w-4" />Criar missão</Button>
+            </div>
+            {missions.length === 0 ? <p className="text-sm text-muted-foreground text-center py-6">Nenhuma missão ainda.</p> : (
+              <ul className="space-y-2">
+                {missions.map(m => (
+                  <li key={m.id} className="p-3 rounded-lg border border-border bg-card flex items-center justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium truncate">{m.title} <span className="text-muted-foreground text-xs">({m.mission_type})</span></p>
+                      <p className="text-xs text-muted-foreground">Meta {m.target_value} · +{m.xp_reward} XP · +{m.coin_reward} moedas</p>
+                    </div>
+                    <Button size="sm" variant="ghost" onClick={() => deleteMission(m.id)}><Trash2 className="h-4 w-4" /></Button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </TabsContent>
+
+          <TabsContent value="achievements" className="space-y-3">
+            <div className="p-3 rounded-lg border border-border bg-card space-y-2">
+              <p className="font-medium text-sm">Nova conquista</p>
+              <div className="grid grid-cols-2 gap-2">
+                <Input placeholder="Código" value={achForm.code} onChange={e => setAchForm({ ...achForm, code: e.target.value })} />
+                <Input placeholder="Título" value={achForm.title} onChange={e => setAchForm({ ...achForm, title: e.target.value })} />
+              </div>
+              <Textarea rows={2} placeholder="Descrição" value={achForm.description} onChange={e => setAchForm({ ...achForm, description: e.target.value })} />
+              <div className="grid grid-cols-3 gap-2">
+                <select className="h-10 rounded-md border border-input bg-background px-2 text-sm" value={achForm.rarity} onChange={e => setAchForm({ ...achForm, rarity: e.target.value })}>
+                  {RARITIES.map(r => <option key={r} value={r}>{r}</option>)}
+                </select>
+                <Input type="number" min={0} placeholder="XP" value={achForm.xp_reward} onChange={e => setAchForm({ ...achForm, xp_reward: Number(e.target.value) })} />
+                <Input type="number" min={0} placeholder="Moedas" value={achForm.coin_reward} onChange={e => setAchForm({ ...achForm, coin_reward: Number(e.target.value) })} />
+              </div>
+              <Button onClick={saveAchievement} className="w-full gap-1"><Plus className="h-4 w-4" />Criar conquista</Button>
+            </div>
+            {achievements.length === 0 ? <p className="text-sm text-muted-foreground text-center py-6">Nenhuma conquista ainda.</p> : (
+              <ul className="space-y-2">
+                {achievements.map(a => (
+                  <li key={a.id} className="p-3 rounded-lg border border-border bg-card flex items-center justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium truncate">{a.title} <span className="text-muted-foreground text-xs">({a.rarity})</span></p>
+                      <p className="text-xs text-muted-foreground">+{a.xp_reward} XP · +{a.coin_reward} moedas</p>
+                    </div>
+                    <Button size="sm" variant="ghost" onClick={() => deleteAchievement(a.id)}><Trash2 className="h-4 w-4" /></Button>
+                  </li>
+                ))}
+              </ul>
             )}
           </TabsContent>
         </Tabs>
