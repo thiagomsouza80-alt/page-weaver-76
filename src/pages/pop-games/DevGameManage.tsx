@@ -33,7 +33,12 @@ const DevGameManage = () => {
   const [collections, setCollections] = useState<any[]>([]);
   const [cards, setCards] = useState<any[]>([]);
   const [packs, setPacks] = useState<any[]>([]);
+  const [missions, setMissions] = useState<any[]>([]);
+  const [achievements, setAchievements] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const [missionForm, setMissionForm] = useState({ code: "", title: "", description: "", mission_type: "daily", target_value: 1, xp_reward: 10, coin_reward: 20 });
+  const [achForm, setAchForm] = useState({ code: "", title: "", description: "", rarity: "common", xp_reward: 50, coin_reward: 100 });
 
   const [cardOpen, setCardOpen] = useState(false);
   const [cardForm, setCardForm] = useState<any>({ code: "", name: "", rarity: "common", collection_id: null });
