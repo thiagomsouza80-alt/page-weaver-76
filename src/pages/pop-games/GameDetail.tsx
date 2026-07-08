@@ -223,11 +223,7 @@ const GameDetail = () => {
             </TabsContent>
           </Tabs>
 
-            <section className="mt-6">
-              <h2 className="text-lg font-bold mb-2">Sobre o jogo</h2>
-              <p className="text-sm whitespace-pre-wrap">{game.description}</p>
-            </section>
-          )}
+
 
           {game.trailer_url && (
             <section className="mt-8">
