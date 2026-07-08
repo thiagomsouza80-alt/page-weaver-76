@@ -295,6 +295,71 @@ const DevGameManage = () => {
               </div>
             )}
           </TabsContent>
+
+          <TabsContent value="missions" className="space-y-3">
+            <div className="p-3 rounded-lg border border-border bg-card space-y-2">
+              <p className="font-medium text-sm">Nova missão</p>
+              <div className="grid grid-cols-2 gap-2">
+                <Input placeholder="Código" value={missionForm.code} onChange={e => setMissionForm({ ...missionForm, code: e.target.value })} />
+                <Input placeholder="Título" value={missionForm.title} onChange={e => setMissionForm({ ...missionForm, title: e.target.value })} />
+              </div>
+              <Textarea rows={2} placeholder="Descrição" value={missionForm.description} onChange={e => setMissionForm({ ...missionForm, description: e.target.value })} />
+              <div className="grid grid-cols-4 gap-2">
+                <select className="h-10 rounded-md border border-input bg-background px-2 text-sm" value={missionForm.mission_type} onChange={e => setMissionForm({ ...missionForm, mission_type: e.target.value })}>
+                  <option value="daily">Diária</option><option value="weekly">Semanal</option><option value="one_off">Única</option>
+                </select>
+                <Input type="number" min={1} placeholder="Meta" value={missionForm.target_value} onChange={e => setMissionForm({ ...missionForm, target_value: Number(e.target.value) })} />
+                <Input type="number" min={0} placeholder="XP" value={missionForm.xp_reward} onChange={e => setMissionForm({ ...missionForm, xp_reward: Number(e.target.value) })} />
+                <Input type="number" min={0} placeholder="Moedas" value={missionForm.coin_reward} onChange={e => setMissionForm({ ...missionForm, coin_reward: Number(e.target.value) })} />
+              </div>
+              <Button onClick={saveMission} className="w-full gap-1"><Plus className="h-4 w-4" />Criar missão</Button>
+            </div>
+            {missions.length === 0 ? <p className="text-sm text-muted-foreground text-center py-6">Nenhuma missão ainda.</p> : (
+              <ul className="space-y-2">
+                {missions.map(m => (
+                  <li key={m.id} className="p-3 rounded-lg border border-border bg-card flex items-center justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium truncate">{m.title} <span className="text-muted-foreground text-xs">({m.mission_type})</span></p>
+                      <p className="text-xs text-muted-foreground">Meta {m.target_value} · +{m.xp_reward} XP · +{m.coin_reward} moedas</p>
+                    </div>
+                    <Button size="sm" variant="ghost" onClick={() => deleteMission(m.id)}><Trash2 className="h-4 w-4" /></Button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </TabsContent>
+
+          <TabsContent value="achievements" className="space-y-3">
+            <div className="p-3 rounded-lg border border-border bg-card space-y-2">
+              <p className="font-medium text-sm">Nova conquista</p>
+              <div className="grid grid-cols-2 gap-2">
+                <Input placeholder="Código" value={achForm.code} onChange={e => setAchForm({ ...achForm, code: e.target.value })} />
+                <Input placeholder="Título" value={achForm.title} onChange={e => setAchForm({ ...achForm, title: e.target.value })} />
+              </div>
+              <Textarea rows={2} placeholder="Descrição" value={achForm.description} onChange={e => setAchForm({ ...achForm, description: e.target.value })} />
+              <div className="grid grid-cols-3 gap-2">
+                <select className="h-10 rounded-md border border-input bg-background px-2 text-sm" value={achForm.rarity} onChange={e => setAchForm({ ...achForm, rarity: e.target.value })}>
+                  {RARITIES.map(r => <option key={r} value={r}>{r}</option>)}
+                </select>
+                <Input type="number" min={0} placeholder="XP" value={achForm.xp_reward} onChange={e => setAchForm({ ...achForm, xp_reward: Number(e.target.value) })} />
+                <Input type="number" min={0} placeholder="Moedas" value={achForm.coin_reward} onChange={e => setAchForm({ ...achForm, coin_reward: Number(e.target.value) })} />
+              </div>
+              <Button onClick={saveAchievement} className="w-full gap-1"><Plus className="h-4 w-4" />Criar conquista</Button>
+            </div>
+            {achievements.length === 0 ? <p className="text-sm text-muted-foreground text-center py-6">Nenhuma conquista ainda.</p> : (
+              <ul className="space-y-2">
+                {achievements.map(a => (
+                  <li key={a.id} className="p-3 rounded-lg border border-border bg-card flex items-center justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium truncate">{a.title} <span className="text-muted-foreground text-xs">({a.rarity})</span></p>
+                      <p className="text-xs text-muted-foreground">+{a.xp_reward} XP · +{a.coin_reward} moedas</p>
+                    </div>
+                    <Button size="sm" variant="ghost" onClick={() => deleteAchievement(a.id)}><Trash2 className="h-4 w-4" /></Button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </TabsContent>
         </Tabs>
       </main>
       <Footer />
