@@ -6,8 +6,13 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, Gamepad2, Heart, Users, Star, Play, Calendar, Library, Package, Gift } from "lucide-react";
+import { Loader2, Gamepad2, Heart, Users, Star, Play, Calendar, Library, Package, Gift, Target, Award, Trophy } from "lucide-react";
 import PackOpenDialog from "@/components/pop-games/PackOpenDialog";
+import DailyRewardCard from "@/components/pop-games/DailyRewardCard";
+import MissionsList from "@/components/pop-games/MissionsList";
+import AchievementsList from "@/components/pop-games/AchievementsList";
+import GameRanking from "@/components/pop-games/GameRanking";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 interface Game {
   id: string; slug: string; name: string; category: string; description: string | null;
