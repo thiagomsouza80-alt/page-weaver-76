@@ -54,14 +54,18 @@ const DevGameManage = () => {
     const { data: g } = await (supabase as any).from("games").select("*").eq("slug", slug).maybeSingle();
     if (!g) { setLoading(false); return; }
     setGame(g);
-    const [{ data: cols }, { data: cs }, { data: ps }] = await Promise.all([
+    const [{ data: cols }, { data: cs }, { data: ps }, { data: ms }, { data: ac }] = await Promise.all([
       (supabase as any).from("game_card_collections").select("*").eq("game_id", g.id).order("sort_order"),
       (supabase as any).from("game_cards").select("*").eq("game_id", g.id).order("rarity").order("name"),
       (supabase as any).from("game_packs").select("*").eq("game_id", g.id).order("created_at", { ascending: false }),
+      (supabase as any).from("game_missions").select("*").eq("game_id", g.id).order("created_at", { ascending: false }),
+      (supabase as any).from("game_achievements").select("*").eq("game_id", g.id).order("created_at", { ascending: false }),
     ]);
     setCollections((cols as any) || []);
     setCards((cs as any) || []);
     setPacks((ps as any) || []);
+    setMissions((ms as any) || []);
+    setAchievements((ac as any) || []);
     setLoading(false);
   };
 
