@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 import { uploadGameAsset } from "@/lib/popGames";
-import { Loader2, Plus, Trash2, Wrench, Package, Album } from "lucide-react";
+import { Loader2, Plus, Trash2, Wrench, Package, Album, Target, Award } from "lucide-react";
 
 const RARITIES = ["common", "uncommon", "rare", "epic", "legendary", "mythic"];
 const PACK_TYPES = [
