@@ -124,6 +124,30 @@ const DevGameManage = () => {
     await (supabase as any).from("game_packs").delete().eq("id", id); load();
   };
 
+  const saveMission = async () => {
+    if (!missionForm.code || !missionForm.title) { toast({ title: "Código e título obrigatórios", variant: "destructive" }); return; }
+    const { error } = await (supabase as any).from("game_missions").insert({ ...missionForm, game_id: game.id });
+    if (error) { toast({ title: "Erro", description: error.message, variant: "destructive" }); return; }
+    setMissionForm({ code: "", title: "", description: "", mission_type: "daily", target_value: 1, xp_reward: 10, coin_reward: 20 });
+    toast({ title: "Missão criada" }); load();
+  };
+  const deleteMission = async (id: string) => {
+    if (!confirm("Excluir missão?")) return;
+    await (supabase as any).from("game_missions").delete().eq("id", id); load();
+  };
+
+  const saveAchievement = async () => {
+    if (!achForm.code || !achForm.title) { toast({ title: "Código e título obrigatórios", variant: "destructive" }); return; }
+    const { error } = await (supabase as any).from("game_achievements").insert({ ...achForm, game_id: game.id });
+    if (error) { toast({ title: "Erro", description: error.message, variant: "destructive" }); return; }
+    setAchForm({ code: "", title: "", description: "", rarity: "common", xp_reward: 50, coin_reward: 100 });
+    toast({ title: "Conquista criada" }); load();
+  };
+  const deleteAchievement = async (id: string) => {
+    if (!confirm("Excluir conquista?")) return;
+    await (supabase as any).from("game_achievements").delete().eq("id", id); load();
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -131,17 +155,20 @@ const DevGameManage = () => {
         <header className="mb-6 flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold flex items-center gap-2"><Wrench className="h-6 w-6 text-primary" />Gerenciar · {game.name}</h1>
-            <p className="text-sm text-muted-foreground">Coleções, cartas e pacotes</p>
+            <p className="text-sm text-muted-foreground">Coleções, cartas, pacotes, missões e conquistas</p>
           </div>
           <Link to="/pop-games/dev"><Button variant="outline" size="sm">Voltar</Button></Link>
         </header>
 
         <Tabs defaultValue="cards">
-          <TabsList className="grid w-full grid-cols-3 mb-4">
-            <TabsTrigger value="collections" className="gap-2"><Album className="h-4 w-4" />Coleções</TabsTrigger>
-            <TabsTrigger value="cards" className="gap-2"><Album className="h-4 w-4" />Cartas</TabsTrigger>
-            <TabsTrigger value="packs" className="gap-2"><Package className="h-4 w-4" />Pacotes</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-5 mb-4">
+            <TabsTrigger value="collections" className="gap-1"><Album className="h-4 w-4" />Coleções</TabsTrigger>
+            <TabsTrigger value="cards" className="gap-1"><Album className="h-4 w-4" />Cartas</TabsTrigger>
+            <TabsTrigger value="packs" className="gap-1"><Package className="h-4 w-4" />Pacotes</TabsTrigger>
+            <TabsTrigger value="missions" className="gap-1"><Target className="h-4 w-4" />Missões</TabsTrigger>
+            <TabsTrigger value="achievements" className="gap-1"><Award className="h-4 w-4" />Conquistas</TabsTrigger>
           </TabsList>
+
 
           <TabsContent value="collections" className="space-y-3">
             <div className="flex gap-2">
