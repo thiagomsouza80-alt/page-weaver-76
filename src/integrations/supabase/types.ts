@@ -1354,12 +1354,20 @@ export type Database = {
       }
       game_cards: {
         Row: {
+          abilities: Json
+          attributes: Json
+          back_image_url: string | null
+          card_type: string | null
           category: string | null
+          class: string | null
           code: string
           collection_id: string | null
           created_at: string
           custom_attrs: Json
           description: string | null
+          effects: Json
+          faction: string | null
+          front_image_url: string | null
           game_id: string
           id: string
           image_url: string | null
@@ -1367,14 +1375,23 @@ export type Database = {
           rarity: string
           status: string
           updated_at: string
+          value_points: number | null
         }
         Insert: {
+          abilities?: Json
+          attributes?: Json
+          back_image_url?: string | null
+          card_type?: string | null
           category?: string | null
+          class?: string | null
           code: string
           collection_id?: string | null
           created_at?: string
           custom_attrs?: Json
           description?: string | null
+          effects?: Json
+          faction?: string | null
+          front_image_url?: string | null
           game_id: string
           id?: string
           image_url?: string | null
@@ -1382,14 +1399,23 @@ export type Database = {
           rarity?: string
           status?: string
           updated_at?: string
+          value_points?: number | null
         }
         Update: {
+          abilities?: Json
+          attributes?: Json
+          back_image_url?: string | null
+          card_type?: string | null
           category?: string | null
+          class?: string | null
           code?: string
           collection_id?: string | null
           created_at?: string
           custom_attrs?: Json
           description?: string | null
+          effects?: Json
+          faction?: string | null
+          front_image_url?: string | null
           game_id?: string
           id?: string
           image_url?: string | null
@@ -1397,6 +1423,7 @@ export type Database = {
           rarity?: string
           status?: string
           updated_at?: string
+          value_points?: number | null
         }
         Relationships: [
           {
@@ -1978,6 +2005,7 @@ export type Database = {
           banner_url: string | null
           category: string
           created_at: string
+          default_card_back_url: string | null
           description: string | null
           developer_id: string
           id: string
@@ -2002,6 +2030,7 @@ export type Database = {
           banner_url?: string | null
           category?: string
           created_at?: string
+          default_card_back_url?: string | null
           description?: string | null
           developer_id: string
           id?: string
@@ -2026,6 +2055,7 @@ export type Database = {
           banner_url?: string | null
           category?: string
           created_at?: string
+          default_card_back_url?: string | null
           description?: string | null
           developer_id?: string
           id?: string
