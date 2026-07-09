@@ -43,8 +43,10 @@ const DevGameManage = () => {
   const [achForm, setAchForm] = useState({ code: "", title: "", description: "", rarity: "common", xp_reward: 50, coin_reward: 100 });
 
   const [cardOpen, setCardOpen] = useState(false);
-  const [cardForm, setCardForm] = useState<any>({ code: "", name: "", rarity: "common", collection_id: null });
-  const [cardImg, setCardImg] = useState<File | null>(null);
+  const [cardForm, setCardForm] = useState<any>({ code: "", name: "", rarity: "common", collection_id: null, attributes: {}, abilities: [], effects: [], value_points: 1 });
+  const [cardFrontImg, setCardFrontImg] = useState<File | null>(null);
+  const [cardBackImg, setCardBackImg] = useState<File | null>(null);
+  const [backUploading, setBackUploading] = useState(false);
 
   const [packOpen, setPackOpen] = useState(false);
   const [packForm, setPackForm] = useState<any>(null);
