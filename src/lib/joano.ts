@@ -21,7 +21,7 @@ export const JOANO_CARD_TYPES = [
 
 export const JOANO_VALUE_POINTS = [1, 2, 3] as const;
 
-// Verso padrão do Joano (usado quando a carta não tem verso próprio
+// Verso padrão do Joano (fallback final quando a carta não tem verso próprio
 // e o jogo não definiu um verso padrão).
-export const JOANO_DEFAULT_BACK =
-  "https://lbmimvgupspdjfnqpjqw.supabase.co/storage/v1/object/public/game-assets/system/joano-card-back.svg";
+import joanoBack from "@/assets/joano-card-back.svg";
+export const JOANO_DEFAULT_BACK = joanoBack;
