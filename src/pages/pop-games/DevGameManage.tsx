@@ -99,12 +99,24 @@ const DevGameManage = () => {
 
   const saveCard = async () => {
     if (!cardForm.code || !cardForm.name) { toast({ title: "Código e nome são obrigatórios", variant: "destructive" }); return; }
-    let image_url = cardForm.image_url;
-    if (cardImg && author?.userId) image_url = await uploadGameAsset(author.userId, cardImg, "card");
-    const payload = { ...cardForm, game_id: game.id, image_url };
+    let front_image_url = cardForm.front_image_url || cardForm.image_url || null;
+    let back_image_url = cardForm.back_image_url || null;
+    if (cardFrontImg && author?.userId) front_image_url = await uploadGameAsset(author.userId, cardFrontImg, "card-front");
+    if (cardBackImg && author?.userId) back_image_url = await uploadGameAsset(author.userId, cardBackImg, "card-back");
+    const { id: _omit, ...rest } = cardForm;
+    void _omit;
+    const payload = {
+      ...rest,
+      game_id: game.id,
+      front_image_url,
+      back_image_url,
+      image_url: front_image_url, // manter compatibilidade
+    };
     if (cardForm.id) await (supabase as any).from("game_cards").update(payload).eq("id", cardForm.id);
     else await (supabase as any).from("game_cards").insert(payload);
-    setCardOpen(false); setCardForm({ code: "", name: "", rarity: "common", collection_id: null }); setCardImg(null);
+    setCardOpen(false);
+    setCardForm({ code: "", name: "", rarity: "common", collection_id: null, attributes: {}, abilities: [], effects: [], value_points: 1 });
+    setCardFrontImg(null); setCardBackImg(null);
     toast({ title: "Carta salva" }); load();
   };
 
