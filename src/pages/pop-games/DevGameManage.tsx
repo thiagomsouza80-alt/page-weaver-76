@@ -13,7 +13,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 import { uploadGameAsset } from "@/lib/popGames";
-import { Loader2, Plus, Trash2, Wrench, Package, Album, Target, Award } from "lucide-react";
+import { JOANO_ATTRIBUTES, JOANO_CARD_TYPES, JOANO_VALUE_POINTS } from "@/lib/joano";
+import CardFlip from "@/components/pop-games/CardFlip";
+import { Loader2, Plus, Trash2, Wrench, Package, Album, Target, Award, Upload } from "lucide-react";
 
 const RARITIES = ["common", "uncommon", "rare", "epic", "legendary", "mythic"];
 const PACK_TYPES = [
