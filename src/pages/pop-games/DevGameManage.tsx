@@ -13,7 +13,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 import { uploadGameAsset } from "@/lib/popGames";
-import { Loader2, Plus, Trash2, Wrench, Package, Album, Target, Award } from "lucide-react";
+import { JOANO_ATTRIBUTES, JOANO_CARD_TYPES, JOANO_VALUE_POINTS } from "@/lib/joano";
+import CardFlip from "@/components/pop-games/CardFlip";
+import { Loader2, Plus, Trash2, Wrench, Package, Album, Target, Award, Upload } from "lucide-react";
 
 const RARITIES = ["common", "uncommon", "rare", "epic", "legendary", "mythic"];
 const PACK_TYPES = [
@@ -41,8 +43,10 @@ const DevGameManage = () => {
   const [achForm, setAchForm] = useState({ code: "", title: "", description: "", rarity: "common", xp_reward: 50, coin_reward: 100 });
 
   const [cardOpen, setCardOpen] = useState(false);
-  const [cardForm, setCardForm] = useState<any>({ code: "", name: "", rarity: "common", collection_id: null });
-  const [cardImg, setCardImg] = useState<File | null>(null);
+  const [cardForm, setCardForm] = useState<any>({ code: "", name: "", rarity: "common", collection_id: null, attributes: {}, abilities: [], effects: [], value_points: 1 });
+  const [cardFrontImg, setCardFrontImg] = useState<File | null>(null);
+  const [cardBackImg, setCardBackImg] = useState<File | null>(null);
+  const [backUploading, setBackUploading] = useState(false);
 
   const [packOpen, setPackOpen] = useState(false);
   const [packForm, setPackForm] = useState<any>(null);
@@ -95,12 +99,24 @@ const DevGameManage = () => {
 
   const saveCard = async () => {
     if (!cardForm.code || !cardForm.name) { toast({ title: "Código e nome são obrigatórios", variant: "destructive" }); return; }
-    let image_url = cardForm.image_url;
-    if (cardImg && author?.userId) image_url = await uploadGameAsset(author.userId, cardImg, "card");
-    const payload = { ...cardForm, game_id: game.id, image_url };
+    let front_image_url = cardForm.front_image_url || cardForm.image_url || null;
+    let back_image_url = cardForm.back_image_url || null;
+    if (cardFrontImg && author?.userId) front_image_url = await uploadGameAsset(author.userId, cardFrontImg, "card-front");
+    if (cardBackImg && author?.userId) back_image_url = await uploadGameAsset(author.userId, cardBackImg, "card-back");
+    const { id: _omit, ...rest } = cardForm;
+    void _omit;
+    const payload = {
+      ...rest,
+      game_id: game.id,
+      front_image_url,
+      back_image_url,
+      image_url: front_image_url, // manter compatibilidade
+    };
     if (cardForm.id) await (supabase as any).from("game_cards").update(payload).eq("id", cardForm.id);
     else await (supabase as any).from("game_cards").insert(payload);
-    setCardOpen(false); setCardForm({ code: "", name: "", rarity: "common", collection_id: null }); setCardImg(null);
+    setCardOpen(false);
+    setCardForm({ code: "", name: "", rarity: "common", collection_id: null, attributes: {}, abilities: [], effects: [], value_points: 1 });
+    setCardFrontImg(null); setCardBackImg(null);
     toast({ title: "Carta salva" }); load();
   };
 
@@ -183,38 +199,129 @@ const DevGameManage = () => {
           </TabsContent>
 
           <TabsContent value="cards" className="space-y-3">
+            {/* Verso padrão do jogo */}
+            <div className="p-3 rounded-lg border border-border bg-card flex flex-col sm:flex-row sm:items-center gap-3">
+              <div className="flex-1">
+                <p className="text-sm font-medium">Verso padrão das cartas deste jogo</p>
+                <p className="text-xs text-muted-foreground">Usado quando a carta não tiver verso próprio. Se vazio, usamos o verso padrão do Joano.</p>
+              </div>
+              {game.default_card_back_url && (
+                <img src={game.default_card_back_url} alt="Verso padrão" className="h-16 w-12 rounded object-cover border border-border" />
+              )}
+              <label className="inline-flex">
+                <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                  const f = e.target.files?.[0]; if (!f || !author?.userId) return;
+                  setBackUploading(true);
+                  try {
+                    const url = await uploadGameAsset(author.userId, f, "game-back");
+                    await (supabase as any).from("games").update({ default_card_back_url: url }).eq("id", game.id);
+                    setGame({ ...game, default_card_back_url: url });
+                    toast({ title: "Verso padrão atualizado" });
+                  } catch (err: any) {
+                    toast({ title: "Erro no upload", description: err.message, variant: "destructive" });
+                  } finally { setBackUploading(false); }
+                }} />
+                <span className="inline-flex items-center gap-1 h-9 px-3 rounded-md border border-input bg-background text-sm cursor-pointer hover:bg-secondary">
+                  {backUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                  Enviar verso
+                </span>
+              </label>
+            </div>
+
             <div className="flex justify-end">
               <Dialog open={cardOpen} onOpenChange={setCardOpen}>
                 <DialogTrigger asChild>
-                  <Button className="gap-1" onClick={() => { setCardForm({ code: "", name: "", rarity: "common", collection_id: null }); setCardImg(null); }}><Plus className="h-4 w-4" />Nova carta</Button>
+                  <Button className="gap-1" onClick={() => { setCardForm({ code: "", name: "", rarity: "common", collection_id: null, attributes: {}, abilities: [], effects: [], value_points: 1 }); setCardFrontImg(null); setCardBackImg(null); }}><Plus className="h-4 w-4" />Nova carta</Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                   <DialogHeader><DialogTitle>{cardForm.id ? "Editar carta" : "Nova carta"}</DialogTitle></DialogHeader>
-                  <div className="space-y-3">
-                    <div><Label>Código *</Label><Input value={cardForm.code || ""} onChange={e => setCardForm({ ...cardForm, code: e.target.value })} /></div>
-                    <div><Label>Nome *</Label><Input value={cardForm.name || ""} onChange={e => setCardForm({ ...cardForm, name: e.target.value })} /></div>
-                    <div><Label>Raridade</Label>
-                      <select className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm" value={cardForm.rarity} onChange={e => setCardForm({ ...cardForm, rarity: e.target.value })}>
-                        {RARITIES.map(r => <option key={r} value={r}>{r}</option>)}
-                      </select>
+                  <div className="grid grid-cols-1 md:grid-cols-[1fr_220px] gap-4">
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-2 gap-2">
+                        <div><Label>Código *</Label><Input value={cardForm.code || ""} onChange={e => setCardForm({ ...cardForm, code: e.target.value })} /></div>
+                        <div><Label>Nome *</Label><Input value={cardForm.name || ""} onChange={e => setCardForm({ ...cardForm, name: e.target.value })} /></div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div><Label>Classe</Label><Input value={cardForm.class || ""} onChange={e => setCardForm({ ...cardForm, class: e.target.value })} placeholder="ex: Guerreiro do Norte" /></div>
+                        <div><Label>Facção</Label><Input value={cardForm.faction || ""} onChange={e => setCardForm({ ...cardForm, faction: e.target.value })} placeholder="ex: Aliança" /></div>
+                      </div>
+                      <div className="grid grid-cols-3 gap-2">
+                        <div><Label>Tipo</Label>
+                          <select className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm" value={cardForm.card_type || ""} onChange={e => setCardForm({ ...cardForm, card_type: e.target.value })}>
+                            <option value="">—</option>
+                            {JOANO_CARD_TYPES.map(t => <option key={t.v} value={t.v}>{t.l}</option>)}
+                          </select>
+                        </div>
+                        <div><Label>Valor (pontos)</Label>
+                          <select className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm" value={cardForm.value_points ?? 1} onChange={e => setCardForm({ ...cardForm, value_points: Number(e.target.value) })}>
+                            {JOANO_VALUE_POINTS.map(v => <option key={v} value={v}>{v}</option>)}
+                          </select>
+                        </div>
+                        <div><Label>Raridade</Label>
+                          <select className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm" value={cardForm.rarity} onChange={e => setCardForm({ ...cardForm, rarity: e.target.value })}>
+                            {RARITIES.map(r => <option key={r} value={r}>{r}</option>)}
+                          </select>
+                        </div>
+                      </div>
+                      <div><Label>Coleção</Label>
+                        <select className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm" value={cardForm.collection_id || ""} onChange={e => setCardForm({ ...cardForm, collection_id: e.target.value || null })}>
+                          <option value="">— nenhuma —</option>
+                          {collections.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                        </select>
+                      </div>
+                      <div><Label>Descrição</Label><Textarea rows={3} value={cardForm.description || ""} onChange={e => setCardForm({ ...cardForm, description: e.target.value })} /></div>
+
+                      <div>
+                        <Label>Atributos (Joano)</Label>
+                        <div className="grid grid-cols-3 gap-2 mt-1">
+                          {JOANO_ATTRIBUTES.map(a => (
+                            <div key={a.key}>
+                              <Label className="text-[11px] text-muted-foreground">{a.key} · {a.label}</Label>
+                              <Input type="number" min={0} max={99}
+                                value={cardForm.attributes?.[a.key] ?? ""}
+                                onChange={e => setCardForm({ ...cardForm, attributes: { ...(cardForm.attributes || {}), [a.key]: e.target.value === "" ? undefined : Number(e.target.value) } })}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div><Label>Habilidades (uma por linha)</Label>
+                        <Textarea rows={2}
+                          value={Array.isArray(cardForm.abilities) ? cardForm.abilities.join("\n") : ""}
+                          onChange={e => setCardForm({ ...cardForm, abilities: e.target.value.split("\n").map(s => s.trim()).filter(Boolean) })}
+                          placeholder="ex: Fúria — +2 FOR ao empatar" />
+                      </div>
+                      <div><Label>Efeitos especiais (uma por linha)</Label>
+                        <Textarea rows={2}
+                          value={Array.isArray(cardForm.effects) ? cardForm.effects.join("\n") : ""}
+                          onChange={e => setCardForm({ ...cardForm, effects: e.target.value.split("\n").map(s => s.trim()).filter(Boolean) })}
+                          placeholder="ex: Cancela armas adversárias" />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2">
+                        <div><Label>Frente da carta (PNG/JPG/WEBP)</Label>
+                          <Input type="file" accept="image/png,image/jpeg,image/webp" onChange={e => setCardFrontImg(e.target.files?.[0] || null)} />
+                        </div>
+                        <div><Label>Verso (opcional)</Label>
+                          <Input type="file" accept="image/png,image/jpeg,image/webp" onChange={e => setCardBackImg(e.target.files?.[0] || null)} />
+                        </div>
+                      </div>
+
+                      <Button onClick={saveCard} className="w-full">Salvar carta</Button>
                     </div>
-                    <div><Label>Coleção</Label>
-                      <select className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm" value={cardForm.collection_id || ""} onChange={e => setCardForm({ ...cardForm, collection_id: e.target.value || null })}>
-                        <option value="">— nenhuma —</option>
-                        {collections.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                      </select>
+
+                    {/* Preview com card flip */}
+                    <div className="space-y-2">
+                      <Label>Pré-visualização</Label>
+                      <CardFlip
+                        frontUrl={cardFrontImg ? URL.createObjectURL(cardFrontImg) : (cardForm.front_image_url || cardForm.image_url)}
+                        backUrl={cardBackImg ? URL.createObjectURL(cardBackImg) : cardForm.back_image_url}
+                        gameBackUrl={game.default_card_back_url}
+                        alt={cardForm.name || "Carta"}
+                      />
+                      <p className="text-[11px] text-muted-foreground text-center">Toque/clique para virar</p>
                     </div>
-                    <div><Label>Categoria</Label><Input value={cardForm.category || ""} onChange={e => setCardForm({ ...cardForm, category: e.target.value })} /></div>
-                    <div><Label>Descrição</Label><Textarea rows={3} value={cardForm.description || ""} onChange={e => setCardForm({ ...cardForm, description: e.target.value })} /></div>
-                    <div><Label>Imagem</Label><Input type="file" accept="image/*" onChange={e => setCardImg(e.target.files?.[0] || null)} />
-                      {cardForm.image_url && <img src={cardForm.image_url} alt="" className="mt-2 h-20 rounded" />}
-                    </div>
-                    <div><Label>Atributos personalizados (JSON)</Label>
-                      <Textarea rows={3} placeholder='{"attack":10,"defense":5}'
-                        value={typeof cardForm.custom_attrs === "string" ? cardForm.custom_attrs : JSON.stringify(cardForm.custom_attrs || {}, null, 2)}
-                        onChange={e => { try { setCardForm({ ...cardForm, custom_attrs: JSON.parse(e.target.value) }); } catch { setCardForm({ ...cardForm, custom_attrs: e.target.value }); } }} />
-                    </div>
-                    <Button onClick={saveCard} className="w-full">Salvar</Button>
                   </div>
                 </DialogContent>
               </Dialog>
@@ -223,15 +330,20 @@ const DevGameManage = () => {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {cards.map(c => (
                   <div key={c.id} className="bg-card border border-border rounded-lg overflow-hidden">
-                    <div className="aspect-[3/4] bg-secondary">
-                      {c.image_url ? <img src={c.image_url} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-3xl">🎴</div>}
-                    </div>
+                    <CardFlip
+                      frontUrl={c.front_image_url || c.image_url}
+                      backUrl={c.back_image_url}
+                      gameBackUrl={game.default_card_back_url}
+                      alt={c.name}
+                    />
                     <div className="p-2">
                       <p className="text-xs font-bold truncate">{c.name}</p>
-                      <p className="text-[10px] uppercase text-muted-foreground">{c.rarity} · {c.code}</p>
+                      <p className="text-[10px] uppercase text-muted-foreground">
+                        {c.rarity} · {c.card_type || "—"} · {c.value_points ?? "—"}pt
+                      </p>
                       <div className="flex gap-1 mt-1">
-                        <Button size="sm" variant="outline" className="h-6 px-2 text-xs flex-1" onClick={() => { setCardForm(c); setCardOpen(true); }}>Editar</Button>
-                        <Button size="sm" variant="ghost" className="h-6 px-2 text-xs" onClick={() => deleteCard(c.id)}><Trash2 className="h-3 w-3" /></Button>
+                        <Button size="sm" variant="outline" className="h-6 px-2 text-xs flex-1" onClick={(e) => { e.stopPropagation(); setCardForm(c); setCardOpen(true); }}>Editar</Button>
+                        <Button size="sm" variant="ghost" className="h-6 px-2 text-xs" onClick={(e) => { e.stopPropagation(); deleteCard(c.id); }}><Trash2 className="h-3 w-3" /></Button>
                       </div>
                     </div>
                   </div>
@@ -239,6 +351,7 @@ const DevGameManage = () => {
               </div>
             )}
           </TabsContent>
+
 
           <TabsContent value="packs" className="space-y-3">
             <div className="flex justify-end">

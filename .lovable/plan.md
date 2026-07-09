@@ -1,91 +1,58 @@
-# Pop Games — Plano de Implementação
 
-Módulo enorme. Para entregar com qualidade sem quebrar nada do que já existe (Social Pop, Messenger, Organizador, Cadastros, Financeiro), proponho dividir em **4 fases**. Cada fase é utilizável isoladamente e não remove funcionalidades atuais.
+# Motor Oficial do Joano TCG — Plano de Implementação
 
-## Visão geral da arquitetura
+Isto é um trabalho grande. Vou dividir em **5 fases entregáveis**, cada uma testável de forma independente, sem remover nada do que já existe no Amazônia Pop / Pop Games / Social Pop.
 
-```text
-Amazônia Pop (conta única)
- └── Social Pop
-      ├── 🎮 Ícone Pop Games (badge de notificações)
-      └── /pop-games
-           ├── Home (destaques, novos, populares, favoritos, eventos, ranking, notícias)
-           ├── /pop-games/jogos/:slug        (página do jogo + botão Jogar)
-           ├── /pop-games/jogos/:slug/colecao
-           ├── /pop-games/jogos/:slug/decks
-           ├── /pop-games/jogos/:slug/missoes
-           ├── /pop-games/dev/solicitar      (virar desenvolvedor)
-           └── /pop-games/dev                (painel do desenvolvedor)
-```
+## Fase 1 — Modelagem de cartas expandida + verso da carta + card flip
 
-Reutiliza: `auth.users`, `user_profiles`, `user_progression` (XP/level/rank), `social_notifications`, `social_follows`, Messenger.
+**Objetivo:** cartas do Joano com todos os campos oficiais e animação de virar.
 
-## Fase 1 — Fundação + Acesso pelo Social Pop  *(entregar primeiro)*
+- Estender `game_cards` com colunas: `class`, `faction`, `card_type`, `value_points` (1–3), `attributes` (jsonb: FOR/AGI/INT/RES/CAR/ALM + expansível), `abilities` (jsonb array), `effects` (jsonb), `front_image_url`, `back_image_url`, `description`.
+- Verso padrão global do Joano em `game_assets` + fallback automático quando o dev não envia verso.
+- CRUD no `DevGameManage`: formulário completo, upload PNG/JPG/WEBP com compressão (usar `uploadWithRetry` + `compressImage`), preview frente/verso.
+- Novo componente `CardFlip.tsx` (animação 3D CSS) usado em collection, pack opening e futuras partidas.
 
-**Banco (migração única)**
-- `game_developers` (user_id, studio_name, status pending/approved/rejected, bio, links, logo/banner)
-- `game_developer_requests` (histórico de solicitações + decisões do admin)
-- `games` (developer_id, slug, name, category, status draft/published, logo, banner, trailer_url, screenshots[], description, rating_avg, players_count, last_update_at, is_featured, is_new, is_in_development)
-- `game_news` (game_id, title, body, cover_url)
-- `game_favorites` (user_id, game_id)
-- `game_players` (user_id, game_id, joined_at, level, xp, matches, wins) — base do ranking por jogo
-- App role nova: `game_developer` no enum `app_role` + entrada em `user_roles` ao aprovar
-- RLS + GRANTs padrão em todas as tabelas
-- Trigger: ao aprovar desenvolvedor → cria linha em `user_roles`
-- Notificações: novas linhas em `social_notifications` para "novo jogo", "atualização de favorito", "solicitação aprovada"
+## Fase 2 — Decks (20 cartas) + Temporadas
 
-**Frontend**
-- Ícone 🎮 (`Gamepad2` do lucide) no header do `SocialPop.tsx` ao lado do sino de mensagens, com badge (contagem de notificações de tipo `game_*`)
-- Rotas em `App.tsx`: `/pop-games`, `/pop-games/dev/solicitar`, `/pop-games/dev`, `/pop-games/jogos/:slug`
-- **Home Pop Games** (`PopGames.tsx`) com seções: Destaques · Recém-lançados · Populares · Em desenvolvimento · Favoritos · Ranking geral · Notícias
-- **Formulário "Seja Desenvolvedor"** (nome do jogo, estúdio, descrição, categoria, logo/banner opcionais, links)
-- **Painel do Desenvolvedor** (CRUD de jogos, publicar versão, criar notícia, estatísticas básicas)
-- **Página do jogo** com todos os campos + botão **Jogar** (por enquanto registra em `game_players` e mostra "em breve" se o jogo não tiver módulo de cartas ainda)
-- **Painel admin** novo (`AdminGameDevelopersPanel`): aprovar / pedir alterações / rejeitar
+- Nova tabela `game_decks` (user_id, game_id, name, is_active) e `game_deck_cards` (deck_id, card_id, quantity) com constraint total = 20.
+- Nova tabela `game_seasons` (game_id, name, starts_at, ends_at, rewards jsonb, status).
+- UI: página `Meus Decks` (montar/editar/validar 20 cartas), aba "Temporadas" no `DevGameManage`.
 
-## Fase 2 — Cartas, Pacotes, Coleção, Deck Inicial
+## Fase 3 — Motor de partida 1x1 (turn-based, assíncrono)
 
-- Tabelas: `game_cards` (com `custom_attrs jsonb` para atributos personalizados por dev), `game_card_collections`, `game_packs` (tipos: starter/daily/event/special/mission + regras de raridade JSON), `game_user_cards` (coleção do jogador com quantidade, obtido_em, origem), `game_pack_openings`
-- Deck inicial automático na primeira entrada no jogo (config por dev)
-- Tela **Coleção** (obtidas + biblioteca geral com bloqueadas)
-- Tela **Abrir pacote** (animação leve)
-- Painel dev: CRUD de cartas, coleções e pacotes
+**Este é o coração e o mais complexo.** Implementação como motor server-authoritative em Postgres + Edge Function.
 
-## Fase 3 — Decks, Missões, Login Diário, Conquistas, Ranking
+- Tabelas: `game_matches` (mode, status, winner_user_id, score jsonb, seed), `game_match_players` (match_id, user_id, deck_snapshot jsonb, hand jsonb, points), `game_match_turns` (turn_no, dice_roll, chosen_card jsonb por jogador, resolved_at, winner_user_id, points_awarded).
+- Edge function `joano-match-engine` com ações: `create_match`, `join_match`, `start_turn` (rola D6, distribui carta), `submit_choice` (escolha secreta), `resolve_turn` (compara atributo sorteado, aplica pontos, descarte), `end_match`.
+- Fluxo do turno seguindo a bula (10 passos), incluindo empates e condição de vitória (10 pontos OU adversário sem cartas).
+- Fila simples de matchmaking (`game_matchmaking_queue`), sem MMR ainda (aleatório entre players na fila).
+- UI `PlayMatch.tsx` com: rolagem de dado animada, mão do jogador (cartas viradas), zona de escolha secreta, revelação simultânea, placar, log da partida.
 
-- `game_decks` (nome, capa, cartas)
-- `game_missions` + `game_user_mission_progress`
-- `game_daily_rewards` + claim diário
-- `game_achievements` + `game_user_achievements`
-- `pop_coins` na `user_progression` (nova coluna)
-- Ranking por jogo + ranking geral Pop Games (agrega XP dos jogos)
-- Integração com `social_notifications` para missões concluídas, conquistas, pacotes grátis
+## Fase 4 — Modo Duplas 2x2
 
-## Fase 4 — Preparação para Motor de Batalhas (só estrutura)
+- Reaproveita as mesmas tabelas: `mode='duo'`, 4 jogadores por match, campo `team` (A/B) em `game_match_players`.
+- Engine soma atributos por dupla, pontuação até 20, chat interno entre parceiros (usando Realtime).
+- UI adaptada: 2 slots por lado, indicador do parceiro sem revelar sua carta.
 
-- Tabelas placeholder: `game_matches`, `game_match_players`, `game_tournaments`, `game_marketplace_listings`, `game_card_trades`
-- Nenhuma lógica de batalha implementada — só schema + RLS para permitir evolução futura sem reescrever nada
-- Documento `docs/pop-games-architecture.md` descrevendo o SDK/API público futuro
+## Fase 5 — Ranqueado + Estatísticas + Animações finais
 
-## Identidade visual
-
-- Reaproveita tokens do `index.css` (sem cores hardcoded)
-- Acento "gamer" via gradientes semânticos existentes + ícones lucide (`Gamepad2`, `Sparkles`, `Trophy`, `Package`, `Swords`)
-- Animações leves via classes Tailwind (`animate-in`, `transition-transform`) — sem libs pesadas
-
-## O que **não** muda
-
-- Social Pop, Messenger, Organizador, Financeiro, Cadastros, Admin atual: intocados
-- Um mesmo usuário continua podendo acumular papéis (artista + empreendedor + organizador + **desenvolvedor de jogos**)
+- Tabelas: `game_ranked_profiles` (user_id, game_id, mmr, division, wins, losses, draws), `game_match_stats` (agregados por carta/classe/deck), `game_ranked_seasons`.
+- Divisões: Bronze → Lendário (thresholds de MMR). Cálculo ELO simples após cada partida ranqueada.
+- Painel de estatísticas do jogador e do desenvolvedor (taxa de vitória por carta/classe/deck, cartas mais usadas).
+- Ranking global + regional (usa `city` do perfil).
+- Polish de animações: shuffle, draw, dice, reveal, effects, score, victory, pack open, rare card glow.
+- **Arquitetura modular para 3º modo:** interface `GameMode` no engine com regras/pontuação/vitória plugáveis — o 3º modo será só adicionar um novo handler.
 
 ## Detalhes técnicos
 
-- Migração da Fase 1 já traz `ALTER TYPE app_role ADD VALUE 'game_developer'` (em transação separada, exigência do Postgres)
-- Rota `/pop-games/dev` protegida por `has_role(auth.uid(),'game_developer')` OU `has_role(...,'admin')`
-- Ícone 🎮 sempre visível para logados; badge só quando há notificações não lidas de tipos `game_*`
-- Notificações reaproveitam `social_notifications` (novos tipos: `game_new`, `game_update`, `game_event`, `game_reward`, `game_mission_done`, `game_free_pack`, `game_dev_approved`, `game_dev_changes`, `game_dev_rejected`)
-- Storage: bucket público novo `game-assets` (logos, banners, cartas, screenshots)
+- Todo estado da partida vive no servidor (Postgres + edge function) para evitar trapaça; cliente só envia intenções.
+- Realtime via `supabase.channel` em `game_matches` e `game_match_turns` para sincronizar os 2/4 jogadores.
+- Verso padrão do Joano: asset estático em `src/assets/joano-card-back.png` + coluna `default_card_back_url` em `games` (dev pode sobrescrever).
+- Compatibilidade mobile/desktop: layout responsivo Tailwind, gestos touch para virar cartas.
+- Nenhuma tabela/rota/feature existente é alterada — só adições.
 
----
+## Ordem de execução
 
-**Confirma começar pela Fase 1** (fundação + ícone no Social Pop + painel dev + painel admin + página do jogo)? Ou prefere que eu ajuste o escopo (ex.: entregar Fase 1 + Fase 2 juntas, ou reduzir Fase 1)?
+Vou implementar **Fase 1 agora** (é a base de tudo: sem cartas completas + verso, o resto não faz sentido). Ao terminar, aviso e sigo para Fase 2, e assim por diante — cada fase entregue e testável antes da próxima.
+
+**Confirma que sigo com a Fase 1?**
