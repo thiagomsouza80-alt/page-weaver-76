@@ -156,6 +156,9 @@ const GameDetail = () => {
               <Link to={`/pop-games/jogos/${game.slug}/colecao`}>
                 <Button variant="outline" className="gap-2"><Library className="h-4 w-4" />Coleção</Button>
               </Link>
+              <Link to={`/pop-games/jogos/${game.slug}/decks`}>
+                <Button variant="outline" className="gap-2"><Package className="h-4 w-4" />Meus Decks</Button>
+              </Link>
             </div>
           </div>
 
