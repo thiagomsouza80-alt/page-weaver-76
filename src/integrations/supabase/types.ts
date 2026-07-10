@@ -1483,6 +1483,83 @@ export type Database = {
           },
         ]
       }
+      game_deck_cards: {
+        Row: {
+          card_id: string
+          created_at: string
+          deck_id: string
+          id: string
+          quantity: number
+        }
+        Insert: {
+          card_id: string
+          created_at?: string
+          deck_id: string
+          id?: string
+          quantity?: number
+        }
+        Update: {
+          card_id?: string
+          created_at?: string
+          deck_id?: string
+          id?: string
+          quantity?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_deck_cards_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "game_cards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_deck_cards_deck_id_fkey"
+            columns: ["deck_id"]
+            isOneToOne: false
+            referencedRelation: "game_decks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      game_decks: {
+        Row: {
+          created_at: string
+          game_id: string
+          id: string
+          is_active: boolean
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          game_id: string
+          id?: string
+          is_active?: boolean
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          game_id?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_decks_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       game_developer_requests: {
         Row: {
           admin_notes: string | null
@@ -1869,6 +1946,53 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "game_players_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      game_seasons: {
+        Row: {
+          created_at: string
+          description: string | null
+          ends_at: string
+          game_id: string
+          id: string
+          name: string
+          rewards: Json
+          starts_at: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          ends_at: string
+          game_id: string
+          id?: string
+          name: string
+          rewards?: Json
+          starts_at: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          ends_at?: string
+          game_id?: string
+          id?: string
+          name?: string
+          rewards?: Json
+          starts_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_seasons_game_id_fkey"
             columns: ["game_id"]
             isOneToOne: false
             referencedRelation: "games"
