@@ -15,7 +15,7 @@ import { toast } from "@/hooks/use-toast";
 import { uploadGameAsset } from "@/lib/popGames";
 import { JOANO_ATTRIBUTES, JOANO_CARD_TYPES, JOANO_VALUE_POINTS } from "@/lib/joano";
 import CardFlip from "@/components/pop-games/CardFlip";
-import { Loader2, Plus, Trash2, Wrench, Package, Album, Target, Award, Upload } from "lucide-react";
+import { Loader2, Plus, Trash2, Wrench, Package, Album, Target, Award, Upload, CalendarRange } from "lucide-react";
 
 const RARITIES = ["common", "uncommon", "rare", "epic", "legendary", "mythic"];
 const PACK_TYPES = [
@@ -37,10 +37,12 @@ const DevGameManage = () => {
   const [packs, setPacks] = useState<any[]>([]);
   const [missions, setMissions] = useState<any[]>([]);
   const [achievements, setAchievements] = useState<any[]>([]);
+  const [seasons, setSeasons] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [missionForm, setMissionForm] = useState({ code: "", title: "", description: "", mission_type: "daily", target_value: 1, xp_reward: 10, coin_reward: 20 });
   const [achForm, setAchForm] = useState({ code: "", title: "", description: "", rarity: "common", xp_reward: 50, coin_reward: 100 });
+  const [seasonForm, setSeasonForm] = useState({ name: "", description: "", starts_at: "", ends_at: "", status: "draft", rewards: "[]" });
 
   const [cardOpen, setCardOpen] = useState(false);
   const [cardForm, setCardForm] = useState<any>({ code: "", name: "", rarity: "common", collection_id: null, attributes: {}, abilities: [], effects: [], value_points: 1 });
@@ -58,18 +60,20 @@ const DevGameManage = () => {
     const { data: g } = await (supabase as any).from("games").select("*").eq("slug", slug).maybeSingle();
     if (!g) { setLoading(false); return; }
     setGame(g);
-    const [{ data: cols }, { data: cs }, { data: ps }, { data: ms }, { data: ac }] = await Promise.all([
+    const [{ data: cols }, { data: cs }, { data: ps }, { data: ms }, { data: ac }, { data: ss }] = await Promise.all([
       (supabase as any).from("game_card_collections").select("*").eq("game_id", g.id).order("sort_order"),
       (supabase as any).from("game_cards").select("*").eq("game_id", g.id).order("rarity").order("name"),
       (supabase as any).from("game_packs").select("*").eq("game_id", g.id).order("created_at", { ascending: false }),
       (supabase as any).from("game_missions").select("*").eq("game_id", g.id).order("created_at", { ascending: false }),
       (supabase as any).from("game_achievements").select("*").eq("game_id", g.id).order("created_at", { ascending: false }),
+      (supabase as any).from("game_seasons").select("*").eq("game_id", g.id).order("starts_at", { ascending: false }),
     ]);
     setCollections((cols as any) || []);
     setCards((cs as any) || []);
     setPacks((ps as any) || []);
     setMissions((ms as any) || []);
     setAchievements((ac as any) || []);
+    setSeasons((ss as any) || []);
     setLoading(false);
   };
 
@@ -164,6 +168,26 @@ const DevGameManage = () => {
     await (supabase as any).from("game_achievements").delete().eq("id", id); load();
   };
 
+  const saveSeason = async () => {
+    if (!seasonForm.name || !seasonForm.starts_at || !seasonForm.ends_at) { toast({ title: "Nome e datas obrigatórios", variant: "destructive" }); return; }
+    let rewards: any = [];
+    try { rewards = JSON.parse(seasonForm.rewards || "[]"); } catch { toast({ title: "Recompensas: JSON inválido", variant: "destructive" }); return; }
+    const { error } = await (supabase as any).from("game_seasons").insert({
+      game_id: game.id, name: seasonForm.name, description: seasonForm.description || null,
+      starts_at: seasonForm.starts_at, ends_at: seasonForm.ends_at, status: seasonForm.status, rewards,
+    });
+    if (error) { toast({ title: "Erro", description: error.message, variant: "destructive" }); return; }
+    setSeasonForm({ name: "", description: "", starts_at: "", ends_at: "", status: "draft", rewards: "[]" });
+    toast({ title: "Temporada criada" }); load();
+  };
+  const setSeasonStatus = async (id: string, status: string) => {
+    await (supabase as any).from("game_seasons").update({ status }).eq("id", id); load();
+  };
+  const deleteSeason = async (id: string) => {
+    if (!confirm("Excluir temporada?")) return;
+    await (supabase as any).from("game_seasons").delete().eq("id", id); load();
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -177,12 +201,13 @@ const DevGameManage = () => {
         </header>
 
         <Tabs defaultValue="cards">
-          <TabsList className="grid w-full grid-cols-5 mb-4">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 mb-4">
             <TabsTrigger value="collections" className="gap-1"><Album className="h-4 w-4" />Coleções</TabsTrigger>
             <TabsTrigger value="cards" className="gap-1"><Album className="h-4 w-4" />Cartas</TabsTrigger>
             <TabsTrigger value="packs" className="gap-1"><Package className="h-4 w-4" />Pacotes</TabsTrigger>
             <TabsTrigger value="missions" className="gap-1"><Target className="h-4 w-4" />Missões</TabsTrigger>
             <TabsTrigger value="achievements" className="gap-1"><Award className="h-4 w-4" />Conquistas</TabsTrigger>
+            <TabsTrigger value="seasons" className="gap-1"><CalendarRange className="h-4 w-4" />Temporadas</TabsTrigger>
           </TabsList>
 
 
@@ -468,6 +493,46 @@ const DevGameManage = () => {
                       <p className="text-xs text-muted-foreground">+{a.xp_reward} XP · +{a.coin_reward} moedas</p>
                     </div>
                     <Button size="sm" variant="ghost" onClick={() => deleteAchievement(a.id)}><Trash2 className="h-4 w-4" /></Button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </TabsContent>
+          <TabsContent value="seasons" className="space-y-3">
+            <div className="p-3 rounded-lg border border-border bg-card space-y-2">
+              <p className="font-medium text-sm">Nova temporada</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <Input placeholder="Nome (ex: Temporada 1)" value={seasonForm.name} onChange={e => setSeasonForm({ ...seasonForm, name: e.target.value })} />
+                <select className="h-10 rounded-md border border-input bg-background px-3 text-sm" value={seasonForm.status} onChange={e => setSeasonForm({ ...seasonForm, status: e.target.value })}>
+                  <option value="draft">Rascunho</option>
+                  <option value="active">Ativa</option>
+                  <option value="ended">Encerrada</option>
+                </select>
+              </div>
+              <Textarea rows={2} placeholder="Descrição" value={seasonForm.description} onChange={e => setSeasonForm({ ...seasonForm, description: e.target.value })} />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div><Label className="text-xs">Início</Label><Input type="datetime-local" value={seasonForm.starts_at} onChange={e => setSeasonForm({ ...seasonForm, starts_at: e.target.value })} /></div>
+                <div><Label className="text-xs">Fim</Label><Input type="datetime-local" value={seasonForm.ends_at} onChange={e => setSeasonForm({ ...seasonForm, ends_at: e.target.value })} /></div>
+              </div>
+              <div><Label className="text-xs">Recompensas (JSON — ex: [{"{\"division\":\"gold\",\"coins\":500}"}])</Label>
+                <Textarea rows={3} value={seasonForm.rewards} onChange={e => setSeasonForm({ ...seasonForm, rewards: e.target.value })} />
+              </div>
+              <Button onClick={saveSeason} className="w-full gap-1"><Plus className="h-4 w-4" />Criar temporada</Button>
+            </div>
+            {seasons.length === 0 ? <p className="text-sm text-muted-foreground text-center py-6">Nenhuma temporada ainda.</p> : (
+              <ul className="space-y-2">
+                {seasons.map(s => (
+                  <li key={s.id} className="p-3 rounded-lg border border-border bg-card flex items-center justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium truncate">{s.name} <span className="text-muted-foreground text-xs">({s.status})</span></p>
+                      <p className="text-xs text-muted-foreground">{new Date(s.starts_at).toLocaleDateString()} → {new Date(s.ends_at).toLocaleDateString()}</p>
+                    </div>
+                    <div className="flex gap-1">
+                      <select className="h-8 rounded border border-input bg-background px-2 text-xs" value={s.status} onChange={e => setSeasonStatus(s.id, e.target.value)}>
+                        <option value="draft">Rascunho</option><option value="active">Ativa</option><option value="ended">Encerrada</option>
+                      </select>
+                      <Button size="sm" variant="ghost" onClick={() => deleteSeason(s.id)}><Trash2 className="h-4 w-4" /></Button>
+                    </div>
                   </li>
                 ))}
               </ul>
