@@ -498,6 +498,46 @@ const DevGameManage = () => {
               </ul>
             )}
           </TabsContent>
+          <TabsContent value="seasons" className="space-y-3">
+            <div className="p-3 rounded-lg border border-border bg-card space-y-2">
+              <p className="font-medium text-sm">Nova temporada</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <Input placeholder="Nome (ex: Temporada 1)" value={seasonForm.name} onChange={e => setSeasonForm({ ...seasonForm, name: e.target.value })} />
+                <select className="h-10 rounded-md border border-input bg-background px-3 text-sm" value={seasonForm.status} onChange={e => setSeasonForm({ ...seasonForm, status: e.target.value })}>
+                  <option value="draft">Rascunho</option>
+                  <option value="active">Ativa</option>
+                  <option value="ended">Encerrada</option>
+                </select>
+              </div>
+              <Textarea rows={2} placeholder="Descrição" value={seasonForm.description} onChange={e => setSeasonForm({ ...seasonForm, description: e.target.value })} />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <div><Label className="text-xs">Início</Label><Input type="datetime-local" value={seasonForm.starts_at} onChange={e => setSeasonForm({ ...seasonForm, starts_at: e.target.value })} /></div>
+                <div><Label className="text-xs">Fim</Label><Input type="datetime-local" value={seasonForm.ends_at} onChange={e => setSeasonForm({ ...seasonForm, ends_at: e.target.value })} /></div>
+              </div>
+              <div><Label className="text-xs">Recompensas (JSON — ex: [{"{\"division\":\"gold\",\"coins\":500}"}])</Label>
+                <Textarea rows={3} value={seasonForm.rewards} onChange={e => setSeasonForm({ ...seasonForm, rewards: e.target.value })} />
+              </div>
+              <Button onClick={saveSeason} className="w-full gap-1"><Plus className="h-4 w-4" />Criar temporada</Button>
+            </div>
+            {seasons.length === 0 ? <p className="text-sm text-muted-foreground text-center py-6">Nenhuma temporada ainda.</p> : (
+              <ul className="space-y-2">
+                {seasons.map(s => (
+                  <li key={s.id} className="p-3 rounded-lg border border-border bg-card flex items-center justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium truncate">{s.name} <span className="text-muted-foreground text-xs">({s.status})</span></p>
+                      <p className="text-xs text-muted-foreground">{new Date(s.starts_at).toLocaleDateString()} → {new Date(s.ends_at).toLocaleDateString()}</p>
+                    </div>
+                    <div className="flex gap-1">
+                      <select className="h-8 rounded border border-input bg-background px-2 text-xs" value={s.status} onChange={e => setSeasonStatus(s.id, e.target.value)}>
+                        <option value="draft">Rascunho</option><option value="active">Ativa</option><option value="ended">Encerrada</option>
+                      </select>
+                      <Button size="sm" variant="ghost" onClick={() => deleteSeason(s.id)}><Trash2 className="h-4 w-4" /></Button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </TabsContent>
         </Tabs>
       </main>
       <Footer />
