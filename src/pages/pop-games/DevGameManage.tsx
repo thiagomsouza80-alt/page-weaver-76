@@ -15,7 +15,7 @@ import { toast } from "@/hooks/use-toast";
 import { uploadGameAsset } from "@/lib/popGames";
 import { JOANO_ATTRIBUTES, JOANO_CARD_TYPES, JOANO_VALUE_POINTS } from "@/lib/joano";
 import CardFlip from "@/components/pop-games/CardFlip";
-import { Loader2, Plus, Trash2, Wrench, Package, Album, Target, Award, Upload } from "lucide-react";
+import { Loader2, Plus, Trash2, Wrench, Package, Album, Target, Award, Upload, CalendarRange } from "lucide-react";
 
 const RARITIES = ["common", "uncommon", "rare", "epic", "legendary", "mythic"];
 const PACK_TYPES = [
@@ -37,10 +37,12 @@ const DevGameManage = () => {
   const [packs, setPacks] = useState<any[]>([]);
   const [missions, setMissions] = useState<any[]>([]);
   const [achievements, setAchievements] = useState<any[]>([]);
+  const [seasons, setSeasons] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [missionForm, setMissionForm] = useState({ code: "", title: "", description: "", mission_type: "daily", target_value: 1, xp_reward: 10, coin_reward: 20 });
   const [achForm, setAchForm] = useState({ code: "", title: "", description: "", rarity: "common", xp_reward: 50, coin_reward: 100 });
+  const [seasonForm, setSeasonForm] = useState({ name: "", description: "", starts_at: "", ends_at: "", status: "draft", rewards: "[]" });
 
   const [cardOpen, setCardOpen] = useState(false);
   const [cardForm, setCardForm] = useState<any>({ code: "", name: "", rarity: "common", collection_id: null, attributes: {}, abilities: [], effects: [], value_points: 1 });
@@ -58,18 +60,20 @@ const DevGameManage = () => {
     const { data: g } = await (supabase as any).from("games").select("*").eq("slug", slug).maybeSingle();
     if (!g) { setLoading(false); return; }
     setGame(g);
-    const [{ data: cols }, { data: cs }, { data: ps }, { data: ms }, { data: ac }] = await Promise.all([
+    const [{ data: cols }, { data: cs }, { data: ps }, { data: ms }, { data: ac }, { data: ss }] = await Promise.all([
       (supabase as any).from("game_card_collections").select("*").eq("game_id", g.id).order("sort_order"),
       (supabase as any).from("game_cards").select("*").eq("game_id", g.id).order("rarity").order("name"),
       (supabase as any).from("game_packs").select("*").eq("game_id", g.id).order("created_at", { ascending: false }),
       (supabase as any).from("game_missions").select("*").eq("game_id", g.id).order("created_at", { ascending: false }),
       (supabase as any).from("game_achievements").select("*").eq("game_id", g.id).order("created_at", { ascending: false }),
+      (supabase as any).from("game_seasons").select("*").eq("game_id", g.id).order("starts_at", { ascending: false }),
     ]);
     setCollections((cols as any) || []);
     setCards((cs as any) || []);
     setPacks((ps as any) || []);
     setMissions((ms as any) || []);
     setAchievements((ac as any) || []);
+    setSeasons((ss as any) || []);
     setLoading(false);
   };
 
