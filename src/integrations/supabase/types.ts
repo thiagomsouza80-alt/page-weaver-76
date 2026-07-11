@@ -343,7 +343,7 @@ export type Database = {
             foreignKeyName: "community_post_likes_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: false
-            referencedRelation: "community_posts"
+            referencedRelation: "social_posts"
             referencedColumns: ["id"]
           },
         ]
