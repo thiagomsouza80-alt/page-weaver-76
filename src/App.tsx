@@ -41,6 +41,7 @@ import DevGameManage from "./pages/pop-games/DevGameManage.tsx";
 import GameDetail from "./pages/pop-games/GameDetail.tsx";
 import Collection from "./pages/pop-games/Collection.tsx";
 import MyDecks from "./pages/pop-games/MyDecks.tsx";
+import JoanoDuel from "./pages/pop-games/JoanoDuel.tsx";
 import MobileBottomNav from "./components/MobileBottomNav";
 
 const queryClient = new QueryClient();
@@ -91,6 +92,7 @@ const App = () => (
           <Route path="/pop-games/jogos/:slug" element={<GameDetail />} />
           <Route path="/pop-games/jogos/:slug/colecao" element={<Collection />} />
           <Route path="/pop-games/jogos/:slug/decks" element={<MyDecks />} />
+          <Route path="/pop-games/jogos/:slug/duelo" element={<JoanoDuel />} />
           <Route path="/pop-games/dev/jogos/:slug" element={<DevGameManage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

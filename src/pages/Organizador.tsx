@@ -17,7 +17,7 @@ import OrganizerDashboard from "@/components/organizer/OrganizerDashboard";
 import OrganizerFinancePanel from "@/components/organizer/OrganizerFinancePanel";
 import OrganizerValidatorsPanel from "@/components/organizer/OrganizerValidatorsPanel";
 import ProfileSettingsMenu from "@/components/social/ProfileSettingsMenu";
-import { Plus, Pencil, Trash2, Loader2, Ticket, Clock, CheckCircle2, XCircle, QrCode, LayoutDashboard, Wallet, Users } from "lucide-react";
+import { Plus, Pencil, Trash2, Loader2, Ticket, Clock, CheckCircle2, XCircle, QrCode, LayoutDashboard, Wallet, Users, Settings2 } from "lucide-react";
 import { centsToBRL, brlToCents, formatBRLInput } from "@/lib/money";
 import { usePlatformFee } from "@/lib/platformFee";
 
@@ -361,8 +361,13 @@ const OrganizadorPage = () => {
                         )}
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
-                        <Button variant="ghost" size="icon" onClick={() => openEdit(item)}><Pencil className="h-4 w-4" /></Button>
-                        <Button variant="ghost" size="icon" onClick={() => deleteEvent(item.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                        {item.approval_status === "approved" && (
+                          <Button variant="outline" size="sm" className="gap-1" onClick={() => navigate(`/organizador/eventos/${item.id}`)}>
+                            <Settings2 className="h-4 w-4" /> Gerenciar
+                          </Button>
+                        )}
+                        <Button variant="ghost" size="icon" title="Editar dados do evento" onClick={() => openEdit(item)}><Pencil className="h-4 w-4" /></Button>
+                        <Button variant="ghost" size="icon" title="Excluir" onClick={() => deleteEvent(item.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                       </div>
                     </div>
                   ))}

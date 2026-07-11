@@ -343,7 +343,7 @@ export type Database = {
             foreignKeyName: "community_post_likes_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: false
-            referencedRelation: "community_posts"
+            referencedRelation: "social_posts"
             referencedColumns: ["id"]
           },
         ]
@@ -1689,6 +1689,256 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "game_favorites_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      game_match_players: {
+        Row: {
+          deck_id: string | null
+          deck_remaining: Json
+          discard: Json
+          hand: Json
+          id: string
+          joined_at: string
+          match_id: string
+          score: number
+          seat: number
+          team: number
+          user_id: string
+        }
+        Insert: {
+          deck_id?: string | null
+          deck_remaining?: Json
+          discard?: Json
+          hand?: Json
+          id?: string
+          joined_at?: string
+          match_id: string
+          score?: number
+          seat: number
+          team?: number
+          user_id: string
+        }
+        Update: {
+          deck_id?: string | null
+          deck_remaining?: Json
+          discard?: Json
+          hand?: Json
+          id?: string
+          joined_at?: string
+          match_id?: string
+          score?: number
+          seat?: number
+          team?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_match_players_deck_id_fkey"
+            columns: ["deck_id"]
+            isOneToOne: false
+            referencedRelation: "game_decks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_match_players_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "game_matches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      game_match_queue: {
+        Row: {
+          created_at: string
+          deck_id: string | null
+          game_id: string
+          id: string
+          matched_match_id: string | null
+          mode: Database["public"]["Enums"]["game_match_mode"]
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          deck_id?: string | null
+          game_id: string
+          id?: string
+          matched_match_id?: string | null
+          mode?: Database["public"]["Enums"]["game_match_mode"]
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          deck_id?: string | null
+          game_id?: string
+          id?: string
+          matched_match_id?: string | null
+          mode?: Database["public"]["Enums"]["game_match_mode"]
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_match_queue_deck_id_fkey"
+            columns: ["deck_id"]
+            isOneToOne: false
+            referencedRelation: "game_decks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_match_queue_game_id_fkey"
+            columns: ["game_id"]
+            isOneToOne: false
+            referencedRelation: "games"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_match_queue_matched_match_id_fkey"
+            columns: ["matched_match_id"]
+            isOneToOne: false
+            referencedRelation: "game_matches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      game_match_turns: {
+        Row: {
+          chosen_attribute: string | null
+          created_at: string
+          dice_roll: number | null
+          id: string
+          match_id: string
+          opponent_card_id: string | null
+          opponent_user_id: string | null
+          opponent_value: number | null
+          outcome: string | null
+          player_card_id: string | null
+          player_user_id: string
+          player_value: number | null
+          points_awarded: number
+          resolved_at: string | null
+          result: Json
+          turn_number: number
+        }
+        Insert: {
+          chosen_attribute?: string | null
+          created_at?: string
+          dice_roll?: number | null
+          id?: string
+          match_id: string
+          opponent_card_id?: string | null
+          opponent_user_id?: string | null
+          opponent_value?: number | null
+          outcome?: string | null
+          player_card_id?: string | null
+          player_user_id: string
+          player_value?: number | null
+          points_awarded?: number
+          resolved_at?: string | null
+          result?: Json
+          turn_number: number
+        }
+        Update: {
+          chosen_attribute?: string | null
+          created_at?: string
+          dice_roll?: number | null
+          id?: string
+          match_id?: string
+          opponent_card_id?: string | null
+          opponent_user_id?: string | null
+          opponent_value?: number | null
+          outcome?: string | null
+          player_card_id?: string | null
+          player_user_id?: string
+          player_value?: number | null
+          points_awarded?: number
+          resolved_at?: string | null
+          result?: Json
+          turn_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_match_turns_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "game_matches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_match_turns_opponent_card_id_fkey"
+            columns: ["opponent_card_id"]
+            isOneToOne: false
+            referencedRelation: "game_cards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_match_turns_player_card_id_fkey"
+            columns: ["player_card_id"]
+            isOneToOne: false
+            referencedRelation: "game_cards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      game_matches: {
+        Row: {
+          created_at: string
+          current_player_user_id: string | null
+          current_turn: number
+          ended_at: string | null
+          game_id: string
+          id: string
+          metadata: Json
+          mode: Database["public"]["Enums"]["game_match_mode"]
+          score: Json
+          started_at: string | null
+          status: Database["public"]["Enums"]["game_match_status"]
+          updated_at: string
+          winner_team: number | null
+          winner_user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          current_player_user_id?: string | null
+          current_turn?: number
+          ended_at?: string | null
+          game_id: string
+          id?: string
+          metadata?: Json
+          mode?: Database["public"]["Enums"]["game_match_mode"]
+          score?: Json
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["game_match_status"]
+          updated_at?: string
+          winner_team?: number | null
+          winner_user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          current_player_user_id?: string | null
+          current_turn?: number
+          ended_at?: string | null
+          game_id?: string
+          id?: string
+          metadata?: Json
+          mode?: Database["public"]["Enums"]["game_match_mode"]
+          score?: Json
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["game_match_status"]
+          updated_at?: string
+          winner_team?: number | null
+          winner_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_matches_game_id_fkey"
             columns: ["game_id"]
             isOneToOne: false
             referencedRelation: "games"
@@ -4508,6 +4758,8 @@ export type Database = {
         | "fan_cultura_pop"
         | "youtuber"
         | "influenciador_digital"
+      game_match_mode: "1v1" | "2v2"
+      game_match_status: "waiting" | "active" | "finished" | "cancelled"
       ticket_category_kind:
         | "full"
         | "half"
@@ -4655,6 +4907,8 @@ export const Constants = {
         "youtuber",
         "influenciador_digital",
       ],
+      game_match_mode: ["1v1", "2v2"],
+      game_match_status: ["waiting", "active", "finished", "cancelled"],
       ticket_category_kind: [
         "full",
         "half",

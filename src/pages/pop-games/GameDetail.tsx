@@ -6,7 +6,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, Gamepad2, Heart, Users, Star, Play, Calendar, Library, Package, Gift, Target, Award, Trophy } from "lucide-react";
+import { Loader2, Gamepad2, Heart, Users, Star, Play, Calendar, Library, Package, Gift, Target, Award, Trophy, Swords } from "lucide-react";
 import PackOpenDialog from "@/components/pop-games/PackOpenDialog";
 import DailyRewardCard from "@/components/pop-games/DailyRewardCard";
 import MissionsList from "@/components/pop-games/MissionsList";
@@ -158,6 +158,9 @@ const GameDetail = () => {
               </Link>
               <Link to={`/pop-games/jogos/${game.slug}/decks`}>
                 <Button variant="outline" className="gap-2"><Package className="h-4 w-4" />Meus Decks</Button>
+              </Link>
+              <Link to={`/pop-games/jogos/${game.slug}/duelo`}>
+                <Button className="gap-2"><Swords className="h-4 w-4" />Duelo 1x1</Button>
               </Link>
             </div>
           </div>
