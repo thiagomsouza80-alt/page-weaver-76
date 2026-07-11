@@ -41,6 +41,7 @@ import DevGameManage from "./pages/pop-games/DevGameManage.tsx";
 import GameDetail from "./pages/pop-games/GameDetail.tsx";
 import Collection from "./pages/pop-games/Collection.tsx";
 import MyDecks from "./pages/pop-games/MyDecks.tsx";
+import JoanoDuel from "./pages/pop-games/JoanoDuel.tsx";
 import MobileBottomNav from "./components/MobileBottomNav";
 
 const queryClient = new QueryClient();
