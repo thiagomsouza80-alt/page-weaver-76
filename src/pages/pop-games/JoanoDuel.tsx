@@ -318,7 +318,7 @@ const JoanoDuel = () => {
                     const c = cardsMap[cid];
                     return (
                       <button key={cid} onClick={() => play(cid)} disabled={busy} className="text-left rounded-xl border border-border bg-card p-2 hover:border-primary transition">
-                        <CardFlip card={c} revealed size="sm" />
+                        <CardFlip frontUrl={c?.front_image_url || c?.image_url} backUrl={c?.back_image_url} alt={c?.name} interactive={false} />
                         <p className="text-xs mt-2 font-semibold truncate">{c?.name || "..."}</p>
                         <div className="flex flex-wrap gap-1 mt-1">
                           {JOANO_ATTRIBUTES.map(a => c?.attributes?.[a.key] ? (
