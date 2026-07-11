@@ -361,8 +361,13 @@ const OrganizadorPage = () => {
                         )}
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
-                        <Button variant="ghost" size="icon" onClick={() => openEdit(item)}><Pencil className="h-4 w-4" /></Button>
-                        <Button variant="ghost" size="icon" onClick={() => deleteEvent(item.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                        {item.approval_status === "approved" && (
+                          <Button variant="outline" size="sm" className="gap-1" onClick={() => navigate(`/organizador/eventos/${item.id}`)}>
+                            <Settings2 className="h-4 w-4" /> Gerenciar
+                          </Button>
+                        )}
+                        <Button variant="ghost" size="icon" title="Editar dados do evento" onClick={() => openEdit(item)}><Pencil className="h-4 w-4" /></Button>
+                        <Button variant="ghost" size="icon" title="Excluir" onClick={() => deleteEvent(item.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                       </div>
                     </div>
                   ))}
