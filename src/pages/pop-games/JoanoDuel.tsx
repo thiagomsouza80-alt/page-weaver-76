@@ -355,7 +355,7 @@ const MatchCardSlot = ({ label, card, value }: { label: string; card: any; value
     <p className="text-xs text-muted-foreground mb-1">{label}</p>
     {card ? (
       <>
-        <CardFlip card={card} revealed size="sm" />
+        <CardFlip frontUrl={card.front_image_url || card.image_url} backUrl={card.back_image_url} alt={card.name} interactive={false} />
         <p className="text-xs mt-1 font-semibold truncate">{card.name}</p>
         {value != null && <p className="text-lg font-bold text-primary">{value}</p>}
       </>
