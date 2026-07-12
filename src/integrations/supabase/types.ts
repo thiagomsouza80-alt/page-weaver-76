@@ -690,6 +690,68 @@ export type Database = {
         }
         Relationships: []
       }
+      event_addon_products: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          event_id: string
+          id: string
+          image_url: string | null
+          is_required: boolean
+          is_visible: boolean
+          max_per_order: number | null
+          name: string
+          price_cents: number
+          sort_order: number
+          stock_sold: number
+          stock_total: number | null
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          event_id: string
+          id?: string
+          image_url?: string | null
+          is_required?: boolean
+          is_visible?: boolean
+          max_per_order?: number | null
+          name: string
+          price_cents?: number
+          sort_order?: number
+          stock_sold?: number
+          stock_total?: number | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          event_id?: string
+          id?: string
+          image_url?: string | null
+          is_required?: boolean
+          is_visible?: boolean
+          max_per_order?: number | null
+          name?: string
+          price_cents?: number
+          sort_order?: number
+          stock_sold?: number
+          stock_total?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_addon_products_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_attendees: {
         Row: {
           created_at: string
@@ -1123,12 +1185,16 @@ export type Database = {
           created_at: string
           description: string
           event_date: string
+          google_maps_url: string | null
           id: string
           image_position: string
           image_url: string | null
+          latitude: number | null
           location: string
+          longitude: number | null
           organizer_id: string | null
           published: boolean
+          refund_policy: string | null
           rejection_reason: string | null
           slug: string
           ticket_price_cents: number
@@ -1146,12 +1212,16 @@ export type Database = {
           created_at?: string
           description: string
           event_date: string
+          google_maps_url?: string | null
           id?: string
           image_position?: string
           image_url?: string | null
+          latitude?: number | null
           location: string
+          longitude?: number | null
           organizer_id?: string | null
           published?: boolean
+          refund_policy?: string | null
           rejection_reason?: string | null
           slug: string
           ticket_price_cents?: number
@@ -1169,12 +1239,16 @@ export type Database = {
           created_at?: string
           description?: string
           event_date?: string
+          google_maps_url?: string | null
           id?: string
           image_position?: string
           image_url?: string | null
+          latitude?: number | null
           location?: string
+          longitude?: number | null
           organizer_id?: string | null
           published?: boolean
+          refund_policy?: string | null
           rejection_reason?: string | null
           slug?: string
           ticket_price_cents?: number
@@ -3747,6 +3821,82 @@ export type Database = {
           reason?: string
         }
         Relationships: []
+      }
+      ticket_addons: {
+        Row: {
+          created_at: string
+          delivered: boolean
+          delivered_at: string | null
+          delivered_by: string | null
+          delivered_location: string | null
+          event_id: string
+          id: string
+          notes: string | null
+          product_id: string | null
+          product_name: string
+          quantity: number
+          ticket_id: string
+          unit_price_cents: number
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          delivered?: boolean
+          delivered_at?: string | null
+          delivered_by?: string | null
+          delivered_location?: string | null
+          event_id: string
+          id?: string
+          notes?: string | null
+          product_id?: string | null
+          product_name: string
+          quantity?: number
+          ticket_id: string
+          unit_price_cents?: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          delivered?: boolean
+          delivered_at?: string | null
+          delivered_by?: string | null
+          delivered_location?: string | null
+          event_id?: string
+          id?: string
+          notes?: string | null
+          product_id?: string | null
+          product_name?: string
+          quantity?: number
+          ticket_id?: string
+          unit_price_cents?: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_addons_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ticket_addons_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "event_addon_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ticket_addons_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "tickets"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tickets: {
         Row: {
