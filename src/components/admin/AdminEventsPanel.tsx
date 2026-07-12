@@ -31,6 +31,8 @@ const AdminEventsPanel = () => {
   const [location, setLocation] = useState("");
   const [eventDate, setEventDate] = useState("");
   const [imagePosition, setImagePosition] = useState("center");
+  const [refundPolicy, setRefundPolicy] = useState("");
+  const [googleMapsUrl, setGoogleMapsUrl] = useState("");
   const [ticketsEnabled, setTicketsEnabled] = useState(false);
   const [ticketsTotal, setTicketsTotal] = useState<string>("");
   const [ticketType, setTicketType] = useState<"free" | "paid">("free");
@@ -47,6 +49,7 @@ const AdminEventsPanel = () => {
 
   const resetForm = () => {
     setTitle(""); setDescription(""); setContent(""); setLocation(""); setEventDate(""); setImagePosition("center");
+    setRefundPolicy(""); setGoogleMapsUrl("");
     setImageFile(null); setEditing(null); setShowForm(false);
     setTicketsEnabled(false); setTicketsTotal(""); setTicketType("free"); setTicketPrice("0,00");
   };
@@ -59,6 +62,8 @@ const AdminEventsPanel = () => {
     setLocation(item.location);
     setEventDate(item.event_date.slice(0, 16));
     setImagePosition((item as any).image_position || "center");
+    setRefundPolicy((item as any).refund_policy || "");
+    setGoogleMapsUrl((item as any).google_maps_url || "");
     setTicketsEnabled(Boolean((item as any).tickets_enabled));
     setTicketsTotal((item as any).tickets_total ? String((item as any).tickets_total) : "");
     setTicketType(((item as any).ticket_type as "free" | "paid") || "free");
@@ -94,6 +99,8 @@ const AdminEventsPanel = () => {
         title, slug, description, content, location,
         event_date: new Date(eventDate).toISOString(),
         image_url: imageUrl, image_position: imagePosition,
+        refund_policy: refundPolicy.trim() || null,
+        google_maps_url: googleMapsUrl.trim() || null,
         tickets_enabled: ticketsEnabled,
         tickets_total: ticketsEnabled && ticketsTotal ? parseInt(ticketsTotal, 10) : null,
         ticket_type: ticketsEnabled ? ticketType : "free",
@@ -155,6 +162,14 @@ const AdminEventsPanel = () => {
           <div className="space-y-2">
             <Label>Local *</Label>
             <Input value={location} onChange={e => setLocation(e.target.value)} required placeholder="Ex: Hangar Centro de Convenções, Belém" />
+          </div>
+          <div className="space-y-2">
+            <Label>Link do Google Maps</Label>
+            <Input value={googleMapsUrl} onChange={e => setGoogleMapsUrl(e.target.value)} placeholder="https://maps.google.com/... ou https://maps.app.goo.gl/..." />
+          </div>
+          <div className="space-y-2">
+            <Label>Política de Reembolso</Label>
+            <Textarea value={refundPolicy} onChange={e => setRefundPolicy(e.target.value)} rows={3} placeholder="Ex.: Reembolso integral até 7 dias antes do evento." />
           </div>
           <div className="space-y-2">
             <Label>Descrição Curta *</Label>
