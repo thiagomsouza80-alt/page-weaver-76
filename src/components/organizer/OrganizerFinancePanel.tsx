@@ -1,12 +1,19 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Loader2, Wallet, ArrowDownToLine, Receipt, CheckCircle2, Clock, XCircle, FileDown } from "lucide-react";
+import { Loader2, Wallet, ArrowDownToLine, Receipt, CheckCircle2, Clock, XCircle, FileDown, Package, TrendingUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { centsToBRL } from "@/lib/money";
 import WithdrawalRequestDialog from "./WithdrawalRequestDialog";
 
 interface Props { organizerId: string }
+
+interface AddonStat {
+  product_id: string | null;
+  product_name: string;
+  quantity: number;
+  revenue_cents: number;
+}
 
 interface Summary {
   tickets_sold: number;
@@ -30,22 +37,54 @@ const statusMeta = (s: string) => {
 const OrganizerFinancePanel = ({ organizerId }: Props) => {
   const [summary, setSummary] = useState<Summary | null>(null);
   const [withdrawals, setWithdrawals] = useState<any[]>([]);
+  const [addons, setAddons] = useState<AddonStat[]>([]);
+  const [ticketsCount, setTicketsCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [openWithdraw, setOpenWithdraw] = useState(false);
 
   const load = async () => {
     setLoading(true);
-    const [{ data: sum }, { data: wd }] = await Promise.all([
+    // events do organizador
+    const { data: evs } = await supabase.from("events").select("id").eq("organizer_id", organizerId);
+    const eventIds = (evs || []).map((e: any) => e.id);
+
+    const [{ data: sum }, { data: wd }, addonsRes, ticketsRes] = await Promise.all([
       supabase.rpc("organizer_financial_summary" as any, { _organizer_id: organizerId }),
       supabase.from("withdrawal_requests" as any).select("*").eq("organizer_id", organizerId).order("created_at", { ascending: false }),
+      eventIds.length
+        ? supabase.from("ticket_addons" as any).select("product_id, product_name, quantity, unit_price_cents").in("event_id", eventIds)
+        : Promise.resolve({ data: [] as any[] }),
+      eventIds.length
+        ? supabase.from("tickets" as any).select("id", { count: "exact", head: true }).in("event_id", eventIds).neq("status", "cancelled")
+        : Promise.resolve({ count: 0 }),
     ]);
+
     const row = Array.isArray(sum) ? sum[0] : sum;
     setSummary(row || null);
     setWithdrawals((wd as any) || []);
+    setTicketsCount(((ticketsRes as any).count as number) || 0);
+
+    const map = new Map<string, AddonStat>();
+    for (const a of ((addonsRes as any).data || []) as any[]) {
+      const key = a.product_id || a.product_name;
+      const cur = map.get(key) || { product_id: a.product_id, product_name: a.product_name, quantity: 0, revenue_cents: 0 };
+      cur.quantity += a.quantity;
+      cur.revenue_cents += (a.unit_price_cents || 0) * a.quantity;
+      map.set(key, cur);
+    }
+    setAddons(Array.from(map.values()).sort((a, b) => b.revenue_cents - a.revenue_cents));
+
     setLoading(false);
   };
 
   useEffect(() => { load(); }, [organizerId]);
+
+  const addonTotals = useMemo(() => {
+    const revenue = addons.reduce((s, a) => s + a.revenue_cents, 0);
+    const quantity = addons.reduce((s, a) => s + a.quantity, 0);
+    const top = addons[0]?.product_name || "—";
+    return { revenue, quantity, top };
+  }, [addons]);
 
   const downloadReceipt = async (path: string) => {
     const { data, error } = await supabase.storage.from("withdrawal-receipts").createSignedUrl(path, 60);
@@ -57,18 +96,24 @@ const OrganizerFinancePanel = ({ organizerId }: Props) => {
 
   const s = summary ?? { tickets_sold: 0, gross_revenue_cents: 0, platform_fees_cents: 0, net_revenue_cents: 0, withdrawn_cents: 0, pending_withdrawal_cents: 0, available_cents: 0 };
 
+  const ticketRevenue = s.gross_revenue_cents; // ingressos (RPC atual)
+  const totalRevenue = ticketRevenue + addonTotals.revenue;
+  const avgTicket = ticketsCount > 0 ? Math.round(totalRevenue / ticketsCount) : 0;
+
   return (
     <div className="space-y-6">
       {/* Cards principais */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card icon={Wallet} label="Receita Bruta" value={centsToBRL(s.gross_revenue_cents)} />
-        <Card icon={Wallet} label="Total Retido em Taxas" value={centsToBRL(s.platform_fees_cents)} />
-        <Card icon={Receipt} label="Ingressos Vendidos" value={String(s.tickets_sold)} />
+        <Card icon={Wallet} label="Receita Ingressos" value={centsToBRL(ticketRevenue)} />
+        <Card icon={Package} label="Receita Adicionais" value={centsToBRL(addonTotals.revenue)} />
+        <Card icon={TrendingUp} label="Receita Total" value={centsToBRL(totalRevenue)} highlight />
         <Card icon={ArrowDownToLine} label="Saldo Disponível" value={centsToBRL(s.available_cents)} highlight />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Card icon={Clock} label="Saldo Pendente (em saques)" value={centsToBRL(s.pending_withdrawal_cents)} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card icon={Receipt} label="Ingressos Vendidos" value={String(s.tickets_sold)} />
+        <Card icon={TrendingUp} label="Ticket Médio" value={centsToBRL(avgTicket)} />
+        <Card icon={Wallet} label="Taxas Retidas" value={centsToBRL(s.platform_fees_cents)} />
         <Card icon={CheckCircle2} label="Total Já Sacado" value={centsToBRL(s.withdrawn_cents)} />
       </div>
 
@@ -77,6 +122,32 @@ const OrganizerFinancePanel = ({ organizerId }: Props) => {
           <ArrowDownToLine className="h-4 w-4" /> Solicitar Saque
         </Button>
       </div>
+
+      {/* Adicionais */}
+      {addons.length > 0 && (
+        <div className="bg-card rounded-xl border border-border p-6">
+          <h3 className="font-semibold mb-4 flex items-center gap-2">
+            <Package className="h-4 w-4 text-primary" /> Produtos Adicionais Vendidos
+          </h3>
+          <div className="space-y-2">
+            {addons.map((a) => (
+              <div key={(a.product_id || a.product_name) as string} className="flex items-center justify-between gap-3 p-3 rounded-lg border border-border/50">
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-sm truncate">{a.product_name}</p>
+                  <p className="text-xs text-muted-foreground">{a.quantity} un. vendidas</p>
+                </div>
+                <div className="text-right shrink-0">
+                  <p className="font-semibold text-sm">{centsToBRL(a.revenue_cents)}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          {addonTotals.top !== "—" && (
+            <p className="text-xs text-muted-foreground mt-3">🏆 Mais vendido: <strong className="text-foreground">{addonTotals.top}</strong></p>
+          )}
+        </div>
+      )}
+
 
       {/* Histórico */}
       <div className="bg-card rounded-xl border border-border p-6">
