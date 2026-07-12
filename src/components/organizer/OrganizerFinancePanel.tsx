@@ -1,12 +1,19 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Loader2, Wallet, ArrowDownToLine, Receipt, CheckCircle2, Clock, XCircle, FileDown } from "lucide-react";
+import { Loader2, Wallet, ArrowDownToLine, Receipt, CheckCircle2, Clock, XCircle, FileDown, Package, TrendingUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { centsToBRL } from "@/lib/money";
 import WithdrawalRequestDialog from "./WithdrawalRequestDialog";
 
 interface Props { organizerId: string }
+
+interface AddonStat {
+  product_id: string | null;
+  product_name: string;
+  quantity: number;
+  revenue_cents: number;
+}
 
 interface Summary {
   tickets_sold: number;
@@ -30,22 +37,54 @@ const statusMeta = (s: string) => {
 const OrganizerFinancePanel = ({ organizerId }: Props) => {
   const [summary, setSummary] = useState<Summary | null>(null);
   const [withdrawals, setWithdrawals] = useState<any[]>([]);
+  const [addons, setAddons] = useState<AddonStat[]>([]);
+  const [ticketsCount, setTicketsCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [openWithdraw, setOpenWithdraw] = useState(false);
 
   const load = async () => {
     setLoading(true);
-    const [{ data: sum }, { data: wd }] = await Promise.all([
+    // events do organizador
+    const { data: evs } = await supabase.from("events").select("id").eq("organizer_id", organizerId);
+    const eventIds = (evs || []).map((e: any) => e.id);
+
+    const [{ data: sum }, { data: wd }, addonsRes, ticketsRes] = await Promise.all([
       supabase.rpc("organizer_financial_summary" as any, { _organizer_id: organizerId }),
       supabase.from("withdrawal_requests" as any).select("*").eq("organizer_id", organizerId).order("created_at", { ascending: false }),
+      eventIds.length
+        ? supabase.from("ticket_addons" as any).select("product_id, product_name, quantity, unit_price_cents").in("event_id", eventIds)
+        : Promise.resolve({ data: [] as any[] }),
+      eventIds.length
+        ? supabase.from("tickets" as any).select("id", { count: "exact", head: true }).in("event_id", eventIds).neq("status", "cancelled")
+        : Promise.resolve({ count: 0 }),
     ]);
+
     const row = Array.isArray(sum) ? sum[0] : sum;
     setSummary(row || null);
     setWithdrawals((wd as any) || []);
+    setTicketsCount(((ticketsRes as any).count as number) || 0);
+
+    const map = new Map<string, AddonStat>();
+    for (const a of ((addonsRes as any).data || []) as any[]) {
+      const key = a.product_id || a.product_name;
+      const cur = map.get(key) || { product_id: a.product_id, product_name: a.product_name, quantity: 0, revenue_cents: 0 };
+      cur.quantity += a.quantity;
+      cur.revenue_cents += (a.unit_price_cents || 0) * a.quantity;
+      map.set(key, cur);
+    }
+    setAddons(Array.from(map.values()).sort((a, b) => b.revenue_cents - a.revenue_cents));
+
     setLoading(false);
   };
 
   useEffect(() => { load(); }, [organizerId]);
+
+  const addonTotals = useMemo(() => {
+    const revenue = addons.reduce((s, a) => s + a.revenue_cents, 0);
+    const quantity = addons.reduce((s, a) => s + a.quantity, 0);
+    const top = addons[0]?.product_name || "—";
+    return { revenue, quantity, top };
+  }, [addons]);
 
   const downloadReceipt = async (path: string) => {
     const { data, error } = await supabase.storage.from("withdrawal-receipts").createSignedUrl(path, 60);
