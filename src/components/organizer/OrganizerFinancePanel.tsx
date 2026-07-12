@@ -96,18 +96,24 @@ const OrganizerFinancePanel = ({ organizerId }: Props) => {
 
   const s = summary ?? { tickets_sold: 0, gross_revenue_cents: 0, platform_fees_cents: 0, net_revenue_cents: 0, withdrawn_cents: 0, pending_withdrawal_cents: 0, available_cents: 0 };
 
+  const ticketRevenue = s.gross_revenue_cents; // ingressos (RPC atual)
+  const totalRevenue = ticketRevenue + addonTotals.revenue;
+  const avgTicket = ticketsCount > 0 ? Math.round(totalRevenue / ticketsCount) : 0;
+
   return (
     <div className="space-y-6">
       {/* Cards principais */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card icon={Wallet} label="Receita Bruta" value={centsToBRL(s.gross_revenue_cents)} />
-        <Card icon={Wallet} label="Total Retido em Taxas" value={centsToBRL(s.platform_fees_cents)} />
-        <Card icon={Receipt} label="Ingressos Vendidos" value={String(s.tickets_sold)} />
+        <Card icon={Wallet} label="Receita Ingressos" value={centsToBRL(ticketRevenue)} />
+        <Card icon={Package} label="Receita Adicionais" value={centsToBRL(addonTotals.revenue)} />
+        <Card icon={TrendingUp} label="Receita Total" value={centsToBRL(totalRevenue)} highlight />
         <Card icon={ArrowDownToLine} label="Saldo Disponível" value={centsToBRL(s.available_cents)} highlight />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <Card icon={Clock} label="Saldo Pendente (em saques)" value={centsToBRL(s.pending_withdrawal_cents)} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card icon={Receipt} label="Ingressos Vendidos" value={String(s.tickets_sold)} />
+        <Card icon={TrendingUp} label="Ticket Médio" value={centsToBRL(avgTicket)} />
+        <Card icon={Wallet} label="Taxas Retidas" value={centsToBRL(s.platform_fees_cents)} />
         <Card icon={CheckCircle2} label="Total Já Sacado" value={centsToBRL(s.withdrawn_cents)} />
       </div>
 
@@ -116,6 +122,32 @@ const OrganizerFinancePanel = ({ organizerId }: Props) => {
           <ArrowDownToLine className="h-4 w-4" /> Solicitar Saque
         </Button>
       </div>
+
+      {/* Adicionais */}
+      {addons.length > 0 && (
+        <div className="bg-card rounded-xl border border-border p-6">
+          <h3 className="font-semibold mb-4 flex items-center gap-2">
+            <Package className="h-4 w-4 text-primary" /> Produtos Adicionais Vendidos
+          </h3>
+          <div className="space-y-2">
+            {addons.map((a) => (
+              <div key={(a.product_id || a.product_name) as string} className="flex items-center justify-between gap-3 p-3 rounded-lg border border-border/50">
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-sm truncate">{a.product_name}</p>
+                  <p className="text-xs text-muted-foreground">{a.quantity} un. vendidas</p>
+                </div>
+                <div className="text-right shrink-0">
+                  <p className="font-semibold text-sm">{centsToBRL(a.revenue_cents)}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          {addonTotals.top !== "—" && (
+            <p className="text-xs text-muted-foreground mt-3">🏆 Mais vendido: <strong className="text-foreground">{addonTotals.top}</strong></p>
+          )}
+        </div>
+      )}
+
 
       {/* Histórico */}
       <div className="bg-card rounded-xl border border-border p-6">
