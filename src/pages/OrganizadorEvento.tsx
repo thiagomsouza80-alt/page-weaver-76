@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import { ArrowLeft, Download, Loader2, Search, Users, CalendarDays, MapPin, BarChart3 } from "lucide-react";
 import EventTicketingManager from "@/components/organizer/EventTicketingManager";
+import EventAddonsManager from "@/components/organizer/EventAddonsManager";
 import { centsToBRL } from "@/lib/money";
 
 type Ticket = {
@@ -268,6 +269,10 @@ const OrganizadorEvento = () => {
             useBatches={!!event.use_batches}
             onUseBatchesChange={(v) => setEvent({ ...event, use_batches: v })}
           />
+        </div>
+
+        <div className="mb-6">
+          <EventAddonsManager eventId={event.id} />
         </div>
 
         {/* Relatório por modalidade */}
