@@ -49,6 +49,8 @@ const OrganizadorPage = () => {
   const [content, setContent] = useState("");
   const [location, setLocation] = useState("");
   const [eventDate, setEventDate] = useState("");
+  const [refundPolicy, setRefundPolicy] = useState("");
+  const [googleMapsUrl, setGoogleMapsUrl] = useState("");
   const [ticketsEnabled, setTicketsEnabled] = useState(false);
   const [ticketsTotal, setTicketsTotal] = useState<string>("");
   const [ticketType, setTicketType] = useState<"free" | "paid">("free");
@@ -72,6 +74,7 @@ const OrganizadorPage = () => {
 
   const resetForm = () => {
     setTitle(""); setDescription(""); setContent(""); setLocation(""); setEventDate("");
+    setRefundPolicy(""); setGoogleMapsUrl("");
     setTicketsEnabled(false); setTicketsTotal(""); setImageFile(null); setEditing(null); setShowForm(false);
     setTicketType("free"); setTicketPrice("0,00");
   };
@@ -80,6 +83,8 @@ const OrganizadorPage = () => {
     setEditing(e);
     setTitle(e.title); setDescription(e.description); setContent(e.content);
     setLocation(e.location); setEventDate(e.event_date.slice(0, 16));
+    setRefundPolicy(e.refund_policy || "");
+    setGoogleMapsUrl(e.google_maps_url || "");
     setTicketsEnabled(!!e.tickets_enabled);
     setTicketsTotal(e.tickets_total ? String(e.tickets_total) : "");
     setTicketType((e.ticket_type as "free" | "paid") || "free");
@@ -116,6 +121,8 @@ const OrganizadorPage = () => {
         location,
         event_date: new Date(eventDate).toISOString(),
         image_url: imageUrl,
+        refund_policy: refundPolicy.trim() || null,
+        google_maps_url: googleMapsUrl.trim() || null,
         tickets_enabled: ticketsEnabled,
         tickets_total: ticketsEnabled && ticketsTotal ? parseInt(ticketsTotal, 10) : null,
         ticket_type: ticketsEnabled ? ticketType : "free",
@@ -288,8 +295,23 @@ const OrganizadorPage = () => {
                     <div className="space-y-2"><Label>Data e Hora *</Label><Input type="datetime-local" value={eventDate} onChange={e => setEventDate(e.target.value)} required /></div>
                   </div>
                   <div className="space-y-2"><Label>Local *</Label><Input value={location} onChange={e => setLocation(e.target.value)} required /></div>
+                  <div className="space-y-2">
+                    <Label>Link do Google Maps</Label>
+                    <Input value={googleMapsUrl} onChange={e => setGoogleMapsUrl(e.target.value)} placeholder="https://maps.google.com/... ou https://maps.app.goo.gl/..." />
+                    <p className="text-xs text-muted-foreground">Cole o link do local no Google Maps para ativar o mapa na página do evento.</p>
+                  </div>
                   <div className="space-y-2"><Label>Descrição curta *</Label><Textarea value={description} onChange={e => setDescription(e.target.value)} rows={2} required /></div>
                   <div className="space-y-2"><Label>Conteúdo completo *</Label><Textarea value={content} onChange={e => setContent(e.target.value)} rows={8} required /></div>
+                  <div className="space-y-2">
+                    <Label>Política de Reembolso</Label>
+                    <Textarea
+                      value={refundPolicy}
+                      onChange={e => setRefundPolicy(e.target.value)}
+                      rows={3}
+                      placeholder="Ex.: Reembolso integral até 7 dias antes do evento. Após esse prazo, taxa de 20% aplicada."
+                    />
+                    <p className="text-xs text-muted-foreground">Exibida na página de compra do evento.</p>
+                  </div>
                   <div className="space-y-2"><Label>Imagem de capa</Label><Input type="file" accept="image/*" onChange={e => setImageFile(e.target.files?.[0] || null)} /></div>
                   <div className="flex items-start gap-3 p-4 rounded-lg border border-border bg-secondary/30">
                     <Ticket className="h-5 w-5 text-primary mt-0.5" />
