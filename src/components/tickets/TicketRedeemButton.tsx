@@ -104,7 +104,12 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
   const [pixCharge, setPixCharge] = useState<any | null>(null);
   const [pixOpen, setPixOpen] = useState(false);
 
+  const [addons, setAddons] = useState<Addon[]>([]);
+  const [addonQty, setAddonQty] = useState<Record<string, number>>({});
+  const [step, setStep] = useState<"choose" | "addons" | "form">("choose");
+
   const hasCategories = categories.length > 0;
+  const hasAddons = addons.length > 0;
 
   const loadAvailability = async (cats: Category[]) => {
     const entries = await Promise.all(
