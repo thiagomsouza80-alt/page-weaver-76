@@ -617,19 +617,45 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
                   </label>
                 )}
 
+                {selectedAddons.length > 0 && (
+                  <div className="rounded-lg border border-border p-3 space-y-1.5">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
+                      <Package className="h-3 w-3" /> Adicionais
+                    </p>
+                    {selectedAddons.map(({ a, qty }) => (
+                      <div key={a.id} className="flex justify-between text-xs">
+                        <span className="truncate pr-2">{qty}× {a.name}</span>
+                        <span className="font-medium tabular-nums">{centsToBRL(a.price_cents * qty)}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
                 {selectedCat && !selectedCat.is_free && selectedCat.kind !== "courtesy" && (
                   <div className="bg-secondary/40 rounded-lg p-3 space-y-1 text-sm">
                     <div className="flex justify-between"><span className="text-muted-foreground">Ingresso:</span><span className="font-medium">{centsToBRL(selectedCat.price_cents)}</span></div>
+                    {addonsCents > 0 && (
+                      <div className="flex justify-between"><span className="text-muted-foreground">Adicionais:</span><span className="font-medium">{centsToBRL(addonsCents)}</span></div>
+                    )}
                     <div className="flex justify-between"><span className="text-muted-foreground">Taxa de Serviço:</span><span className="font-medium">{centsToBRL(platformFee)}</span></div>
-                    <div className="border-t border-border/60 pt-1.5 mt-1.5 flex justify-between"><span className="font-semibold">Total a Pagar:</span><span className="font-bold text-base">{centsToBRL(catTotalCents(selectedCat))}</span></div>
+                    <div className="border-t border-border/60 pt-1.5 mt-1.5 flex justify-between"><span className="font-semibold">Total a Pagar:</span><span className="font-bold text-base">{centsToBRL(catTotalCents(selectedCat) + addonsCents)}</span></div>
+                  </div>
+                )}
+
+                {selectedCat && (selectedCat.is_free || selectedCat.kind === "courtesy") && addonsCents > 0 && (
+                  <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-3 text-xs text-orange-800">
+                    ⚠️ Os produtos adicionais desta modalidade gratuita/cortesia serão registrados no seu ingresso, mas o pagamento deverá ser combinado diretamente com o organizador.
                   </div>
                 )}
 
                 {!selectedCat && isLegacyPaid && (
                   <div className="bg-secondary/40 rounded-lg p-3 space-y-1 text-sm">
                     <div className="flex justify-between"><span className="text-muted-foreground">Valor do Ingresso:</span><span className="font-medium">{centsToBRL(eventMeta!.ticket_price_cents)}</span></div>
+                    {addonsCents > 0 && (
+                      <div className="flex justify-between"><span className="text-muted-foreground">Adicionais:</span><span className="font-medium">{centsToBRL(addonsCents)}</span></div>
+                    )}
                     <div className="flex justify-between"><span className="text-muted-foreground">Taxa de Serviço:</span><span className="font-medium">{centsToBRL(platformFee)}</span></div>
-                    <div className="border-t border-border/60 pt-1.5 mt-1.5 flex justify-between"><span className="font-semibold">Total a Pagar:</span><span className="font-bold text-base">{centsToBRL(legacyTotalCents)}</span></div>
+                    <div className="border-t border-border/60 pt-1.5 mt-1.5 flex justify-between"><span className="font-semibold">Total a Pagar:</span><span className="font-bold text-base">{centsToBRL(legacyTotalCents + addonsCents)}</span></div>
                   </div>
                 )}
               </div>
