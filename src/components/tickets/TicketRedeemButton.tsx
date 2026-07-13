@@ -370,7 +370,7 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
     return submitPaid(c);
   };
 
-  const close = () => { setOpen(false); setIssued(null); setSelectedCat(null); };
+  const close = () => { setOpen(false); setIssued(null); setSelectedCat(null); setStep("choose"); };
 
   const canSubmitSelected = useMemo(() => {
     if (!selectedCat) return false;
