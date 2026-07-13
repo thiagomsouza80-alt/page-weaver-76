@@ -11,7 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
-  Ticket, Loader2, CheckCircle, LogIn, UserPlus, Accessibility, UserRound, HeartHandshake, Gift, ArrowLeft,
+  Ticket, Loader2, CheckCircle, LogIn, UserPlus, Accessibility, UserRound, HeartHandshake, Gift, ArrowLeft, Package, Plus, Minus,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import TicketCard from "./TicketCard";
