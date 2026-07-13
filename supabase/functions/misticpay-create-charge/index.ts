@@ -145,7 +145,36 @@ Deno.serve(async (req: Request) => {
       .maybeSingle();
     const baseFee = settings?.ticket_fee_cents ?? 100;
     const feeCents = (categoryKind === "courtesy" || amountCents === 0) ? 0 : baseFee;
-    const totalCents = amountCents + feeCents;
+
+    // 4b) Adicionais (produtos extras)
+    let addonsCents = 0;
+    const addonsMetadata: Array<{ product_id: string; name: string; quantity: number; unit_price_cents: number }> = [];
+    const addonsInput = Array.isArray(body.addons) ? body.addons.filter((a) => a?.product_id && (a?.quantity ?? 0) > 0) : [];
+    if (addonsInput.length > 0) {
+      const ids = [...new Set(addonsInput.map((a) => String(a.product_id)))];
+      const { data: products } = await admin
+        .from("event_addon_products")
+        .select("id, event_id, name, price_cents, stock_total, stock_sold, max_per_order, is_visible")
+        .in("id", ids);
+      const prodMap = new Map<string, any>((products || []).map((p: any) => [p.id, p]));
+      for (const a of addonsInput) {
+        const p = prodMap.get(String(a.product_id));
+        if (!p) return json({ error: "Produto adicional não encontrado" }, 404);
+        if (p.event_id !== ev.id) return json({ error: "Produto adicional inválido para o evento" }, 400);
+        if (!p.is_visible) return json({ error: `Produto "${p.name}" indisponível` }, 400);
+        const qty = Math.max(1, Math.min(999, Math.floor(a.quantity)));
+        if (p.max_per_order && qty > p.max_per_order) {
+          return json({ error: `Máximo ${p.max_per_order} unidades por pedido de "${p.name}"` }, 400);
+        }
+        if (p.stock_total != null && (p.stock_sold + qty) > p.stock_total) {
+          return json({ error: `Estoque insuficiente para "${p.name}"` }, 409);
+        }
+        addonsCents += p.price_cents * qty;
+        addonsMetadata.push({ product_id: p.id, name: p.name, quantity: qty, unit_price_cents: p.price_cents });
+      }
+    }
+
+    const totalCents = amountCents + feeCents + addonsCents;
 
     // 5) Criar transaction (pending)
     const { data: tx, error: txErr } = await admin
@@ -157,12 +186,15 @@ Deno.serve(async (req: Request) => {
         buyer_name: body.buyer_name,
         buyer_email: body.buyer_email,
         buyer_phone: body.buyer_phone,
-        amount_cents: amountCents,
+        amount_cents: amountCents + addonsCents,
         fee_cents: feeCents,
         total_cents: totalCents,
         provider: "misticpay",
         status: "pending",
-        metadata: categoryId ? { category_id: categoryId, batch_id: batchId } : null,
+        metadata: {
+          ...(categoryId ? { category_id: categoryId, batch_id: batchId } : {}),
+          ...(addonsMetadata.length ? { addons: addonsMetadata, addons_cents: addonsCents } : {}),
+        },
       })
       .select("*")
       .single();
