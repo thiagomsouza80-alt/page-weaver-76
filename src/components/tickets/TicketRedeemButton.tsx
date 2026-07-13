@@ -122,16 +122,27 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
   };
 
   const load = async () => {
-    const [{ data: ev }, { data: cs }, { data: bs }] = await Promise.all([
+    const [{ data: ev }, { data: cs }, { data: bs }, { data: ads }] = await Promise.all([
       supabase.from("events").select("tickets_total, ticket_type, ticket_price_cents").eq("id", eventId).maybeSingle(),
       supabase.from("event_ticket_categories" as any).select("*").eq("event_id", eventId).eq("is_active", true).order("sort_order"),
       supabase.from("event_ticket_batches" as any).select("*").eq("event_id", eventId).order("sort_order"),
+      supabase.from("event_addon_products" as any).select("id, name, description, image_url, category, price_cents, stock_total, stock_sold, max_per_order, is_required").eq("event_id", eventId).eq("is_visible", true).order("sort_order"),
     ]);
     const e = ev as any;
     setEventMeta({ ticket_type: e?.ticket_type || "free", ticket_price_cents: e?.ticket_price_cents || 0 });
     const cats = ((cs as any[]) || []) as Category[];
     setCategories(cats);
     setBatches(((bs as any[]) || []) as Batch[]);
+    const addonList = ((ads as any[]) || []) as Addon[];
+    setAddons(addonList);
+    // Pré-seleciona quantidades para itens obrigatórios (qtd 1)
+    setAddonQty((prev) => {
+      const next = { ...prev };
+      addonList.forEach((a) => {
+        if (a.is_required && !(a.id in next)) next[a.id] = 1;
+      });
+      return next;
+    });
 
     const total = e?.tickets_total as number | null;
     if (total) {
