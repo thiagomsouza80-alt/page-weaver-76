@@ -197,6 +197,7 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
     setAcceptDoc(false);
     setAcceptDonation(false);
     setCourtesyCode("");
+    setStep(hasCategories ? "choose" : hasAddons ? "addons" : "form");
 
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) { setUserId(null); setAuthChecked(true); return; }
@@ -211,14 +212,45 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
     setAcceptDoc(false);
     setAcceptDonation(false);
     setCourtesyCode("");
+    setStep(hasAddons ? "addons" : "form");
   };
 
   const goBack = () => {
-    setSelectedCat(null);
-    setAcceptDoc(false);
-    setAcceptDonation(false);
-    setCourtesyCode("");
+    if (step === "form" && hasAddons) { setStep("addons"); return; }
+    if (step === "form" || step === "addons") {
+      if (hasCategories) {
+        setSelectedCat(null);
+        setAcceptDoc(false);
+        setAcceptDonation(false);
+        setCourtesyCode("");
+        setStep("choose");
+      }
+    }
   };
+
+  const addonAvailable = (a: Addon) => a.stock_total == null ? Infinity : Math.max(0, a.stock_total - a.stock_sold);
+  const addonMaxAllowed = (a: Addon) => {
+    const stock = addonAvailable(a);
+    const max = a.max_per_order ?? Infinity;
+    return Math.min(stock, max, 99);
+  };
+  const changeAddonQty = (a: Addon, delta: number) => {
+    setAddonQty((prev) => {
+      const cur = prev[a.id] ?? 0;
+      const min = a.is_required ? 1 : 0;
+      const max = addonMaxAllowed(a);
+      const next = Math.max(min, Math.min(max, cur + delta));
+      return { ...prev, [a.id]: next };
+    });
+  };
+  const selectedAddons = useMemo(
+    () => addons.map((a) => ({ a, qty: addonQty[a.id] ?? 0 })).filter((x) => x.qty > 0),
+    [addons, addonQty],
+  );
+  const addonsCents = useMemo(
+    () => selectedAddons.reduce((s, x) => s + x.a.price_cents * x.qty, 0),
+    [selectedAddons],
+  );
 
   const submitFreeOrCourtesy = async (c: Category) => {
     if (!userId) return;
