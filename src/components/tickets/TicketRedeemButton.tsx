@@ -252,6 +252,21 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
     [selectedAddons],
   );
 
+  const insertAddonsForTicket = async (ticketId: string) => {
+    if (selectedAddons.length === 0 || !userId) return;
+    const rows = selectedAddons.map(({ a, qty }) => ({
+      ticket_id: ticketId,
+      event_id: eventId,
+      product_id: a.id,
+      user_id: userId,
+      product_name: a.name,
+      quantity: qty,
+      unit_price: a.price_cents,
+    }));
+    const { error } = await supabase.from("ticket_addons" as any).insert(rows as any);
+    if (error) console.warn("Falha ao inserir adicionais:", error.message);
+  };
+
   const submitFreeOrCourtesy = async (c: Category) => {
     if (!userId) return;
     setSubmitting(true);
@@ -278,6 +293,7 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
         if (error) throw error;
         ticketId = (data as any).id;
       }
+      await insertAddonsForTicket(ticketId);
       const { data: tk } = await supabase
         .from("tickets" as any)
         .select("id, code, qr_token, status, holder_name, issued_at")
@@ -307,6 +323,7 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
           buyer_email: form.email.trim(),
           buyer_phone: form.phone.trim(),
           buyer_document: form.document.replace(/\D+/g, ""),
+          addons: selectedAddons.map(({ a, qty }) => ({ product_id: a.id, quantity: qty })),
         },
       });
       if (error) throw error;
@@ -332,6 +349,7 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
         } as any)
         .select("id, code, qr_token, status, holder_name, issued_at").single();
       if (error) throw error;
+      await insertAddonsForTicket((data as any).id);
       setIssued(data);
       toast({ title: "Ingresso gerado!", description: `Código ${(data as any).code}` });
       try {
