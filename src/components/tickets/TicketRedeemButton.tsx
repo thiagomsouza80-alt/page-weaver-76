@@ -573,7 +573,7 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
             <>
               <DialogHeader>
                 <div className="flex items-center gap-2">
-                  {hasCategories && selectedCat && (
+                  {(hasCategories || hasAddons) && (
                     <Button size="icon" variant="ghost" onClick={goBack} className="h-7 w-7 -ml-1"><ArrowLeft className="h-4 w-4" /></Button>
                   )}
                   <DialogTitle>
