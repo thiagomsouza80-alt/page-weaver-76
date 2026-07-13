@@ -44,6 +44,13 @@ type Batch = {
   quantity: number | null;
 };
 
+type Addon = {
+  id: string; name: string; description: string | null; image_url: string | null;
+  category: string | null; price_cents: number;
+  stock_total: number | null; stock_sold: number;
+  max_per_order: number | null; is_required: boolean;
+};
+
 const KIND_ICON: Record<Category["kind"], any> = {
   full: Ticket, half: Ticket, solidarity: HeartHandshake,
   pcd: Accessibility, elderly: UserRound, courtesy: Gift,
