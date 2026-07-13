@@ -435,7 +435,7 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
                 <Button variant="outline" onClick={close}>Fechar</Button>
               </DialogFooter>
             </>
-          ) : hasCategories && !selectedCat ? (
+          ) : step === "choose" && hasCategories ? (
             <>
               <DialogHeader>
                 <DialogTitle>Escolha a modalidade</DialogTitle>
@@ -494,6 +494,80 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
                 })}
               </div>
               <DialogFooter><Button variant="outline" onClick={close}>Cancelar</Button></DialogFooter>
+            </>
+          ) : step === "addons" ? (
+            <>
+              <DialogHeader>
+                <div className="flex items-center gap-2">
+                  {hasCategories && (
+                    <Button size="icon" variant="ghost" onClick={goBack} className="h-7 w-7 -ml-1"><ArrowLeft className="h-4 w-4" /></Button>
+                  )}
+                  <DialogTitle className="flex items-center gap-2">
+                    <Package className="h-4 w-4 text-primary" /> Deseja adicionar algo?
+                  </DialogTitle>
+                </div>
+                <DialogDescription>
+                  Produtos extras opcionais para complementar sua experiência.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-3 mt-2">
+                {addons.map((a) => {
+                  const qty = addonQty[a.id] ?? 0;
+                  const stockLeft = addonAvailable(a);
+                  const maxQty = addonMaxAllowed(a);
+                  const outOfStock = stockLeft <= 0;
+                  return (
+                    <div key={a.id} className={`rounded-lg border border-border p-3 flex gap-3 ${outOfStock ? "opacity-60" : ""}`}>
+                      {a.image_url ? (
+                        <img src={a.image_url} alt={a.name} className="w-16 h-16 rounded-lg object-cover shrink-0" />
+                      ) : (
+                        <div className="w-16 h-16 rounded-lg bg-secondary flex items-center justify-center shrink-0">
+                          <Package className="h-6 w-6 text-muted-foreground" />
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <p className="font-semibold text-sm truncate">{a.name}</p>
+                          {a.category && <Badge variant="outline" className="text-[10px]">{a.category}</Badge>}
+                          {a.is_required && <Badge className="text-[10px] bg-primary/15 text-primary border-primary/30" variant="outline">Obrigatório</Badge>}
+                          {outOfStock && <Badge variant="destructive" className="text-[10px]">Esgotado</Badge>}
+                        </div>
+                        {a.description && <p className="text-[11px] text-muted-foreground line-clamp-2 mt-0.5">{a.description}</p>}
+                        <div className="flex items-center justify-between mt-2">
+                          <span className="font-bold text-sm text-primary">{centsToBRL(a.price_cents)}</span>
+                          <div className="flex items-center gap-1">
+                            <Button
+                              size="icon" variant="outline" className="h-7 w-7"
+                              disabled={outOfStock || qty <= (a.is_required ? 1 : 0)}
+                              onClick={() => changeAddonQty(a, -1)}
+                            >
+                              <Minus className="h-3 w-3" />
+                            </Button>
+                            <span className="w-7 text-center font-semibold text-sm tabular-nums">{qty}</span>
+                            <Button
+                              size="icon" variant="outline" className="h-7 w-7"
+                              disabled={outOfStock || qty >= maxQty}
+                              onClick={() => changeAddonQty(a, 1)}
+                            >
+                              <Plus className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="mt-4 rounded-lg bg-secondary/40 p-3 flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Subtotal adicionais:</span>
+                <span className="font-bold">{centsToBRL(addonsCents)}</span>
+              </div>
+              <DialogFooter className="mt-4 gap-2 sm:gap-2">
+                <Button variant="outline" onClick={close}>Cancelar</Button>
+                <Button onClick={() => setStep("form")} className="gap-2">
+                  Continuar
+                </Button>
+              </DialogFooter>
             </>
           ) : (
             <>
