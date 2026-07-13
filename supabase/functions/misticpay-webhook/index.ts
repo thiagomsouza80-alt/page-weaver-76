@@ -97,6 +97,8 @@ Deno.serve(async (req: Request) => {
 
     if (status === "COMPLETO") {
       const meta = (tx as any).metadata || {};
+      const addons = Array.isArray(meta.addons) ? meta.addons : [];
+      const ticketPrice = tx.amount_cents - (Number(meta.addons_cents) || 0);
       const { data: ticket, error: ticketErr } = await admin
         .from("tickets")
         .insert({
@@ -105,14 +107,14 @@ Deno.serve(async (req: Request) => {
           holder_name: tx.buyer_name,
           holder_email: tx.buyer_email,
           holder_phone: tx.buyer_phone,
-          price_cents: tx.amount_cents,
+          price_cents: ticketPrice,
           platform_fee_cents: tx.fee_cents,
           payment_status: "paid",
           payment_method: "pix",
           payment_reference: providerId,
           category_id: meta.category_id || null,
           batch_id: meta.batch_id || null,
-          unit_price_cents: tx.amount_cents,
+          unit_price_cents: ticketPrice,
         })
         .select("id")
         .single();
@@ -123,6 +125,23 @@ Deno.serve(async (req: Request) => {
           raw_payload: payload,
         }).eq("id", tx.id);
         return json({ error: "Falha ao gerar ingresso", detail: ticketErr.message }, 500);
+      }
+
+      // Insere adicionais vinculados ao ingresso
+      if (addons.length > 0) {
+        const rows = addons.map((a: any) => ({
+          ticket_id: ticket.id,
+          event_id: tx.event_id,
+          product_id: a.product_id,
+          user_id: tx.buyer_user_id,
+          product_name: a.name,
+          quantity: a.quantity,
+          unit_price: a.unit_price_cents,
+        }));
+        const { error: addonsErr } = await admin.from("ticket_addons").insert(rows);
+        if (addonsErr) {
+          console.error("[webhook] falha ao inserir adicionais:", addonsErr.message);
+        }
       }
 
       await admin.from("payment_transactions").update({
@@ -136,7 +155,7 @@ Deno.serve(async (req: Request) => {
         action: "payment_confirmed",
         entity_type: "payment_transaction",
         entity_id: tx.id,
-        metadata: { ticket_id: ticket.id, provider: "misticpay", provider_transaction_id: providerId, e2e: payload?.e2e },
+        metadata: { ticket_id: ticket.id, provider: "misticpay", provider_transaction_id: providerId, e2e: payload?.e2e, addons_count: addons.length },
       });
 
       return json({ ok: true, ticket_id: ticket.id });

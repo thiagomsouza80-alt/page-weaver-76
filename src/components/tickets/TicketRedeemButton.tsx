@@ -11,7 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
-  Ticket, Loader2, CheckCircle, LogIn, UserPlus, Accessibility, UserRound, HeartHandshake, Gift, ArrowLeft,
+  Ticket, Loader2, CheckCircle, LogIn, UserPlus, Accessibility, UserRound, HeartHandshake, Gift, ArrowLeft, Package, Plus, Minus,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import TicketCard from "./TicketCard";
@@ -42,6 +42,13 @@ type Batch = {
   id: string; name: string; price_cents: number;
   starts_at: string | null; ends_at: string | null; is_active: boolean;
   quantity: number | null;
+};
+
+type Addon = {
+  id: string; name: string; description: string | null; image_url: string | null;
+  category: string | null; price_cents: number;
+  stock_total: number | null; stock_sold: number;
+  max_per_order: number | null; is_required: boolean;
 };
 
 const KIND_ICON: Record<Category["kind"], any> = {
@@ -97,7 +104,12 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
   const [pixCharge, setPixCharge] = useState<any | null>(null);
   const [pixOpen, setPixOpen] = useState(false);
 
+  const [addons, setAddons] = useState<Addon[]>([]);
+  const [addonQty, setAddonQty] = useState<Record<string, number>>({});
+  const [step, setStep] = useState<"choose" | "addons" | "form">("choose");
+
   const hasCategories = categories.length > 0;
+  const hasAddons = addons.length > 0;
 
   const loadAvailability = async (cats: Category[]) => {
     const entries = await Promise.all(
@@ -110,16 +122,27 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
   };
 
   const load = async () => {
-    const [{ data: ev }, { data: cs }, { data: bs }] = await Promise.all([
+    const [{ data: ev }, { data: cs }, { data: bs }, { data: ads }] = await Promise.all([
       supabase.from("events").select("tickets_total, ticket_type, ticket_price_cents").eq("id", eventId).maybeSingle(),
       supabase.from("event_ticket_categories" as any).select("*").eq("event_id", eventId).eq("is_active", true).order("sort_order"),
       supabase.from("event_ticket_batches" as any).select("*").eq("event_id", eventId).order("sort_order"),
+      supabase.from("event_addon_products" as any).select("id, name, description, image_url, category, price_cents, stock_total, stock_sold, max_per_order, is_required").eq("event_id", eventId).eq("is_visible", true).order("sort_order"),
     ]);
     const e = ev as any;
     setEventMeta({ ticket_type: e?.ticket_type || "free", ticket_price_cents: e?.ticket_price_cents || 0 });
     const cats = ((cs as any[]) || []) as Category[];
     setCategories(cats);
     setBatches(((bs as any[]) || []) as Batch[]);
+    const addonList = ((ads as any[]) || []) as Addon[];
+    setAddons(addonList);
+    // Pré-seleciona quantidades para itens obrigatórios (qtd 1)
+    setAddonQty((prev) => {
+      const next = { ...prev };
+      addonList.forEach((a) => {
+        if (a.is_required && !(a.id in next)) next[a.id] = 1;
+      });
+      return next;
+    });
 
     const total = e?.tickets_total as number | null;
     if (total) {
@@ -174,6 +197,7 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
     setAcceptDoc(false);
     setAcceptDonation(false);
     setCourtesyCode("");
+    setStep(hasCategories ? "choose" : hasAddons ? "addons" : "form");
 
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) { setUserId(null); setAuthChecked(true); return; }
@@ -188,13 +212,59 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
     setAcceptDoc(false);
     setAcceptDonation(false);
     setCourtesyCode("");
+    setStep(hasAddons ? "addons" : "form");
   };
 
   const goBack = () => {
-    setSelectedCat(null);
-    setAcceptDoc(false);
-    setAcceptDonation(false);
-    setCourtesyCode("");
+    if (step === "form" && hasAddons) { setStep("addons"); return; }
+    if (step === "form" || step === "addons") {
+      if (hasCategories) {
+        setSelectedCat(null);
+        setAcceptDoc(false);
+        setAcceptDonation(false);
+        setCourtesyCode("");
+        setStep("choose");
+      }
+    }
+  };
+
+  const addonAvailable = (a: Addon) => a.stock_total == null ? Infinity : Math.max(0, a.stock_total - a.stock_sold);
+  const addonMaxAllowed = (a: Addon) => {
+    const stock = addonAvailable(a);
+    const max = a.max_per_order ?? Infinity;
+    return Math.min(stock, max, 99);
+  };
+  const changeAddonQty = (a: Addon, delta: number) => {
+    setAddonQty((prev) => {
+      const cur = prev[a.id] ?? 0;
+      const min = a.is_required ? 1 : 0;
+      const max = addonMaxAllowed(a);
+      const next = Math.max(min, Math.min(max, cur + delta));
+      return { ...prev, [a.id]: next };
+    });
+  };
+  const selectedAddons = useMemo(
+    () => addons.map((a) => ({ a, qty: addonQty[a.id] ?? 0 })).filter((x) => x.qty > 0),
+    [addons, addonQty],
+  );
+  const addonsCents = useMemo(
+    () => selectedAddons.reduce((s, x) => s + x.a.price_cents * x.qty, 0),
+    [selectedAddons],
+  );
+
+  const insertAddonsForTicket = async (ticketId: string) => {
+    if (selectedAddons.length === 0 || !userId) return;
+    const rows = selectedAddons.map(({ a, qty }) => ({
+      ticket_id: ticketId,
+      event_id: eventId,
+      product_id: a.id,
+      user_id: userId,
+      product_name: a.name,
+      quantity: qty,
+      unit_price: a.price_cents,
+    }));
+    const { error } = await supabase.from("ticket_addons" as any).insert(rows as any);
+    if (error) console.warn("Falha ao inserir adicionais:", error.message);
   };
 
   const submitFreeOrCourtesy = async (c: Category) => {
@@ -223,6 +293,7 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
         if (error) throw error;
         ticketId = (data as any).id;
       }
+      await insertAddonsForTicket(ticketId);
       const { data: tk } = await supabase
         .from("tickets" as any)
         .select("id, code, qr_token, status, holder_name, issued_at")
@@ -252,6 +323,7 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
           buyer_email: form.email.trim(),
           buyer_phone: form.phone.trim(),
           buyer_document: form.document.replace(/\D+/g, ""),
+          addons: selectedAddons.map(({ a, qty }) => ({ product_id: a.id, quantity: qty })),
         },
       });
       if (error) throw error;
@@ -277,6 +349,7 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
         } as any)
         .select("id, code, qr_token, status, holder_name, issued_at").single();
       if (error) throw error;
+      await insertAddonsForTicket((data as any).id);
       setIssued(data);
       toast({ title: "Ingresso gerado!", description: `Código ${(data as any).code}` });
       try {
@@ -297,7 +370,7 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
     return submitPaid(c);
   };
 
-  const close = () => { setOpen(false); setIssued(null); setSelectedCat(null); };
+  const close = () => { setOpen(false); setIssued(null); setSelectedCat(null); setStep("choose"); };
 
   const canSubmitSelected = useMemo(() => {
     if (!selectedCat) return false;
@@ -362,7 +435,7 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
                 <Button variant="outline" onClick={close}>Fechar</Button>
               </DialogFooter>
             </>
-          ) : hasCategories && !selectedCat ? (
+          ) : step === "choose" && hasCategories ? (
             <>
               <DialogHeader>
                 <DialogTitle>Escolha a modalidade</DialogTitle>
@@ -422,11 +495,85 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
               </div>
               <DialogFooter><Button variant="outline" onClick={close}>Cancelar</Button></DialogFooter>
             </>
+          ) : step === "addons" ? (
+            <>
+              <DialogHeader>
+                <div className="flex items-center gap-2">
+                  {hasCategories && (
+                    <Button size="icon" variant="ghost" onClick={goBack} className="h-7 w-7 -ml-1"><ArrowLeft className="h-4 w-4" /></Button>
+                  )}
+                  <DialogTitle className="flex items-center gap-2">
+                    <Package className="h-4 w-4 text-primary" /> Deseja adicionar algo?
+                  </DialogTitle>
+                </div>
+                <DialogDescription>
+                  Produtos extras opcionais para complementar sua experiência.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-3 mt-2">
+                {addons.map((a) => {
+                  const qty = addonQty[a.id] ?? 0;
+                  const stockLeft = addonAvailable(a);
+                  const maxQty = addonMaxAllowed(a);
+                  const outOfStock = stockLeft <= 0;
+                  return (
+                    <div key={a.id} className={`rounded-lg border border-border p-3 flex gap-3 ${outOfStock ? "opacity-60" : ""}`}>
+                      {a.image_url ? (
+                        <img src={a.image_url} alt={a.name} className="w-16 h-16 rounded-lg object-cover shrink-0" />
+                      ) : (
+                        <div className="w-16 h-16 rounded-lg bg-secondary flex items-center justify-center shrink-0">
+                          <Package className="h-6 w-6 text-muted-foreground" />
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <p className="font-semibold text-sm truncate">{a.name}</p>
+                          {a.category && <Badge variant="outline" className="text-[10px]">{a.category}</Badge>}
+                          {a.is_required && <Badge className="text-[10px] bg-primary/15 text-primary border-primary/30" variant="outline">Obrigatório</Badge>}
+                          {outOfStock && <Badge variant="destructive" className="text-[10px]">Esgotado</Badge>}
+                        </div>
+                        {a.description && <p className="text-[11px] text-muted-foreground line-clamp-2 mt-0.5">{a.description}</p>}
+                        <div className="flex items-center justify-between mt-2">
+                          <span className="font-bold text-sm text-primary">{centsToBRL(a.price_cents)}</span>
+                          <div className="flex items-center gap-1">
+                            <Button
+                              size="icon" variant="outline" className="h-7 w-7"
+                              disabled={outOfStock || qty <= (a.is_required ? 1 : 0)}
+                              onClick={() => changeAddonQty(a, -1)}
+                            >
+                              <Minus className="h-3 w-3" />
+                            </Button>
+                            <span className="w-7 text-center font-semibold text-sm tabular-nums">{qty}</span>
+                            <Button
+                              size="icon" variant="outline" className="h-7 w-7"
+                              disabled={outOfStock || qty >= maxQty}
+                              onClick={() => changeAddonQty(a, 1)}
+                            >
+                              <Plus className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="mt-4 rounded-lg bg-secondary/40 p-3 flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Subtotal adicionais:</span>
+                <span className="font-bold">{centsToBRL(addonsCents)}</span>
+              </div>
+              <DialogFooter className="mt-4 gap-2 sm:gap-2">
+                <Button variant="outline" onClick={close}>Cancelar</Button>
+                <Button onClick={() => setStep("form")} className="gap-2">
+                  Continuar
+                </Button>
+              </DialogFooter>
+            </>
           ) : (
             <>
               <DialogHeader>
                 <div className="flex items-center gap-2">
-                  {hasCategories && selectedCat && (
+                  {(hasCategories || hasAddons) && (
                     <Button size="icon" variant="ghost" onClick={goBack} className="h-7 w-7 -ml-1"><ArrowLeft className="h-4 w-4" /></Button>
                   )}
                   <DialogTitle>
@@ -470,19 +617,45 @@ const TicketRedeemButton = ({ eventId, eventTitle, eventDate, eventLocation, lab
                   </label>
                 )}
 
+                {selectedAddons.length > 0 && (
+                  <div className="rounded-lg border border-border p-3 space-y-1.5">
+                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
+                      <Package className="h-3 w-3" /> Adicionais
+                    </p>
+                    {selectedAddons.map(({ a, qty }) => (
+                      <div key={a.id} className="flex justify-between text-xs">
+                        <span className="truncate pr-2">{qty}× {a.name}</span>
+                        <span className="font-medium tabular-nums">{centsToBRL(a.price_cents * qty)}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
                 {selectedCat && !selectedCat.is_free && selectedCat.kind !== "courtesy" && (
                   <div className="bg-secondary/40 rounded-lg p-3 space-y-1 text-sm">
                     <div className="flex justify-between"><span className="text-muted-foreground">Ingresso:</span><span className="font-medium">{centsToBRL(selectedCat.price_cents)}</span></div>
+                    {addonsCents > 0 && (
+                      <div className="flex justify-between"><span className="text-muted-foreground">Adicionais:</span><span className="font-medium">{centsToBRL(addonsCents)}</span></div>
+                    )}
                     <div className="flex justify-between"><span className="text-muted-foreground">Taxa de Serviço:</span><span className="font-medium">{centsToBRL(platformFee)}</span></div>
-                    <div className="border-t border-border/60 pt-1.5 mt-1.5 flex justify-between"><span className="font-semibold">Total a Pagar:</span><span className="font-bold text-base">{centsToBRL(catTotalCents(selectedCat))}</span></div>
+                    <div className="border-t border-border/60 pt-1.5 mt-1.5 flex justify-between"><span className="font-semibold">Total a Pagar:</span><span className="font-bold text-base">{centsToBRL(catTotalCents(selectedCat) + addonsCents)}</span></div>
+                  </div>
+                )}
+
+                {selectedCat && (selectedCat.is_free || selectedCat.kind === "courtesy") && addonsCents > 0 && (
+                  <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-3 text-xs text-orange-800">
+                    ⚠️ Os produtos adicionais desta modalidade gratuita/cortesia serão registrados no seu ingresso, mas o pagamento deverá ser combinado diretamente com o organizador.
                   </div>
                 )}
 
                 {!selectedCat && isLegacyPaid && (
                   <div className="bg-secondary/40 rounded-lg p-3 space-y-1 text-sm">
                     <div className="flex justify-between"><span className="text-muted-foreground">Valor do Ingresso:</span><span className="font-medium">{centsToBRL(eventMeta!.ticket_price_cents)}</span></div>
+                    {addonsCents > 0 && (
+                      <div className="flex justify-between"><span className="text-muted-foreground">Adicionais:</span><span className="font-medium">{centsToBRL(addonsCents)}</span></div>
+                    )}
                     <div className="flex justify-between"><span className="text-muted-foreground">Taxa de Serviço:</span><span className="font-medium">{centsToBRL(platformFee)}</span></div>
-                    <div className="border-t border-border/60 pt-1.5 mt-1.5 flex justify-between"><span className="font-semibold">Total a Pagar:</span><span className="font-bold text-base">{centsToBRL(legacyTotalCents)}</span></div>
+                    <div className="border-t border-border/60 pt-1.5 mt-1.5 flex justify-between"><span className="font-semibold">Total a Pagar:</span><span className="font-bold text-base">{centsToBRL(legacyTotalCents + addonsCents)}</span></div>
                   </div>
                 )}
               </div>
