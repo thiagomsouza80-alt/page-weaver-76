@@ -8,6 +8,10 @@ import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 // Valores enviados em REAIS (decimal). Ex: 4.55 = R$ 4,55
 // =============================================================
 
+interface AddonInput {
+  product_id: string;
+  quantity: number;
+}
 interface Body {
   event_id: string;
   category_id?: string | null;
@@ -15,6 +19,7 @@ interface Body {
   buyer_email: string;
   buyer_phone: string;
   buyer_document: string; // CPF, somente dígitos
+  addons?: AddonInput[];
 }
 
 const onlyDigits = (s: string) => (s || "").replace(/\D+/g, "");
