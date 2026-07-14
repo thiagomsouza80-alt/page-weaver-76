@@ -535,6 +535,27 @@ const ContinuousScanner = ({ eventId }: Props) => {
         </div>
       )}
 
+      {lastTicket && (
+        <div className="bg-card border border-border rounded-xl p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-sm font-semibold">{lastTicket.holder_name}</div>
+              <div className="text-xs text-muted-foreground">
+                Código: {lastTicket.code}
+                {(lastTicket.category_name || lastTicket.category?.name) && (
+                  <> • {lastTicket.category_name || lastTicket.category?.name}</>
+                )}
+              </div>
+            </div>
+            <Button variant="ghost" size="sm" onClick={() => setLastTicket(null)}>
+              Fechar
+            </Button>
+          </div>
+          <TicketAddonsChecklist ticketId={lastTicket.id} eventId={eventId} />
+        </div>
+      )}
+
+
       <div className="bg-card border border-border rounded-xl p-4 space-y-3">
         <div className="flex items-center gap-2 text-sm font-medium">
           <Search className="h-4 w-4" /> Buscar por código
