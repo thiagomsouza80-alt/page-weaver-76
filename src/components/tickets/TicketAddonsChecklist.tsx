@@ -131,7 +131,7 @@ const TicketAddonsChecklist = ({ ticketId, eventId, compact }: Props) => {
                   {a.quantity}x {a.product_name}
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  {formatCents(a.unit_price_cents * a.quantity)}
+                  {centsToBRL(a.unit_price_cents * a.quantity)}
                   {a.delivered && a.delivered_at && (
                     <> • entregue {new Date(a.delivered_at).toLocaleTimeString("pt-BR")}</>
                   )}
