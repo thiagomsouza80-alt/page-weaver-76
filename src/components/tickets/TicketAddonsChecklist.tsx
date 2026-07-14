@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, Package, MapPin, Check, X } from "lucide-react";
-import { formatCents } from "@/lib/money";
+import { centsToBRL } from "@/lib/money";
 
 interface Props {
   ticketId: string;
