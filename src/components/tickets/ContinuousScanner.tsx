@@ -9,6 +9,7 @@ import {
   Zap, ZapOff, Search, CheckCircle, AlertCircle, XCircle, Loader2, Users,
   ShieldAlert, Gift,
 } from "lucide-react";
+import TicketAddonsChecklist from "@/components/tickets/TicketAddonsChecklist";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
