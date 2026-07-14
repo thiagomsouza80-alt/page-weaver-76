@@ -9,6 +9,7 @@ import {
   Zap, ZapOff, Search, CheckCircle, AlertCircle, XCircle, Loader2, Users,
   ShieldAlert, Gift,
 } from "lucide-react";
+import TicketAddonsChecklist from "@/components/tickets/TicketAddonsChecklist";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -69,6 +70,7 @@ const ContinuousScanner = ({ eventId }: Props) => {
   const [docChecked, setDocChecked] = useState(false);
   const [donationChecked, setDonationChecked] = useState(false);
   const [confirming, setConfirming] = useState(false);
+  const [lastTicket, setLastTicket] = useState<any>(null);
 
   const playSound = (kind: "valid" | "used" | "notfound" | "pending") => {
     if (!soundOn) return;
@@ -178,6 +180,7 @@ const ContinuousScanner = ({ eventId }: Props) => {
         if (status === "used") {
           res = { kind: "used", ticket: t };
           logResult = "used";
+          setLastTicket(t);
         } else if (status === "cancelled") {
           res = { kind: "cancelled", ticket: t };
           logResult = "cancelled";
@@ -195,6 +198,7 @@ const ContinuousScanner = ({ eventId }: Props) => {
           const updated = await finalizeUsed((t as any).id);
           res = { kind: "valid", ticket: updated };
           logResult = "valid";
+          setLastTicket(updated);
         }
       }
 
@@ -241,6 +245,7 @@ const ContinuousScanner = ({ eventId }: Props) => {
       });
       playSound("valid");
       setResult({ kind: "valid", ticket: updated });
+      setLastTicket(updated);
       if (resultTimeoutRef.current) window.clearTimeout(resultTimeoutRef.current);
       resultTimeoutRef.current = window.setTimeout(() => setResult(null), 2000);
       refreshStats();
@@ -529,6 +534,27 @@ const ContinuousScanner = ({ eventId }: Props) => {
           </div>
         </div>
       )}
+
+      {lastTicket && (
+        <div className="bg-card border border-border rounded-xl p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-sm font-semibold">{lastTicket.holder_name}</div>
+              <div className="text-xs text-muted-foreground">
+                Código: {lastTicket.code}
+                {(lastTicket.category_name || lastTicket.category?.name) && (
+                  <> • {lastTicket.category_name || lastTicket.category?.name}</>
+                )}
+              </div>
+            </div>
+            <Button variant="ghost" size="sm" onClick={() => setLastTicket(null)}>
+              Fechar
+            </Button>
+          </div>
+          <TicketAddonsChecklist ticketId={lastTicket.id} eventId={eventId} />
+        </div>
+      )}
+
 
       <div className="bg-card border border-border rounded-xl p-4 space-y-3">
         <div className="flex items-center gap-2 text-sm font-medium">
