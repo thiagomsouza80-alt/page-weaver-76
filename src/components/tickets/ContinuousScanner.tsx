@@ -180,6 +180,7 @@ const ContinuousScanner = ({ eventId }: Props) => {
         if (status === "used") {
           res = { kind: "used", ticket: t };
           logResult = "used";
+          setLastTicket(t);
         } else if (status === "cancelled") {
           res = { kind: "cancelled", ticket: t };
           logResult = "cancelled";
@@ -197,6 +198,7 @@ const ContinuousScanner = ({ eventId }: Props) => {
           const updated = await finalizeUsed((t as any).id);
           res = { kind: "valid", ticket: updated };
           logResult = "valid";
+          setLastTicket(updated);
         }
       }
 
