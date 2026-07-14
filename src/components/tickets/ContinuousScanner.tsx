@@ -245,6 +245,7 @@ const ContinuousScanner = ({ eventId }: Props) => {
       });
       playSound("valid");
       setResult({ kind: "valid", ticket: updated });
+      setLastTicket(updated);
       if (resultTimeoutRef.current) window.clearTimeout(resultTimeoutRef.current);
       resultTimeoutRef.current = window.setTimeout(() => setResult(null), 2000);
       refreshStats();
