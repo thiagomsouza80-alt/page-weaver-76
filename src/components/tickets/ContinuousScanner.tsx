@@ -70,6 +70,7 @@ const ContinuousScanner = ({ eventId }: Props) => {
   const [docChecked, setDocChecked] = useState(false);
   const [donationChecked, setDonationChecked] = useState(false);
   const [confirming, setConfirming] = useState(false);
+  const [lastTicket, setLastTicket] = useState<any>(null);
 
   const playSound = (kind: "valid" | "used" | "notfound" | "pending") => {
     if (!soundOn) return;
